@@ -7,3 +7,7 @@ export declare function initAuth(): Promise<{
     saveCreds: () => Promise<void>;
     authDir: string;
 }>;
+/**
+ * Remove todas as credenciais antigas ou revogadas da pasta auth/
+ */
+export declare function clearAuth(): Promise<void>;

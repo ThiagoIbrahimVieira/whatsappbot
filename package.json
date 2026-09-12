@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "web:dev": "npm --prefix web run dev",
-    "web:build": "npm --prefix web run build"
+    "web:build": "npm --prefix web run build",
+    "reset-auth": "node -e \"import('node:fs').then(fs => { fs.rmSync('auth', { recursive: true, force: true }); console.log('✅ Sessão antiga limpa com sucesso!'); })\""
   },
   "keywords": [
     "whatsapp",

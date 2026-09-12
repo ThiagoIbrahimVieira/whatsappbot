@@ -17,4 +17,19 @@ export async function initAuth() {
         authDir: AUTH_DIR,
     };
 }
+/**
+ * Remove todas as credenciais antigas ou revogadas da pasta auth/
+ */
+export async function clearAuth() {
+    try {
+        const entries = await fs.readdir(AUTH_DIR);
+        for (const entry of entries) {
+            await fs.rm(path.join(AUTH_DIR, entry), { recursive: true, force: true });
+        }
+        logger.info('🧹 Credenciais antigas de auth/ removidas com sucesso.');
+    }
+    catch (err) {
+        logger.warn({ err }, 'Aviso ao limpar pasta auth/');
+    }
+}
 //# sourceMappingURL=auth.js.map

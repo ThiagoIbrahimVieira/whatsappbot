@@ -1,6 +1,6 @@
 import makeWASocket, { DisconnectReason, Browsers, } from '@whiskeysockets/baileys';
 import qrcode from 'qrcode-terminal';
-import { initAuth } from './auth.js';
+import { initAuth, clearAuth } from './auth.js';
 import { messageRouter } from './message-router.js';
 import { logger } from '../utils/logger.js';
 import { config } from '../config/config.js';
@@ -97,7 +97,14 @@ export class WhatsAppConnection {
                     willReconnect: shouldReconnect,
                 }, `Conexão com WhatsApp encerrada (código: ${statusCode || 'desconhecido'})`);
                 if (statusCode === DisconnectReason.loggedOut) {
-                    logger.error('A sessão foi desvinculada no celular. Apague a pasta auth/ e execute novamente para escanear novo QR Code.');
+                    logger.warn('⚠️ A sessão anterior foi desvinculada no celular (código 401). Limpando pasta auth/ automaticamente para iniciar um novo pareamento limpo...');
+                    await clearAuth();
+                    this.reconnectAttempts = 0;
+                    setTimeout(() => {
+                        this.connect().catch((err) => {
+                            logger.error({ err }, 'Erro ao reiniciar conexão após limpeza de credenciais');
+                        });
+                    }, 1500);
                 }
                 else if (shouldReconnect) {
                     this.reconnectAttempts++;

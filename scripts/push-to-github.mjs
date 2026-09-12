@@ -103,7 +103,7 @@ async function upload() {
 
   console.log('📦 Criando novo Git Commit...');
   const commitData = await apiRequest('/git/commits', 'POST', {
-    message: 'feat: integracao do dashboard web com master switch, controle de acesso e whitelist',
+    message: 'fix: auto limpeza de credenciais desconectadas e script reset-auth para novo codigo',
     tree: treeData.sha,
     parents: [parentCommitSha],
   });
