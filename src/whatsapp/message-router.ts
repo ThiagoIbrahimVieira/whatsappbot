@@ -74,13 +74,15 @@ export class MessageRouter {
     const myPhone = (sock.user?.id || '').split(':')[0].split('@')[0] || config.PAIRING_NUMBER;
     const chatPhone = (chatId || '').split(':')[0].split('@')[0];
     const myLid = (sock.user?.lid || '').split(':')[0].split('@')[0];
+
+    // Uma mensagem é self-chat EXCLUSIVAMENTE se foi enviada por mim mesmo para o meu próprio número/chat
     const isSelfChat = Boolean(
-      chatId.endsWith('@lid') ||
-      (myLid && chatId.includes(myLid)) ||
-      (myPhone && chatPhone && myPhone === chatPhone) ||
-      (config.PAIRING_NUMBER && chatId.includes(config.PAIRING_NUMBER)) ||
-      (sock.user?.id && chatId.includes(sock.user.id.split('@')[0])) ||
-      !config.IGNORE_OWN_MESSAGES
+      key.fromMe && (
+        (myPhone && chatPhone && myPhone === chatPhone) ||
+        (myLid && chatId.includes(myLid)) ||
+        (config.PAIRING_NUMBER && chatId.includes(config.PAIRING_NUMBER)) ||
+        (sock.user?.id && chatId.includes(sock.user.id.split('@')[0]))
+      )
     );
 
     const rawText = (rawMessage.message?.conversation ||
@@ -89,7 +91,7 @@ export class MessageRouter {
       rawMessage.message?.videoMessage?.caption || '').trim();
     const isExplicitCommand = rawText.startsWith('/');
 
-    if (key.fromMe && config.IGNORE_OWN_MESSAGES && !isSelfChat && !isExplicitCommand) {
+    if (key.fromMe && !isSelfChat && !isExplicitCommand) {
       console.log(`⏩ Mensagem ignorada: enviada pela própria conta para terceiros (chat: ${chatId})`);
       logger.debug(
         { event: 'message_ignored_own', messageId },
@@ -188,6 +190,7 @@ export class MessageRouter {
     // =========================================================================
     const access = accessControl.isAllowed(chatId, extracted.senderJid, isSelfChat);
     if (!access.allowed) {
+      console.log(`⛔ Mensagem de ${senderName} (${chatId}) bloqueada pelo Controle de Acesso [Motivo: ${access.reason || 'Não autorizado'}]`);
       logger.info({ chat: chatId, reason: access.reason }, 'Mensagem rejeitada por controle de acesso');
       if (detected.type !== 'UNKNOWN' || parsedCmd.isCommand) {
         activityStore.addActivity({
