@@ -10,6 +10,24 @@ export class WhatsAppConnection {
     isConnected = false;
     reconnectAttempts = 0;
     isManualShutdown = false;
+    currentPairingCode = null;
+    currentQr = null;
+    getAuthInfo() {
+        return {
+            isConnected: this.isConnected,
+            pairingCode: this.currentPairingCode,
+            qr: this.currentQr,
+        };
+    }
+    async resetAuth() {
+        logger.info('Resetando credenciais e reiniciando pareamento...');
+        await this.disconnect();
+        await clearAuth();
+        this.currentPairingCode = null;
+        this.currentQr = null;
+        this.reconnectAttempts = 0;
+        await this.connect();
+    }
     /**
      * Inicia ou restabelece a conexão com os servidores do WhatsApp.
      */
@@ -37,6 +55,7 @@ export class WhatsAppConnection {
                         return;
                     const pairingCode = await this.sock.requestPairingCode(config.PAIRING_NUMBER);
                     const formatted = pairingCode.match(/.{1,4}/g)?.join('-') || pairingCode;
+                    this.currentPairingCode = formatted;
                     console.log('\n=============================================================');
                     console.log('🔑 CÓDIGO DE PAREAMENTO DO WHATSAPP GERADO:');
                     console.log(`\n                  👉  ${formatted}  👈\n`);
@@ -61,6 +80,7 @@ export class WhatsAppConnection {
             const { connection, lastDisconnect, qr } = update;
             // 1. Exibição do QR Code (apenas se NÃO estiver usando código de pareamento)
             if (qr && !usePairingCode) {
+                this.currentQr = qr;
                 try {
                     const { pngPath, htmlPath } = await generateQrArtifacts(qr);
                     console.log('\n=============================================================');
@@ -81,6 +101,8 @@ export class WhatsAppConnection {
             // 2. Conexão estabelecida com sucesso
             if (connection === 'open') {
                 this.isConnected = true;
+                this.currentPairingCode = null;
+                this.currentQr = null;
                 this.reconnectAttempts = 0;
                 logger.info({ event: 'whatsapp_connected' }, '✅ Conectado com sucesso ao WhatsApp com a sua própria conta!');
                 console.log('\n✅ Conexão ativa! Aguardando mídias em conversas privadas...\n');

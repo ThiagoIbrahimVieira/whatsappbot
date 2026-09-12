@@ -146,6 +146,31 @@
       <!-- ===================================================================== -->
       <section id="view-dashboard" class="space-y-6">
         
+        <!-- WhatsApp Disconnected Reconnect Banner -->
+        <div id="whatsapp-disconnect-banner" class="hidden p-4 md:p-5 rounded-2xl bg-amber-50 border border-amber-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-bold text-amber-950">WhatsApp Desconectado do Bot</h4>
+              <p class="text-xs text-amber-800 mt-0.5" id="whatsapp-disconnect-message">
+                A sessão precisa ser vinculada novamente para processar mensagens.
+              </p>
+              <div id="pairing-code-display" class="hidden mt-2 p-2 bg-white rounded-lg border border-amber-300 inline-flex items-center gap-2">
+                <span class="text-xs text-slate-600 font-medium">Código de Pareamento:</span>
+                <span id="pairing-code-val" class="font-mono text-base font-bold text-emerald-700 tracking-wider"></span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 w-full md:w-auto">
+            <button onclick="resetWhatsAppAuth()" class="w-full md:w-auto px-4 py-2 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              Resetar & Gerar Novo Código
+            </button>
+          </div>
+        </div>
+
         <!-- Metrics 4-Card Grid -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Card 1: Total Convertidos -->
@@ -643,15 +668,30 @@
         const statusText = document.getElementById('header-status-text');
         const sidebarPhone = document.getElementById('sidebar-phone');
         const sidebarUptime = document.getElementById('sidebar-uptime');
+        const disconnBanner = document.getElementById('whatsapp-disconnect-banner');
+        const pairingDisplay = document.getElementById('pairing-code-display');
+        const pairingVal = document.getElementById('pairing-code-val');
         
         if (data.connected) {
           statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Conectado';
           statusBadge.className = 'inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700';
           if (statusText) statusText.textContent = isBotActive ? 'Baileys Ativo' : 'Baileys Pausado';
+          if (statusPill) statusPill.className = 'hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
+          if (disconnBanner) disconnBanner.classList.add('hidden');
         } else {
           statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Desconectado';
           statusBadge.className = 'inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700';
           if (statusText) statusText.textContent = 'WhatsApp Desconectado';
+          if (statusPill) statusPill.className = 'hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+          if (disconnBanner) {
+            disconnBanner.classList.remove('hidden');
+            if (data.pairingCode) {
+              pairingDisplay.classList.remove('hidden');
+              pairingVal.textContent = data.pairingCode;
+            } else {
+              pairingDisplay.classList.add('hidden');
+            }
+          }
         }
 
         if (sidebarPhone) sidebarPhone.textContent = data.phoneNumber || 'Próprio WhatsApp';
@@ -887,6 +927,19 @@
         }
       } catch (e) {
         showToast('Erro ao alternar status do bot', 'error');
+      }
+    }
+
+    async function resetWhatsAppAuth() {
+      if (!confirm('Deseja limpar as credenciais antigas e solicitar um novo código de pareamento do WhatsApp?')) return;
+      try {
+        showToast('Limpando sessão antiga e solicitando novo código...', 'info');
+        const res = await fetch('/api/bot/reset-auth', { method: 'POST' });
+        const json = await res.json();
+        showToast(json.message || 'Sessão limpa! Aguarde o novo código...', 'success');
+        setTimeout(fetchStatus, 3000);
+      } catch (err) {
+        showToast('Erro ao resetar sessão: ' + err.message, 'error');
       }
     }
 

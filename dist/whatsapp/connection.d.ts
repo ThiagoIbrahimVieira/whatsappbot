@@ -8,6 +8,14 @@ export declare class WhatsAppConnection {
     private isConnected;
     private reconnectAttempts;
     private isManualShutdown;
+    private currentPairingCode;
+    private currentQr;
+    getAuthInfo(): {
+        isConnected: boolean;
+        pairingCode: string | null;
+        qr: string | null;
+    };
+    resetAuth(): Promise<void>;
     /**
      * Inicia ou restabelece a conexão com os servidores do WhatsApp.
      */

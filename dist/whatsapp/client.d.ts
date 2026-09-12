@@ -515,4 +515,10 @@ export declare const whatsappClient: {
         fetchAccountReachoutTimelock: () => Promise<import("@whiskeysockets/baileys").ReachoutTimelockState>;
         fetchNewChatMessageCap: () => Promise<import("@whiskeysockets/baileys").NewChatMessageCapInfo>;
     } | null;
+    getAuthInfo: () => {
+        isConnected: boolean;
+        pairingCode: string | null;
+        qr: string | null;
+    };
+    resetAuth: () => Promise<void>;
 };

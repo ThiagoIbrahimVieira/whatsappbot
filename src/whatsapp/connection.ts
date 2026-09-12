@@ -21,6 +21,26 @@ export class WhatsAppConnection {
   private isConnected = false;
   private reconnectAttempts = 0;
   private isManualShutdown = false;
+  private currentPairingCode: string | null = null;
+  private currentQr: string | null = null;
+
+  public getAuthInfo() {
+    return {
+      isConnected: this.isConnected,
+      pairingCode: this.currentPairingCode,
+      qr: this.currentQr,
+    };
+  }
+
+  public async resetAuth(): Promise<void> {
+    logger.info('Resetando credenciais e reiniciando pareamento...');
+    await this.disconnect();
+    await clearAuth();
+    this.currentPairingCode = null;
+    this.currentQr = null;
+    this.reconnectAttempts = 0;
+    await this.connect();
+  }
 
   /**
    * Inicia ou restabelece a conexão com os servidores do WhatsApp.
@@ -52,6 +72,7 @@ export class WhatsAppConnection {
           if (!this.sock || state.creds.registered) return;
           const pairingCode = await this.sock.requestPairingCode(config.PAIRING_NUMBER);
           const formatted = pairingCode.match(/.{1,4}/g)?.join('-') || pairingCode;
+          this.currentPairingCode = formatted;
 
           console.log('\n=============================================================');
           console.log('🔑 CÓDIGO DE PAREAMENTO DO WHATSAPP GERADO:');
@@ -79,6 +100,7 @@ export class WhatsAppConnection {
 
       // 1. Exibição do QR Code (apenas se NÃO estiver usando código de pareamento)
       if (qr && !usePairingCode) {
+        this.currentQr = qr;
         try {
           const { pngPath, htmlPath } = await generateQrArtifacts(qr);
 
@@ -100,6 +122,8 @@ export class WhatsAppConnection {
       // 2. Conexão estabelecida com sucesso
       if (connection === 'open') {
         this.isConnected = true;
+        this.currentPairingCode = null;
+        this.currentQr = null;
         this.reconnectAttempts = 0;
         logger.info(
           { event: 'whatsapp_connected' },

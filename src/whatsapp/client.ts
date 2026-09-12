@@ -5,4 +5,6 @@ export const whatsappClient = {
   stop: () => whatsAppConnection.disconnect(),
   isConnected: () => whatsAppConnection.getStatus(),
   getSocket: () => whatsAppConnection.getSocket(),
+  getAuthInfo: () => whatsAppConnection.getAuthInfo(),
+  resetAuth: () => whatsAppConnection.resetAuth(),
 };

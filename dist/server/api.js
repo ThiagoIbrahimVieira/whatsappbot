@@ -4,6 +4,7 @@ import { accessControl } from '../control/access-control.js';
 import { activityStore } from '../control/activity-store.js';
 import { jobQueue } from '../queue/job-queue.js';
 import { config } from '../config/config.js';
+import { logger } from '../utils/logger.js';
 function sendJson(res, statusCode, data) {
     const json = JSON.stringify(data);
     res.writeHead(statusCode, {
@@ -63,9 +64,12 @@ export async function handleApiRequest(req, res, urlPath) {
             ? `+${rawPhone.slice(0, 2)} ${rawPhone.slice(2, 4)} ***** ${rawPhone.slice(-4)}`
             : rawPhone;
         const memoryMb = Math.round(process.memoryUsage().rss / 1024 / 1024);
+        const authInfo = whatsappClient.getAuthInfo();
         const response = {
             connected: isConnected,
             whatsappStatus: isConnected ? 'Connected' : 'Disconnected',
+            pairingCode: authInfo.pairingCode,
+            qrCode: authInfo.qr,
             botActive: isBotActive,
             botStatus: isBotActive ? 'active' : 'paused',
             accessMode: accessControl.getAccessMode(),
@@ -103,9 +107,19 @@ export async function handleApiRequest(req, res, urlPath) {
                 authorName: settings.authorName,
             },
             allowedCount: contacts.length,
-            qrCode: null,
         };
         sendJson(res, 200, response);
+        return true;
+    }
+    // POST /api/bot/reset-auth
+    if (urlPath === '/api/bot/reset-auth' && req.method === 'POST') {
+        whatsappClient.resetAuth().catch((err) => {
+            logger.error({ err: err?.message }, 'Erro ao resetar autenticação do WhatsApp');
+        });
+        sendJson(res, 200, {
+            success: true,
+            message: 'Sessão limpa com sucesso. Um novo código ou QR Code está sendo gerado!',
+        });
         return true;
     }
     // POST /api/bot/toggle
