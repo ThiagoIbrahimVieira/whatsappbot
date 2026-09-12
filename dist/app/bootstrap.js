@@ -1,3 +1,4 @@
+import os from 'node:os';
 import { config } from '../config/config.js';
 import { logger } from '../utils/logger.js';
 import { cleanAllTmp } from '../utils/files.js';
@@ -6,6 +7,18 @@ import { getFFmpegPath } from '../media/ffmpeg.js';
 import { whatsappClient } from '../whatsapp/client.js';
 import { shutdownApp } from './lifecycle.js';
 import { webServer } from '../server/web-server.js';
+function getLocalIpAddresses() {
+    const interfaces = os.networkInterfaces();
+    const addresses = [];
+    for (const name of Object.keys(interfaces)) {
+        for (const iface of interfaces[name] || []) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                addresses.push(iface.address);
+            }
+        }
+    }
+    return addresses;
+}
 /**
  * Inicialização completa da aplicação.
  */
@@ -29,10 +42,18 @@ export async function bootstrap() {
     // 4. Inicia o servidor HTTP e API REST da Web GUI
     try {
         const port = await webServer.start(config.WEB_PORT, config.WEB_HOST);
+        const ips = getLocalIpAddresses();
         console.log('-------------------------------------------------------------');
-        console.log(`🌐 PAINEL DE CONTROLE WEB (GUI):`);
-        console.log(`   👉 No celular (Termux):  http://localhost:${port}`);
-        console.log(`   👉 Na rede local/Wi-Fi:  http://<IP_DO_CELULAR>:${port}`);
+        console.log(`🌐 PAINEL DE CONTROLE WEB:`);
+        console.log(`   👉 No celular (mesmo aparelho):  http://localhost:${port}`);
+        if (ips.length > 0) {
+            for (const ip of ips) {
+                console.log(`   👉 No PC / outro aparelho (Wi-Fi): http://${ip}:${port}`);
+            }
+        }
+        else {
+            console.log(`   👉 No PC / outro aparelho:         http://<IP_DO_CELULAR>:${port}`);
+        }
         console.log('-------------------------------------------------------------\n');
     }
     catch (err) {
