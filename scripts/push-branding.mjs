@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const TOKEN = process.env.GITHUB_TOKEN || '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';
+const TOKEN = process.env.GITHUB_TOKEN || '';
 const OWNER = 'ThiagoIbrahimVieira';
 const REPO = 'whatsappbot';
 const BRANCH = 'main';
