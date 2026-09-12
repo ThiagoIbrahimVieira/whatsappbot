@@ -28,7 +28,33 @@ export async function getFFmpegPath() {
             throw new ProcessingError(`O caminho do FFmpeg configurado em FFMPEG_PATH não foi encontrado: ${config.FFMPEG_PATH}`, '❌ O executável do FFmpeg não foi encontrado no caminho configurado.');
         }
     }
-    // 2. FFmpeg no PATH global do sistema
+    // 2. Caminhos conhecidos comuns (incluindo Termux no Android e Linux padrão)
+    const knownPaths = [
+        '/data/data/com.termux/files/usr/bin/ffmpeg',
+        '/usr/bin/ffmpeg',
+        '/usr/local/bin/ffmpeg',
+        '/opt/homebrew/bin/ffmpeg',
+    ];
+    for (const p of knownPaths) {
+        try {
+            await fs.access(p);
+            cachedFFmpegPath = p;
+            return cachedFFmpegPath;
+        }
+        catch {
+            // continua procurando
+        }
+    }
+    // 3. Tenta invocar diretamente pelo PATH do sistema operacional (funciona no Windows e Linux/Termux)
+    try {
+        await execFileAsync('ffmpeg', ['-version']);
+        cachedFFmpegPath = 'ffmpeg';
+        return cachedFFmpegPath;
+    }
+    catch {
+        // continua
+    }
+    // 4. Fallback por checagem de comando do sistema (where.exe ou which)
     try {
         const isWin = process.platform === 'win32';
         const checkCmd = isWin ? 'where.exe' : 'which';
@@ -42,7 +68,7 @@ export async function getFFmpegPath() {
     catch {
         // Não encontrado no PATH do sistema, tenta o fallback
     }
-    // 3. Fallback opcional: ffmpeg-static caso esteja disponível no ambiente
+    // 5. Fallback opcional: ffmpeg-static caso esteja disponível no ambiente
     try {
         const pkgName = 'ffmpeg-static';
         // @ts-ignore
@@ -57,7 +83,7 @@ export async function getFFmpegPath() {
     catch {
         // Falha ao carregar fallback estático
     }
-    throw new ProcessingError('FFmpeg não encontrado! Por favor, instale o FFmpeg no seu computador ou defina a variável FFMPEG_PATH no arquivo .env.', '❌ O processador de vídeos (FFmpeg) não está disponível no sistema.');
+    throw new ProcessingError('FFmpeg não encontrado! Por favor, instale o FFmpeg no Termux rodando "pkg install ffmpeg -y" ou defina FFMPEG_PATH no arquivo .env.', '❌ O processador de vídeos (FFmpeg) não está disponível no sistema. Rode "pkg install ffmpeg -y" no Termux.');
 }
 /**
  * Executa o FFmpeg com argumentos separados via execFile (sem shell, prevenindo injeção de comandos).
