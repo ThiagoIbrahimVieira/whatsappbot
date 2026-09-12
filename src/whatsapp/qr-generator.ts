@@ -8,7 +8,9 @@ let sharpModule: any = undefined;
 async function getSharp() {
   if (sharpModule !== undefined) return sharpModule;
   try {
-    const s = await import('sharp');
+    const pkg = 'sharp';
+    // @ts-ignore
+    const s = await import(pkg);
     sharpModule = s.default || s;
   } catch {
     sharpModule = null;

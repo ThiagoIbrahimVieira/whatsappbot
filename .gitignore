@@ -1,8 +1,6 @@
 # Dependências
 node_modules/
 
-# Build e compilação
-dist/
 
 # Variáveis de ambiente sensíveis
 .env

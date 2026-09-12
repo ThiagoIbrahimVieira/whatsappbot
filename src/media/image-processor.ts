@@ -12,9 +12,11 @@ let sharpModule: any = undefined;
 async function getSharp(): Promise<any> {
   if (sharpModule !== undefined) return sharpModule;
   try {
-    const s = await import('sharp');
+    const pkg = 'sharp';
+    // @ts-ignore
+    const s = await import(pkg);
     sharpModule = s.default || s;
-  } catch (err) {
+  } catch {
     logger.info('Sharp não disponível no ambiente (usando pipeline FFmpeg para processamento de imagens).');
     sharpModule = null;
   }
