@@ -31,7 +31,7 @@ export function isNewsletterChat(jid) {
 export function isPrivateChat(jid) {
     if (!jid)
         return false;
-    return jid.endsWith('@s.whatsapp.net');
+    return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@lid');
 }
 /**
  * Formata ou limpa um JID para exibição em logs sem expor informações sensíveis completas.

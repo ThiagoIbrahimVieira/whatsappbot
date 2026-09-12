@@ -31,7 +31,7 @@ export function isNewsletterChat(jid?: string | null): boolean {
  */
 export function isPrivateChat(jid?: string | null): boolean {
   if (!jid) return false;
-  return jid.endsWith('@s.whatsapp.net');
+  return jid.endsWith('@s.whatsapp.net') || jid.endsWith('@lid');
 }
 
 /**

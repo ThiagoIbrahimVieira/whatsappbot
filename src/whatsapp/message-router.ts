@@ -70,10 +70,14 @@ export class MessageRouter {
     // =========================================================================
     const myPhone = (sock.user?.id || '').split(':')[0].split('@')[0] || config.PAIRING_NUMBER;
     const chatPhone = (chatId || '').split(':')[0].split('@')[0];
+    const myLid = (sock.user?.lid || '').split(':')[0].split('@')[0];
     const isSelfChat = Boolean(
+      chatId.endsWith('@lid') ||
+      (myLid && chatId.includes(myLid)) ||
       (myPhone && chatPhone && myPhone === chatPhone) ||
       (config.PAIRING_NUMBER && chatId.includes(config.PAIRING_NUMBER)) ||
-      (sock.user?.id && chatId.includes(sock.user.id.split('@')[0]))
+      (sock.user?.id && chatId.includes(sock.user.id.split('@')[0])) ||
+      !config.IGNORE_OWN_MESSAGES
     );
 
     const rawText = (rawMessage.message?.conversation ||
@@ -83,7 +87,7 @@ export class MessageRouter {
     const isExplicitCommand = rawText.startsWith('/');
 
     if (key.fromMe && config.IGNORE_OWN_MESSAGES && !isSelfChat && !isExplicitCommand) {
-      console.log(`⏩ Mensagem ignorada: enviada pela própria conta para terceiros`);
+      console.log(`⏩ Mensagem ignorada: enviada pela própria conta para terceiros (chat: ${chatId})`);
       logger.debug(
         { event: 'message_ignored_own', messageId },
         'Mensagem enviada pela própria conta ignorada para evitar loop'
@@ -203,6 +207,7 @@ export class MessageRouter {
     }
 
     // Enfileira para processamento automático
+    console.log(`⚡ Mídia recebida (${detected.type})! Criando figurinha automaticamente sem precisar de comando...`);
     await this.queueMediaProcessing(sock, extracted, extracted);
   }
 
