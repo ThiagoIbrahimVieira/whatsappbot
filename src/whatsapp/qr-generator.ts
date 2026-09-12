@@ -2,8 +2,19 @@ import { createRequire } from 'node:module';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
-import sharp from 'sharp';
 import { logger } from '../utils/logger.js';
+
+let sharpModule: any = undefined;
+async function getSharp() {
+  if (sharpModule !== undefined) return sharpModule;
+  try {
+    const s = await import('sharp');
+    sharpModule = s.default || s;
+  } catch {
+    sharpModule = null;
+  }
+  return sharpModule;
+}
 
 const require = createRequire(import.meta.url);
 const QRCode = require('qrcode-terminal/vendor/QRCode');
@@ -46,8 +57,11 @@ export async function generateQrArtifacts(qrString: string): Promise<QrOutputRes
   const pngPath = path.resolve(process.cwd(), 'qrcode.png');
   const htmlPath = path.resolve(process.cwd(), 'qrcode.html');
 
-  // 1. Gera arquivo PNG em alta resolução cristalina
-  await sharp(Buffer.from(svg)).png().toFile(pngPath);
+  // 1. Gera arquivo PNG em alta resolução se sharp estiver disponível
+  const sharp = await getSharp();
+  if (sharp) {
+    await sharp(Buffer.from(svg)).png().toFile(pngPath);
+  }
 
   // 2. Gera página HTML moderna para visualização em qualquer navegador
   const htmlContent = `<!DOCTYPE html>
