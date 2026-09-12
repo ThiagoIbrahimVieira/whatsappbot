@@ -1,13 +1,14 @@
 import webpmux from 'node-webpmux';
 import { CONSTANTS } from '../config/constants.js';
+import { config } from '../config/config.js';
 import { logger } from '../utils/logger.js';
 
 /**
  * Cria o chunk EXIF para figurinhas do WhatsApp contendo o nome do pacote e autor.
  */
 export function createStickerExif(
-  packName: string = CONSTANTS.STICKER_PACK_NAME,
-  author: string = CONSTANTS.STICKER_PACK_AUTHOR
+  packName: string = config.STICKER_PACK_NAME || CONSTANTS.STICKER_PACK_NAME,
+  author: string = config.STICKER_PACK_AUTHOR || CONSTANTS.STICKER_PACK_AUTHOR
 ): Buffer {
   const json = {
     'sticker-pack-id': 'com.whatsapp.auto.sticker',
@@ -33,8 +34,8 @@ export function createStickerExif(
  */
 export async function addExifToWebp(
   webpBuffer: Buffer,
-  packName: string = CONSTANTS.STICKER_PACK_NAME,
-  author: string = CONSTANTS.STICKER_PACK_AUTHOR
+  packName: string = config.STICKER_PACK_NAME || CONSTANTS.STICKER_PACK_NAME,
+  author: string = config.STICKER_PACK_AUTHOR || CONSTANTS.STICKER_PACK_AUTHOR
 ): Promise<Buffer> {
   // Verifica se é um arquivo RIFF / WEBP válido
   if (

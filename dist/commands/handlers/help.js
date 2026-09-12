@@ -1,6 +1,8 @@
 export const handleHelp = async (ctx) => {
     const helpText = [
-        '🤖 *WhatsApp Auto Sticker — Comandos Disponíveis*',
+        '🤖 *𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪 | @𝚝𝚑𝚒𝚊𝚐𝚘_𝚙𝚕𝚊𝚢𝚎𝚛𝟾𝟿𝟶*',
+        '━━━━━━━━━━━━━━━━━━━━',
+        '✨ *Comandos Disponíveis:*',
         '',
         '• */sticker* ou */s* — Converte a mídia enviada ou citada em figurinha',
         '• */static* — Converte em figurinha estática (extrai frame se for vídeo/GIF)',
@@ -12,6 +14,8 @@ export const handleHelp = async (ctx) => {
         '• */help* — Exibe este menu de ajuda',
         '',
         '_💡 Dica: No modo automático, basta enviar uma foto, vídeo ou GIF diretamente no privado!_',
+        '',
+        '📸 *Instagram:* @𝚝𝚑𝚒𝚊𝚐𝚘_𝚙𝚕𝚊𝚢𝚎𝚛𝟾𝟿𝟶',
     ].join('\n');
     await ctx.reply(helpText);
 };

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { CONSTANTS } from './constants.js';
 
 const booleanString = (defaultValue: boolean) =>
   z
@@ -89,4 +90,14 @@ export const envSchema = z.object({
     })
     .optional()
     .default(''),
+
+  // Metadados do pacote de figurinhas (Marca pessoal)
+  STICKER_PACK_NAME: z
+    .string()
+    .optional()
+    .default(CONSTANTS.STICKER_PACK_NAME),
+  STICKER_PACK_AUTHOR: z
+    .string()
+    .optional()
+    .default(CONSTANTS.STICKER_PACK_AUTHOR),
 });

@@ -17,6 +17,8 @@ export declare const envSchema: z.ZodObject<{
     LOG_LEVEL: z.ZodDefault<z.ZodEnum<["fatal", "error", "warn", "info", "debug", "trace"]>>;
     FFMPEG_PATH: z.ZodDefault<z.ZodOptional<z.ZodEffects<z.ZodString, string, string>>>;
     PAIRING_NUMBER: z.ZodDefault<z.ZodOptional<z.ZodEffects<z.ZodEffects<z.ZodString, string, string>, string, string>>>;
+    STICKER_PACK_NAME: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+    STICKER_PACK_AUTHOR: z.ZodDefault<z.ZodOptional<z.ZodString>>;
 }, "strip", z.ZodTypeAny, {
     NODE_ENV: "development" | "production" | "test";
     AUTO_STICKER: boolean;
@@ -35,6 +37,8 @@ export declare const envSchema: z.ZodObject<{
     LOG_LEVEL: "fatal" | "error" | "warn" | "info" | "debug" | "trace";
     FFMPEG_PATH: string;
     PAIRING_NUMBER: string;
+    STICKER_PACK_NAME: string;
+    STICKER_PACK_AUTHOR: string;
 }, {
     NODE_ENV?: "development" | "production" | "test" | undefined;
     AUTO_STICKER?: string | boolean | undefined;
@@ -53,4 +57,6 @@ export declare const envSchema: z.ZodObject<{
     LOG_LEVEL?: "fatal" | "error" | "warn" | "info" | "debug" | "trace" | undefined;
     FFMPEG_PATH?: string | undefined;
     PAIRING_NUMBER?: string | undefined;
+    STICKER_PACK_NAME?: string | undefined;
+    STICKER_PACK_AUTHOR?: string | undefined;
 }>;

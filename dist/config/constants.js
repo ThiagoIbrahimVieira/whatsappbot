@@ -17,8 +17,8 @@ export const CONSTANTS = {
     // Concorrência padrão da fila
     DEFAULT_CONCURRENT_JOBS: 2,
     // Metadados do pacote de figurinhas (EXIF)
-    STICKER_PACK_NAME: 'WhatsApp Auto Sticker',
-    STICKER_PACK_AUTHOR: 'Auto Sticker',
+    STICKER_PACK_NAME: '𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪',
+    STICKER_PACK_AUTHOR: '@𝚝𝚑𝚒𝚊𝚐𝚘_𝚙𝚕𝚊𝚢𝚎𝚛𝟾𝟿𝟶',
     // Tempo de retenção de mensagens para prevenção de duplicatas (10 minutos em ms)
     MESSAGE_CACHE_TTL_MS: 10 * 60 * 1000,
     MESSAGE_CACHE_MAX_ITEMS: 1000,

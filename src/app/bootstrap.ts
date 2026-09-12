@@ -11,10 +11,10 @@ import { shutdownApp } from './lifecycle.js';
  */
 export async function bootstrap(): Promise<void> {
   console.log('\n=============================================================');
-  console.log('🚀 INICIANDO WHATSAPP AUTO STICKER (BOT PESSOAL)');
+  console.log('🚀 INICIANDO BOT — 𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪 | @𝚝𝚑𝚒𝚊𝚐𝚘_𝚙𝚕𝚊𝚢𝚎𝚛𝟾𝟿𝟶');
   console.log('=============================================================\n');
 
-  logger.info({ event: 'app_started', env: config.NODE_ENV }, 'Iniciando WhatsApp Auto Sticker...');
+  logger.info({ event: 'app_started', env: config.NODE_ENV }, 'Iniciando bot 𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪...');
 
   // 1. Limpeza de resíduos temporários de execuções anteriores
   await cleanAllTmp();

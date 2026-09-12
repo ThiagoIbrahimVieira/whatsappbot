@@ -9,8 +9,8 @@ export declare const CONSTANTS: {
     readonly DEFAULT_ANIMATED_FPS: 12;
     readonly MIN_ANIMATED_FPS: 8;
     readonly DEFAULT_CONCURRENT_JOBS: 2;
-    readonly STICKER_PACK_NAME: "WhatsApp Auto Sticker";
-    readonly STICKER_PACK_AUTHOR: "Auto Sticker";
+    readonly STICKER_PACK_NAME: "𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪";
+    readonly STICKER_PACK_AUTHOR: "@𝚝𝚑𝚒𝚊𝚐𝚘_𝚙𝚕𝚊𝚢𝚎𝚛𝟾𝟿𝟶";
     readonly MESSAGE_CACHE_TTL_MS: number;
     readonly MESSAGE_CACHE_MAX_ITEMS: 1000;
     readonly SUPPORTED_IMAGE_MIMES: readonly ["image/jpeg", "image/jpg", "image/png", "image/webp"];
