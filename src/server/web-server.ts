@@ -38,15 +38,17 @@ export class WebServer {
       this.server = http.createServer(async (req, res) => {
         try {
           const rawUrl = req.url || '/';
-          const [urlPath] = rawUrl.split('?');
+          const [splitUrl] = rawUrl.split('?');
+          const urlPath = splitUrl.length > 1 ? splitUrl.replace(/\/+$/, '') : splitUrl;
 
           // 1. API Endpoints
-          if (urlPath.startsWith('/api/')) {
+          if (urlPath.startsWith('/api')) {
             const handled = await handleApiRequest(req, res, urlPath);
             if (handled) return;
 
+            logger.warn({ method: req.method, urlPath }, 'Endpoint da API não encontrado');
             res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Endpoint não encontrado' }));
+            res.end(JSON.stringify({ error: `Endpoint não encontrado: ${req.method} ${urlPath}` }));
             return;
           }
 
