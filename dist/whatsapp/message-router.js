@@ -42,7 +42,7 @@ export class MessageRouter {
         // REGRA 2.1: DESCARTAR MENSAGENS HISTÓRICAS / ANTERIORES À INICIALIZAÇÃO DO BOT
         // =========================================================================
         const msgTimestamp = Number(rawMessage?.messageTimestamp);
-        if (msgTimestamp > 0 && msgTimestamp < this.botStartedAtSeconds) {
+        if (msgTimestamp > 0 && msgTimestamp < (this.botStartedAtSeconds - 120)) {
             logger.debug({ messageId, msgTimestamp, startedAt: this.botStartedAtSeconds }, 'Mensagem histórica ou recebida offline antes da inicialização do bot descartada');
             return;
         }
@@ -55,7 +55,9 @@ export class MessageRouter {
         // =========================================================================
         const myPhone = (sock.user?.id || '').split(':')[0].split('@')[0] || config.PAIRING_NUMBER;
         const chatPhone = (chatId || '').split(':')[0].split('@')[0];
-        const isSelfChat = Boolean(myPhone && chatPhone && myPhone === chatPhone);
+        const isSelfChat = Boolean((myPhone && chatPhone && myPhone === chatPhone) ||
+            (config.PAIRING_NUMBER && chatId.includes(config.PAIRING_NUMBER)) ||
+            (sock.user?.id && chatId.includes(sock.user.id.split('@')[0])));
         const rawText = (rawMessage.message?.conversation ||
             rawMessage.message?.extendedTextMessage?.text ||
             rawMessage.message?.imageMessage?.caption ||
