@@ -12,6 +12,9 @@ import { generateJobId } from '../utils/ids.js';
 import { logger } from '../utils/logger.js';
 import { config } from '../config/config.js';
 import { AppError } from '../utils/errors.js';
+import { botState } from '../control/bot-state.js';
+import { accessControl } from '../control/access-control.js';
+import { activityStore } from '../control/activity-store.js';
 export class MessageRouter {
     botStartedAtSeconds = Math.floor(Date.now() / 1000) - 10;
     /**
@@ -124,7 +127,45 @@ export class MessageRouter {
         const commandText = extracted.caption || extracted.text || '';
         const parsedCmd = parseCommand(commandText);
         console.log(`💬 Chat ${chatId} | Tipo: ${detected.type} | Texto: "${commandText}"`);
-        if (config.COMMANDS_ENABLED && parsedCmd.isCommand) {
+        const senderPhone = (extracted.senderJid || chatId || '').split(':')[0].split('@')[0];
+        const senderName = rawMessage.pushName || 'Desconhecido';
+        // =========================================================================
+        // REGRA 6.1: BOT MASTER SWITCH (ATIVO / PAUSADO VIA DASHBOARD)
+        // =========================================================================
+        if (!botState.isBotActive() && !isSelfChat) {
+            logger.info({ chat: chatId }, 'Mensagem ignorada: Bot está pausado no painel de controle');
+            if (detected.type !== 'UNKNOWN' || parsedCmd.isCommand) {
+                activityStore.addActivity({
+                    senderName,
+                    senderPhone,
+                    mediaType: (detected.type !== 'UNKNOWN' ? detected.type : 'STICKER'),
+                    status: 'Unauthorized',
+                    failureReason: 'Bot currently paused',
+                    commandUsed: parsedCmd.isCommand ? `/${parsedCmd.name}` : undefined,
+                });
+            }
+            return;
+        }
+        // =========================================================================
+        // REGRA 6.2: CONTROLE DE ACESSO (WHITELIST / ONLY ME / EVERYONE)
+        // =========================================================================
+        const access = accessControl.isAllowed(chatId, extracted.senderJid, isSelfChat);
+        if (!access.allowed) {
+            logger.info({ chat: chatId, reason: access.reason }, 'Mensagem rejeitada por controle de acesso');
+            if (detected.type !== 'UNKNOWN' || parsedCmd.isCommand) {
+                activityStore.addActivity({
+                    senderName,
+                    senderPhone,
+                    mediaType: (detected.type !== 'UNKNOWN' ? detected.type : 'STICKER'),
+                    status: 'Unauthorized',
+                    failureReason: access.reason || 'User not on Whitelist',
+                    commandUsed: parsedCmd.isCommand ? `/${parsedCmd.name}` : undefined,
+                });
+            }
+            return;
+        }
+        const currentSettings = botState.getSettings();
+        if (currentSettings.commandsEnabled && parsedCmd.isCommand) {
             console.log(`🤖 Executando comando /${parsedCmd.name}...`);
             await commandRouter.route({
                 message: extracted,
@@ -146,12 +187,12 @@ export class MessageRouter {
         if (!config.AUTO_STICKER) {
             return;
         }
-        // Verifica se o tipo específico está habilitado
-        if (detected.type === 'IMAGE' && !config.AUTO_IMAGE)
+        // Verifica se o tipo específico está habilitado no estado dinâmico
+        if (detected.type === 'IMAGE' && !currentSettings.autoImage)
             return;
-        if (detected.type === 'VIDEO' && !config.AUTO_VIDEO)
+        if (detected.type === 'VIDEO' && !currentSettings.autoVideo)
             return;
-        if (detected.type === 'GIF' && !config.AUTO_GIF)
+        if (detected.type === 'GIF' && !currentSettings.autoGif)
             return;
         // Se não for mídia suportada (ex: texto comum, áudio, documento, sticker) -> ignorar silenciosamente
         if (detected.type !== 'IMAGE' &&
@@ -188,6 +229,16 @@ export class MessageRouter {
                     // 3. Envia a figurinha gerada de volta para o chat privado
                     await stickerSender.sendSticker(sock, sourceMessage.chatId, result.outputBuffer, sourceMessage.rawMessage, { isAnimated: result.isAnimated });
                     console.log(`✅ Figurinha entregue com sucesso para ${sourceMessage.chatId}!`);
+                    activityStore.addActivity({
+                        senderName: sourceMessage.rawMessage?.pushName || 'Desconhecido',
+                        senderPhone: (sourceMessage.senderJid || sourceMessage.chatId).split(':')[0].split('@')[0],
+                        mediaType: mediaTarget.mediaType,
+                        status: 'Processed',
+                        processingTimeMs: result.processingTimeMs,
+                        sizeKb: Math.round(result.sizeBytes / 1024),
+                        commandUsed: sourceMessage.caption || sourceMessage.text ? 'Manual' : 'Auto-detect',
+                    });
+                    accessControl.incrementConverted((sourceMessage.senderJid || sourceMessage.chatId).split(':')[0].split('@')[0]);
                     return result;
                 }
                 finally {
@@ -199,6 +250,14 @@ export class MessageRouter {
         catch (err) {
             console.error(`❌ Falha ao processar figurinha: ${err?.message || err}`);
             logger.error({ err, jobId }, 'Erro durante processamento do job de figurinha');
+            activityStore.addActivity({
+                senderName: sourceMessage.rawMessage?.pushName || 'Desconhecido',
+                senderPhone: (sourceMessage.senderJid || sourceMessage.chatId).split(':')[0].split('@')[0],
+                mediaType: mediaTarget.mediaType,
+                status: 'Failed',
+                failureReason: err?.message || 'Erro no processamento',
+                commandUsed: sourceMessage.caption || sourceMessage.text ? 'Manual' : 'Auto-detect',
+            });
             // Se falhar em conversa privada, envia uma mensagem amigável de erro
             const friendlyMsg = err instanceof AppError
                 ? err.userFriendlyMessage

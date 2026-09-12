@@ -29,6 +29,8 @@ sleep 2
 
 if kill -0 "$BOT_PID" 2>/dev/null; then
     echo "✅ Bot iniciado com sucesso em segundo plano (PID: $BOT_PID)!"
+    echo "🌐 Painel Web: http://localhost:3000"
+    echo "📱 Acesso na rede local: http://<IP-DO-CELULAR>:3000"
     echo "📄 Para ver os logs em tempo real, execute:"
     echo "   tail -f $PROJECT_DIR/tmp/bot.log"
 else

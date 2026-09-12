@@ -100,4 +100,15 @@ export const envSchema = z.object({
     .string()
     .optional()
     .default(CONSTANTS.STICKER_PACK_AUTHOR),
+
+  // Configurações do servidor Web GUI
+  WEB_PORT: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(65535)
+    .default(3000),
+  WEB_HOST: z
+    .string()
+    .default('0.0.0.0'),
 });

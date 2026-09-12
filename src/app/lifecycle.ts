@@ -1,6 +1,7 @@
 import { cleanAllTmp } from '../utils/files.js';
 import { whatsappClient } from '../whatsapp/client.js';
 import { jobQueue } from '../queue/job-queue.js';
+import { webServer } from '../server/web-server.js';
 import { logger } from '../utils/logger.js';
 
 /**
@@ -12,11 +13,15 @@ export async function shutdownApp(): Promise<void> {
   // 1. Limpa jobs pendentes na fila
   jobQueue.clear();
 
-  // 2. Encerra socket do WhatsApp
+  // 2. Encerra o servidor web
+  await webServer.stop();
+
+  // 3. Encerra socket do WhatsApp
   await whatsappClient.stop();
 
-  // 3. Limpa diretórios temporários
+  // 4. Limpa diretórios temporários
   await cleanAllTmp();
 
   logger.info('Aplicação encerrada com sucesso.');
 }
+

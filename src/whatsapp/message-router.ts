@@ -15,6 +15,9 @@ import { config } from '../config/config.js';
 import type { ExtractedMessage } from '../types/message.js';
 import type { Job } from '../queue/job-types.js';
 import { AppError } from '../utils/errors.js';
+import { botState } from '../control/bot-state.js';
+import { accessControl } from '../control/access-control.js';
+import { activityStore } from '../control/activity-store.js';
 
 export class MessageRouter {
   private readonly botStartedAtSeconds: number = Math.floor(Date.now() / 1000) - 10;
@@ -159,7 +162,49 @@ export class MessageRouter {
 
     console.log(`💬 Chat ${chatId} | Tipo: ${detected.type} | Texto: "${commandText}"`);
 
-    if (config.COMMANDS_ENABLED && parsedCmd.isCommand) {
+    const senderPhone = (extracted.senderJid || chatId || '').split(':')[0].split('@')[0];
+    const senderName = rawMessage.pushName || 'Desconhecido';
+
+    // =========================================================================
+    // REGRA 6.1: BOT MASTER SWITCH (ATIVO / PAUSADO VIA DASHBOARD)
+    // =========================================================================
+    if (!botState.isBotActive() && !isSelfChat) {
+      logger.info({ chat: chatId }, 'Mensagem ignorada: Bot está pausado no painel de controle');
+      if (detected.type !== 'UNKNOWN' || parsedCmd.isCommand) {
+        activityStore.addActivity({
+          senderName,
+          senderPhone,
+          mediaType: (detected.type !== 'UNKNOWN' ? detected.type : 'STICKER') as any,
+          status: 'Unauthorized',
+          failureReason: 'Bot currently paused',
+          commandUsed: parsedCmd.isCommand ? `/${parsedCmd.name}` : undefined,
+        });
+      }
+      return;
+    }
+
+    // =========================================================================
+    // REGRA 6.2: CONTROLE DE ACESSO (WHITELIST / ONLY ME / EVERYONE)
+    // =========================================================================
+    const access = accessControl.isAllowed(chatId, extracted.senderJid, isSelfChat);
+    if (!access.allowed) {
+      logger.info({ chat: chatId, reason: access.reason }, 'Mensagem rejeitada por controle de acesso');
+      if (detected.type !== 'UNKNOWN' || parsedCmd.isCommand) {
+        activityStore.addActivity({
+          senderName,
+          senderPhone,
+          mediaType: (detected.type !== 'UNKNOWN' ? detected.type : 'STICKER') as any,
+          status: 'Unauthorized',
+          failureReason: access.reason || 'User not on Whitelist',
+          commandUsed: parsedCmd.isCommand ? `/${parsedCmd.name}` : undefined,
+        });
+      }
+      return;
+    }
+
+    const currentSettings = botState.getSettings();
+
+    if (currentSettings.commandsEnabled && parsedCmd.isCommand) {
       console.log(`🤖 Executando comando /${parsedCmd.name}...`);
       await commandRouter.route({
         message: extracted,
@@ -188,10 +233,10 @@ export class MessageRouter {
       return;
     }
 
-    // Verifica se o tipo específico está habilitado
-    if (detected.type === 'IMAGE' && !config.AUTO_IMAGE) return;
-    if (detected.type === 'VIDEO' && !config.AUTO_VIDEO) return;
-    if (detected.type === 'GIF' && !config.AUTO_GIF) return;
+    // Verifica se o tipo específico está habilitado no estado dinâmico
+    if (detected.type === 'IMAGE' && !currentSettings.autoImage) return;
+    if (detected.type === 'VIDEO' && !currentSettings.autoVideo) return;
+    if (detected.type === 'GIF' && !currentSettings.autoGif) return;
 
     // Se não for mídia suportada (ex: texto comum, áudio, documento, sticker) -> ignorar silenciosamente
     if (
@@ -263,6 +308,18 @@ export class MessageRouter {
 
           console.log(`✅ Figurinha entregue com sucesso para ${sourceMessage.chatId}!`);
 
+          activityStore.addActivity({
+            senderName: (sourceMessage.rawMessage as any)?.pushName || 'Desconhecido',
+            senderPhone: (sourceMessage.senderJid || sourceMessage.chatId).split(':')[0].split('@')[0],
+            mediaType: mediaTarget.mediaType as any,
+            status: 'Processed',
+            processingTimeMs: result.processingTimeMs,
+            sizeKb: Math.round(result.sizeBytes / 1024),
+            commandUsed: sourceMessage.caption || sourceMessage.text ? 'Manual' : 'Auto-detect',
+          });
+
+          accessControl.incrementConverted((sourceMessage.senderJid || sourceMessage.chatId).split(':')[0].split('@')[0]);
+
           return result;
         } finally {
           // Garante a limpeza completa dos arquivos temporários após conclusão ou erro
@@ -272,6 +329,15 @@ export class MessageRouter {
     } catch (err: any) {
       console.error(`❌ Falha ao processar figurinha: ${err?.message || err}`);
       logger.error({ err, jobId }, 'Erro durante processamento do job de figurinha');
+
+      activityStore.addActivity({
+        senderName: (sourceMessage.rawMessage as any)?.pushName || 'Desconhecido',
+        senderPhone: (sourceMessage.senderJid || sourceMessage.chatId).split(':')[0].split('@')[0],
+        mediaType: mediaTarget.mediaType as any,
+        status: 'Failed',
+        failureReason: err?.message || 'Erro no processamento',
+        commandUsed: sourceMessage.caption || sourceMessage.text ? 'Manual' : 'Auto-detect',
+      });
 
       // Se falhar em conversa privada, envia uma mensagem amigável de erro
       const friendlyMsg =

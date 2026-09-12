@@ -5,6 +5,7 @@ import { registerCleanupHooks } from '../utils/cleanup.js';
 import { getFFmpegPath } from '../media/ffmpeg.js';
 import { whatsappClient } from '../whatsapp/client.js';
 import { shutdownApp } from './lifecycle.js';
+import { webServer } from '../server/web-server.js';
 
 /**
  * Inicialização completa da aplicação.
@@ -30,6 +31,19 @@ export async function bootstrap(): Promise<void> {
   // 3. Registra os hooks de encerramento seguro
   registerCleanupHooks(shutdownApp);
 
-  // 4. Inicia a conexão com o WhatsApp
+  // 4. Inicia o servidor HTTP e API REST da Web GUI
+  try {
+    const port = await webServer.start(config.WEB_PORT, config.WEB_HOST);
+    console.log('-------------------------------------------------------------');
+    console.log(`🌐 PAINEL DE CONTROLE WEB (GUI):`);
+    console.log(`   👉 No celular (Termux):  http://localhost:${port}`);
+    console.log(`   👉 Na rede local/Wi-Fi:  http://<IP_DO_CELULAR>:${port}`);
+    console.log('-------------------------------------------------------------\n');
+  } catch (err) {
+    logger.error({ err }, 'Não foi possível iniciar o servidor HTTP da Web GUI');
+  }
+
+  // 5. Inicia a conexão com o WhatsApp
   await whatsappClient.start();
 }
+

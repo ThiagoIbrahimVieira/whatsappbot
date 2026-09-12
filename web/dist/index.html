@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhatsApp Auto Sticker - Painel de Controle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    [x-cloak] { display: none !important; }
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-[#0F172A] antialiased min-h-screen flex flex-col md:flex-row">
+
+  <!-- ========================================================================= -->
+  <!-- DESKTOP SIDEBAR -->
+  <!-- ========================================================================= -->
+  <aside class="hidden md:flex flex-col w-64 bg-white border-r border-slate-200/80 h-screen sticky top-0 shrink-0 z-20 select-none">
+    <div class="p-6 pb-5 flex items-center gap-3">
+      <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-slate-900 text-white font-bold tracking-tighter shadow-sm overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-tr from-emerald-600 to-teal-400 opacity-20"></div>
+        <span class="relative text-base tracking-normal font-black font-mono">TT</span>
+        <span id="sidebar-online-indicator" class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <span class="font-bold text-sm tracking-tight text-slate-900 truncate">Auto Sticker</span>
+        <span class="text-[11px] text-slate-500 font-medium truncate">Dashboard de Controle</span>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="flex-1 px-3 space-y-1.5 py-3">
+      <button onclick="navigate('dashboard')" id="nav-btn-dashboard" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors bg-emerald-50 text-emerald-800">
+        <div class="flex items-center gap-3">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-emerald-600"></i>
+          <span>Dashboard</span>
+        </div>
+      </button>
+      <button onclick="navigate('activity')" id="nav-btn-activity" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="activity" class="w-4 h-4"></i>
+          <span>Atividade</span>
+        </div>
+        <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Live</span>
+      </button>
+      <button onclick="navigate('access')" id="nav-btn-access" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Controle de Acesso</span>
+        </div>
+        <span id="nav-whitelist-count" class="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
+      </button>
+      <button onclick="navigate('settings')" id="nav-btn-settings" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Configurações</span>
+        </div>
+      </button>
+    </nav>
+
+    <!-- Sidebar Footer / WhatsApp Info Card -->
+    <div class="p-3 border-t border-slate-100 bg-slate-50/50">
+      <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-xs space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">WhatsApp</span>
+          <span id="sidebar-status-badge" class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Conectado
+          </span>
+        </div>
+        <div>
+          <div id="sidebar-phone" class="font-mono text-xs font-bold text-slate-800 truncate">Próprio Número</div>
+          <div id="sidebar-uptime" class="text-[11px] text-slate-500 mt-0.5">Uptime: 0m</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTENT AREA -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 flex flex-col min-w-0 pb-20 md:pb-8">
+    
+    <!-- Top Header -->
+    <header class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-4 flex items-center justify-between gap-4">
+      <div>
+        <h1 id="page-title" class="text-lg md:text-xl font-bold text-slate-900 tracking-tight">WhatsApp Auto Sticker</h1>
+        <p id="page-subtitle" class="text-xs text-slate-500 hidden sm:block">Controle de automação de figurinhas e fila de conversão ao vivo.</p>
+      </div>
+
+      <!-- Master Switch & Quick Actions -->
+      <div class="flex items-center gap-3">
+        <!-- Status Pill -->
+        <div id="header-status-pill" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="header-status-text">Baileys Ativo</span>
+        </div>
+
+        <!-- Master Switch Button -->
+        <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
+          <span class="text-xs font-bold text-slate-700 hidden sm:inline">Bot:</span>
+          <button id="master-switch-btn" onclick="toggleBotMaster()" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-500 focus:outline-none">
+            <span id="master-switch-thumb" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-5"></span>
+          </button>
+          <span id="master-switch-label" class="text-xs font-bold text-emerald-700">ATIVO</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content Container -->
+    <div class="p-4 md:p-8 max-w-7xl mx-auto w-full space-y-6">
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 1: DASHBOARD -->
+      <!-- ===================================================================== -->
+      <section id="view-dashboard" class="space-y-6">
+        
+        <!-- Metrics 4-Card Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Card 1: Total Convertidos -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-xs font-semibold">Figurinhas Criadas</span>
+              <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div id="metric-total-stickers" class="text-2xl md:text-3xl font-extrabold text-slate-900 font-mono">0</div>
+            <p class="text-[11px] text-slate-500 flex items-center gap-1">
+              <span class="text-emerald-600 font-semibold">100%</span> taxa de sucesso
+            </p>
+          </div>
+
+          <!-- Card 2: Imagens Convertidas -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-xs font-semibold">Fotos Estáticas</span>
+              <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <i data-lucide="file-image" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div id="metric-image-stickers" class="text-2xl md:text-3xl font-extrabold text-slate-900 font-mono">0</div>
+            <p class="text-[11px] text-slate-500">Sharp (WebP 512x512)</p>
+          </div>
+
+          <!-- Card 3: Vídeos / GIFs -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-xs font-semibold">Vídeos / Animados</span>
+              <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <i data-lucide="video" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div id="metric-video-stickers" class="text-2xl md:text-3xl font-extrabold text-slate-900 font-mono">0</div>
+            <p class="text-[11px] text-slate-500">FFmpeg (WebP Animado &lt;500KB)</p>
+          </div>
+
+          <!-- Card 4: Fila / Atividade -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-xs font-semibold">Fila / Espera</span>
+              <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <i data-lucide="clock" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div id="metric-queue-length" class="text-2xl md:text-3xl font-extrabold text-slate-900 font-mono">0</div>
+            <p class="text-[11px] text-slate-500">JobQueue sequencial</p>
+          </div>
+        </div>
+
+        <!-- 2-Column Grid: Quick Automation Switches + Recent Mini Stream -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left: Quick Automation Switches (5 cols) -->
+          <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
+                <h3 class="text-sm font-bold text-slate-900">Automação Rápida</h3>
+              </div>
+              <span class="text-xs text-slate-500">Tempo real</span>
+            </div>
+
+            <div class="space-y-3">
+              <!-- Switch: Auto Image -->
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 transition-colors">
+                <div>
+                  <span class="text-xs font-semibold text-slate-900 block">Fotos Automáticas</span>
+                  <span class="text-[11px] text-slate-500 block">Converte fotos recebidas sem comando</span>
+                </div>
+                <input type="checkbox" id="switch-auto-image" onchange="updateQuickSetting('autoImage', this.checked)" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer" checked>
+              </div>
+
+              <!-- Switch: Auto Video -->
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 transition-colors">
+                <div>
+                  <span class="text-xs font-semibold text-slate-900 block">Vídeos Curtos Automáticos</span>
+                  <span class="text-[11px] text-slate-500 block">Converte vídeos &lt;10s para figurinhas</span>
+                </div>
+                <input type="checkbox" id="switch-auto-video" onchange="updateQuickSetting('autoVideo', this.checked)" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer" checked>
+              </div>
+
+              <!-- Switch: Auto GIF -->
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 transition-colors">
+                <div>
+                  <span class="text-xs font-semibold text-slate-900 block">GIFs Automáticos</span>
+                  <span class="text-[11px] text-slate-500 block">Converte reproduções em loop</span>
+                </div>
+                <input type="checkbox" id="switch-auto-gif" onchange="updateQuickSetting('autoGif', this.checked)" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer" checked>
+              </div>
+
+              <!-- Switch: Commands -->
+              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 transition-colors">
+                <div>
+                  <span class="text-xs font-semibold text-slate-900 block">Comandos de Texto</span>
+                  <span class="text-[11px] text-slate-500 block">Habilita /sticker, /ping, /help</span>
+                </div>
+                <input type="checkbox" id="switch-commands" onchange="updateQuickSetting('commandsEnabled', this.checked)" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer" checked>
+              </div>
+            </div>
+
+            <!-- Access Mode Indicator Callout -->
+            <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/60 flex items-center justify-between">
+              <div>
+                <span class="text-xs font-bold text-emerald-900 block">Modo de Acesso Atual</span>
+                <span id="dashboard-access-label" class="text-xs text-emerald-700 font-medium">Somente Eu (Only Me)</span>
+              </div>
+              <button onclick="navigate('access')" class="text-xs font-bold text-emerald-700 bg-white px-3 py-1.5 rounded-lg border border-emerald-300 shadow-xs hover:bg-emerald-50">
+                Gerenciar
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Recent Activity Stream (7 cols) -->
+          <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4 text-emerald-600"></i>
+                <h3 class="text-sm font-bold text-slate-900">Atividades Recentes</h3>
+              </div>
+              <button onclick="navigate('activity')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Ver todas &rarr;</button>
+            </div>
+
+            <!-- Activity List -->
+            <div id="dashboard-activity-list" class="divide-y divide-slate-100 max-h-[340px] overflow-y-auto pr-1">
+              <div class="py-6 text-center text-xs text-slate-400">Nenhuma atividade registrada ainda. Envie uma foto ou vídeo para começar!</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 2: ACTIVITY STREAM -->
+      <!-- ===================================================================== -->
+      <section id="view-activity" class="space-y-6 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Histórico de Atividade</h2>
+            <p class="text-xs text-slate-500">Registro em tempo real de mensagens recebidas, conversões e tentativas não autorizadas.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="clearActivities()" class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-xs">
+              Limpar Histórico
+            </button>
+            <button onclick="refreshData()" class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 shadow-xs flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              Atualizar
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200/80">
+                <tr>
+                  <th class="py-3 px-4">Hora</th>
+                  <th class="py-3 px-4">Chat / Usuário</th>
+                  <th class="py-3 px-4">Tipo</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4">Duração</th>
+                  <th class="py-3 px-4">Detalhes</th>
+                </tr>
+              </thead>
+              <tbody id="activity-table-body" class="divide-y divide-slate-100 text-slate-700">
+                <tr>
+                  <td colspan="6" class="py-8 text-center text-slate-400">Nenhum evento registrado ainda.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 3: ACCESS CONTROL -->
+      <!-- ===================================================================== -->
+      <section id="view-access" class="space-y-6 hidden">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Controle de Acesso</h2>
+          <p class="text-xs text-slate-500">Defina quem pode interagir com o bot e crie sua lista de contatos autorizados.</p>
+        </div>
+
+        <!-- 3 Access Mode Selector Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Option 1: Only Me -->
+          <div onclick="selectAccessMode('only_me')" id="mode-card-only_me" class="cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 hover:border-slate-300 shadow-xs relative">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                <i data-lucide="lock" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Máxima Privacidade</span>
+            </div>
+            <div class="mt-4">
+              <h3 class="text-sm font-bold text-slate-900">Somente Eu (Only Me)</h3>
+              <p class="text-xs text-slate-500 mt-1">Apenas mensagens enviadas no seu próprio chat privado são convertidas.</p>
+            </div>
+          </div>
+
+          <!-- Option 2: Whitelist (Recommended) -->
+          <div onclick="selectAccessMode('whitelist')" id="mode-card-whitelist" class="cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-emerald-500 shadow-sm ring-2 ring-emerald-500/20 relative">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <i data-lucide="user-check" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Recomendado</span>
+            </div>
+            <div class="mt-4">
+              <h3 class="text-sm font-bold text-slate-900">Lista Permitida (Whitelist)</h3>
+              <p class="text-xs text-slate-500 mt-1">Apenas os contatos adicionados à lista abaixo podem usar o bot.</p>
+            </div>
+          </div>
+
+          <!-- Option 3: Everyone -->
+          <div onclick="selectAccessMode('everyone')" id="mode-card-everyone" class="cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 hover:border-slate-300 shadow-xs relative">
+            <div class="flex items-start justify-between">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                <i data-lucide="users" class="w-5 h-5"></i>
+              </div>
+              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Acesso Livre</span>
+            </div>
+            <div class="mt-4">
+              <h3 class="text-sm font-bold text-slate-900">Todos (Everyone)</h3>
+              <p class="text-xs text-slate-500 mt-1">Qualquer pessoa que mandar foto ou vídeo no privado recebe a figurinha.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Whitelist Contact Manager Section -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Contatos Autorizados na Whitelist</h3>
+              <p class="text-xs text-slate-500">Pessoas autorizadas a enviar mídia para o bot gerar figurinhas.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <input type="text" id="contact-search-input" oninput="filterContacts(this.value)" placeholder="Buscar por nome ou número..." class="text-xs border border-slate-200 rounded-xl px-3 py-2 w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <button onclick="openAddModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm flex items-center gap-1.5 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Adicionar Pessoa
+              </button>
+            </div>
+          </div>
+
+          <!-- Contact Cards Grid -->
+          <div id="whitelist-contacts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div class="col-span-full py-8 text-center text-xs text-slate-400">Nenhum contato na lista permitida. Clique em "Adicionar Pessoa" para liberar amigos ou familiares.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 4: SETTINGS -->
+      <!-- ===================================================================== -->
+      <section id="view-settings" class="space-y-6 hidden">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Configurações do Sistema</h2>
+          <p class="text-xs text-slate-500">Ajuste os parâmetros de mídia, metadados do pacote de figurinhas e limites de segurança.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-8 space-y-6">
+            <!-- Sticker Metadata Card -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
+                Metadados do Pacote Exif
+              </h3>
+              <p class="text-xs text-slate-500">Informações que aparecem quando alguém toca na figurinha no WhatsApp.</p>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Pacote (Pack Name)</label>
+                  <input type="text" id="settings-pack-name" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500" value="Auto Sticker Bot">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Autor (Author)</label>
+                  <input type="text" id="settings-pack-author" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500" value="Criado por mim">
+                </div>
+              </div>
+
+              <div class="pt-2 flex justify-end">
+                <button onclick="savePackSettings()" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors">
+                  Salvar Metadados
+                </button>
+              </div>
+            </div>
+
+            <!-- Engine & Security Info Card -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="shield" class="w-4 h-4 text-emerald-600"></i>
+                Regras de Segurança e Anti-Loop
+              </h3>
+              <ul class="text-xs text-slate-600 space-y-2">
+                <li class="flex items-center gap-2">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                  <span><b>Anti-loop ativo:</b> Ignora figurinhas enviadas para evitar auto-respostas infinitas.</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                  <span><b>Grupos ignorados:</b> Por padrão, mensagens em grupos são ignoradas para economizar bateria.</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+                  <span><b>Deduplicação de mensagens:</b> Cache LRU de 500 IDs previne reprocessamento de retentativas de rede.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Right Column: System Telemetry (4 cols) -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i data-lucide="cpu" class="w-4 h-4 text-emerald-600"></i>
+                Telemetria do Sistema
+              </h3>
+              <div class="space-y-3 text-xs">
+                <div class="flex justify-between py-1 border-b border-slate-100">
+                  <span class="text-slate-500">Plataforma</span>
+                  <span id="telemetry-platform" class="font-mono font-semibold text-slate-800">-</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-100">
+                  <span class="text-slate-500">Node.js</span>
+                  <span id="telemetry-node" class="font-mono font-semibold text-slate-800">-</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-100">
+                  <span class="text-slate-500">Memória RAM</span>
+                  <span id="telemetry-ram" class="font-mono font-semibold text-slate-800">-</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-100">
+                  <span class="text-slate-500">Sharp (Pipeline)</span>
+                  <span class="font-mono font-semibold text-emerald-600">Ativo</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-100">
+                  <span class="text-slate-500">FFmpeg (Vídeo)</span>
+                  <span class="font-mono font-semibold text-emerald-600">Ativo</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MOBILE BOTTOM NAVIGATION BAR -->
+  <!-- ========================================================================= -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2 flex items-center justify-around">
+    <button onclick="navigate('dashboard')" id="mobile-nav-dashboard" class="flex flex-col items-center gap-1 text-emerald-600">
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold">Início</span>
+    </button>
+    <button onclick="navigate('activity')" id="mobile-nav-activity" class="flex flex-col items-center gap-1 text-slate-500">
+      <i data-lucide="activity" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Atividade</span>
+    </button>
+    <button onclick="navigate('access')" id="mobile-nav-access" class="flex flex-col items-center gap-1 text-slate-500">
+      <i data-lucide="shield-check" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Acesso</span>
+    </button>
+    <button onclick="navigate('settings')" id="mobile-nav-settings" class="flex flex-col items-center gap-1 text-slate-500">
+      <i data-lucide="sliders" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium">Ajustes</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- ADD PERSON MODAL -->
+  <!-- ========================================================================= -->
+  <div id="add-person-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="text-base font-bold text-slate-900">Adicionar à Whitelist</h3>
+        <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-500">Insira o nome e o número de WhatsApp (com DDD) da pessoa que você deseja liberar para usar o bot.</p>
+
+      <form onsubmit="submitAddPerson(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Nome ou Apelido</label>
+          <input type="text" id="modal-person-name" required placeholder="Ex: Lucas Amigo" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Número de Telefone (WhatsApp)</label>
+          <input type="text" id="modal-person-phone" required placeholder="Ex: 5511999998888" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2.5 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <span class="text-[11px] text-slate-400 mt-1 block">Apenas números (código do país + DDD + número).</span>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs">Adicionar Contato</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <!-- ========================================================================= -->
+  <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT CONTROLLER & API INTEGRATION -->
+  <!-- ========================================================================= -->
+  <script>
+    // State
+    let currentView = 'dashboard';
+    let isBotActive = true;
+    let currentAccessMode = 'whitelist';
+    let allContacts = [];
+    let recentActivities = [];
+
+    // Initialize Lucide Icons
+    function initIcons() {
+      lucide.createIcons();
+    }
+
+    // Toast Notification
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bg = type === 'error' ? 'bg-rose-600' : 'bg-slate-900';
+      toast.className = `${bg} text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Navigation
+    function navigate(view) {
+      currentView = view;
+      ['dashboard', 'activity', 'access', 'settings'].forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        const navBtn = document.getElementById(`nav-btn-${v}`);
+        const mobBtn = document.getElementById(`mobile-nav-${v}`);
+        if (el) el.classList.toggle('hidden', v !== view);
+        if (navBtn) {
+          if (v === view) {
+            navBtn.className = "nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors bg-emerald-50 text-emerald-800";
+          } else {
+            navBtn.className = "nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900";
+          }
+        }
+        if (mobBtn) {
+          mobBtn.className = v === view ? "flex flex-col items-center gap-1 text-emerald-600" : "flex flex-col items-center gap-1 text-slate-500";
+        }
+      });
+
+      const titles = {
+        dashboard: ['WhatsApp Auto Sticker', 'Controle de automação de figurinhas e fila de conversão ao vivo.'],
+        activity: ['Histórico de Atividade', 'Registro em tempo real de mensagens recebidas e figurinhas criadas.'],
+        access: ['Controle de Acesso', 'Defina quem pode usar seu bot e gerencie a lista permitida.'],
+        settings: ['Configurações do Sistema', 'Metadados do pacote e telemetria dos motores de conversão.']
+      };
+      if (titles[view]) {
+        document.getElementById('page-title').textContent = titles[view][0];
+        document.getElementById('page-subtitle').textContent = titles[view][1];
+      }
+      initIcons();
+    }
+
+    // API Poll & Data Fetching
+    async function fetchStatus() {
+      try {
+        const res = await fetch('/api/status');
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        // Update Bot State
+        isBotActive = data.botActive;
+        updateMasterSwitchUI(isBotActive);
+
+        // Update WhatsApp Connected Status
+        const statusBadge = document.getElementById('sidebar-status-badge');
+        const statusPill = document.getElementById('header-status-pill');
+        const statusText = document.getElementById('header-status-text');
+        const sidebarPhone = document.getElementById('sidebar-phone');
+        const sidebarUptime = document.getElementById('sidebar-uptime');
+        
+        if (data.connected) {
+          statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Conectado';
+          statusBadge.className = 'inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700';
+          if (statusText) statusText.textContent = isBotActive ? 'Baileys Ativo' : 'Baileys Pausado';
+        } else {
+          statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Desconectado';
+          statusBadge.className = 'inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700';
+          if (statusText) statusText.textContent = 'WhatsApp Desconectado';
+        }
+
+        if (sidebarPhone) sidebarPhone.textContent = data.phoneNumber || 'Próprio WhatsApp';
+        if (sidebarUptime) sidebarUptime.textContent = `Uptime: ${data.uptime || '0m'}`;
+
+        // Update Metrics
+        if (data.metrics) {
+          document.getElementById('metric-total-stickers').textContent = data.metrics.totalStickersConverted || 0;
+          document.getElementById('metric-image-stickers').textContent = data.metrics.imagesConverted || 0;
+          document.getElementById('metric-video-stickers').textContent = data.metrics.videosConverted || 0;
+          document.getElementById('metric-queue-length').textContent = data.metrics.queueLength || 0;
+        }
+
+        // Update Quick Settings
+        if (data.settings) {
+          const imgSw = document.getElementById('switch-auto-image');
+          const vidSw = document.getElementById('switch-auto-video');
+          const gifSw = document.getElementById('switch-auto-gif');
+          const cmdSw = document.getElementById('switch-commands');
+          if (imgSw) imgSw.checked = data.settings.autoImage !== false;
+          if (vidSw) vidSw.checked = data.settings.autoVideo !== false;
+          if (gifSw) gifSw.checked = data.settings.autoGif !== false;
+          if (cmdSw) cmdSw.checked = data.settings.commandsEnabled !== false;
+
+          const packName = document.getElementById('settings-pack-name');
+          const packAuthor = document.getElementById('settings-pack-author');
+          if (packName && !packName.matches(':focus')) packName.value = data.settings.packName || 'Auto Sticker Bot';
+          if (packAuthor && !packAuthor.matches(':focus')) packAuthor.value = data.settings.packAuthor || 'Criado por mim';
+        }
+
+        // Update Telemetry
+        if (data.systemInfo) {
+          document.getElementById('telemetry-platform').textContent = data.systemInfo.platform || 'Linux/Android';
+          document.getElementById('telemetry-node').textContent = data.systemInfo.runtime || 'Node.js';
+          document.getElementById('telemetry-ram').textContent = data.systemInfo.memoryUsage || '-';
+        }
+
+      } catch (err) {
+        console.error('Error fetching status:', err);
+      }
+    }
+
+    async function fetchWhitelist() {
+      try {
+        const res = await fetch('/api/whitelist');
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        currentAccessMode = data.mode || 'whitelist';
+        allContacts = data.contacts || [];
+        
+        // Update Count
+        const countBadge = document.getElementById('nav-whitelist-count');
+        if (countBadge) countBadge.textContent = allContacts.length;
+
+        updateAccessModeUI(currentAccessMode);
+        renderContacts(allContacts);
+      } catch (err) {
+        console.error('Error fetching whitelist:', err);
+      }
+    }
+
+    async function fetchRecent() {
+      try {
+        const res = await fetch('/api/recent');
+        if (!res.ok) return;
+        const data = await res.json();
+        recentActivities = data.activities || [];
+        renderActivities(recentActivities);
+      } catch (err) {
+        console.error('Error fetching recent activities:', err);
+      }
+    }
+
+    // UI Updates
+    function updateMasterSwitchUI(active) {
+      const btn = document.getElementById('master-switch-btn');
+      const thumb = document.getElementById('master-switch-thumb');
+      const label = document.getElementById('master-switch-label');
+      if (active) {
+        btn.className = "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-500 focus:outline-none";
+        thumb.className = "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-5";
+        label.textContent = "ATIVO";
+        label.className = "text-xs font-bold text-emerald-700";
+      } else {
+        btn.className = "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-slate-300 focus:outline-none";
+        thumb.className = "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-0";
+        label.textContent = "PAUSADO";
+        label.className = "text-xs font-bold text-slate-500";
+      }
+    }
+
+    function updateAccessModeUI(mode) {
+      const modes = ['only_me', 'whitelist', 'everyone'];
+      const backendToUi = { self: 'only_me', whitelist: 'whitelist', all: 'everyone' };
+      const uiMode = backendToUi[mode] || mode;
+
+      modes.forEach(m => {
+        const card = document.getElementById(`mode-card-${m}`);
+        if (!card) return;
+        if (m === uiMode) {
+          card.className = "cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-emerald-500 shadow-sm ring-2 ring-emerald-500/20 relative";
+        } else {
+          card.className = "cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 hover:border-slate-300 shadow-xs relative";
+        }
+      });
+
+      const labelEl = document.getElementById('dashboard-access-label');
+      if (labelEl) {
+        if (uiMode === 'only_me') labelEl.textContent = 'Somente Eu (Only Me)';
+        else if (uiMode === 'whitelist') labelEl.textContent = `Lista Permitida (${allContacts.length} contatos)`;
+        else labelEl.textContent = 'Todos (Acesso Livre)';
+      }
+    }
+
+    function renderContacts(contacts) {
+      const grid = document.getElementById('whitelist-contacts-grid');
+      if (!grid) return;
+      
+      if (!contacts || contacts.length === 0) {
+        grid.innerHTML = '<div class="col-span-full py-8 text-center text-xs text-slate-400">Nenhum contato na lista permitida. Clique em "Adicionar Pessoa" para liberar amigos ou familiares.</div>';
+        return;
+      }
+
+      grid.innerHTML = contacts.map(c => `
+        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 group hover:bg-white hover:border-emerald-300 transition-all shadow-2xs">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs shrink-0">
+              ${c.name.charAt(0).toUpperCase()}
+            </div>
+            <div class="min-w-0">
+              <span class="text-xs font-bold text-slate-900 block truncate">${c.name}</span>
+              <span class="text-[11px] font-mono text-slate-500 block truncate">${c.phone}</span>
+            </div>
+          </div>
+          <button onclick="removeContact('${c.id}')" title="Remover" class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `).join('');
+      initIcons();
+    }
+
+    function filterContacts(query) {
+      if (!query || !query.trim()) {
+        renderContacts(allContacts);
+        return;
+      }
+      const q = query.toLowerCase();
+      const filtered = allContacts.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q));
+      renderContacts(filtered);
+    }
+
+    function renderActivities(activities) {
+      // 1. Dashboard Mini List
+      const miniList = document.getElementById('dashboard-activity-list');
+      if (miniList) {
+        if (!activities || activities.length === 0) {
+          miniList.innerHTML = '<div class="py-6 text-center text-xs text-slate-400">Nenhuma atividade registrada ainda. Envie uma foto ou vídeo para começar!</div>';
+        } else {
+          miniList.innerHTML = activities.slice(0, 5).map(act => {
+            const isOk = act.status === 'Processed';
+            const isUnauth = act.status === 'Unauthorized';
+            const badgeClass = isOk ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : isUnauth ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-rose-50 text-rose-700 border-rose-200';
+            const icon = act.mediaType === 'VIDEO' ? 'video' : act.mediaType === 'GIF' ? 'film' : 'file-image';
+            
+            return `
+              <div class="py-3 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
+                    <i data-lucide="${icon}" class="w-4 h-4"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-xs font-semibold text-slate-800 block truncate">${act.senderPhone || act.chatJid}</span>
+                    <span class="text-[10px] text-slate-400 block">${act.timeAgo || act.timestamp || 'agora'}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
+                    ${act.status}
+                  </span>
+                  ${act.durationMs ? `<span class="text-[10px] font-mono text-slate-400">${act.durationMs}ms</span>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 2. Full Table View
+      const tableBody = document.getElementById('activity-table-body');
+      if (tableBody) {
+        if (!activities || activities.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-slate-400">Nenhum evento registrado ainda.</td></tr>';
+        } else {
+          tableBody.innerHTML = activities.map(act => {
+            const isOk = act.status === 'Processed';
+            const isUnauth = act.status === 'Unauthorized';
+            const badgeClass = isOk ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : isUnauth ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-rose-50 text-rose-700 border-rose-200';
+            
+            return `
+              <tr class="hover:bg-slate-50/50">
+                <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">${act.timestamp || '-'}</td>
+                <td class="py-3 px-4 font-mono font-semibold text-slate-800">${act.senderPhone || act.chatJid}</td>
+                <td class="py-3 px-4 font-semibold text-slate-700">${act.mediaType || 'UNKNOWN'}</td>
+                <td class="py-3 px-4">
+                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${act.status}</span>
+                </td>
+                <td class="py-3 px-4 font-mono text-slate-500">${act.durationMs ? `${act.durationMs}ms` : '-'}</td>
+                <td class="py-3 px-4 text-slate-500 truncate max-w-xs">${act.detail || '-'}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+      initIcons();
+    }
+
+    // User Actions
+    async function toggleBotMaster() {
+      const next = !isBotActive;
+      try {
+        const res = await fetch('/api/bot/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active: next })
+        });
+        if (res.ok) {
+          isBotActive = next;
+          updateMasterSwitchUI(isBotActive);
+          showToast(isBotActive ? 'Bot ativado com sucesso!' : 'Bot pausado (mensagens ignoradas)');
+          fetchStatus();
+        }
+      } catch (e) {
+        showToast('Erro ao alternar status do bot', 'error');
+      }
+    }
+
+    async function updateQuickSetting(key, val) {
+      try {
+        const res = await fetch('/api/bot/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [key]: val })
+        });
+        if (res.ok) {
+          showToast('Configuração salva!');
+          fetchStatus();
+        }
+      } catch (e) {
+        showToast('Erro ao salvar configuração', 'error');
+      }
+    }
+
+    async function selectAccessMode(mode) {
+      try {
+        const res = await fetch('/api/access-mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode })
+        });
+        if (res.ok) {
+          currentAccessMode = mode;
+          updateAccessModeUI(mode);
+          showToast(`Modo de acesso alterado para: ${mode}`);
+          fetchWhitelist();
+        }
+      } catch (e) {
+        showToast('Erro ao alterar modo de acesso', 'error');
+      }
+    }
+
+    async function removeContact(id) {
+      if (!confirm('Deseja remover este contato da lista permitida?')) return;
+      try {
+        const res = await fetch('/api/whitelist/remove', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        if (res.ok) {
+          showToast('Contato removido da lista');
+          fetchWhitelist();
+        }
+      } catch (e) {
+        showToast('Erro ao remover contato', 'error');
+      }
+    }
+
+    function openAddModal() {
+      document.getElementById('add-person-modal').classList.remove('hidden');
+      document.getElementById('modal-person-name').focus();
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-person-modal').classList.add('hidden');
+      document.getElementById('modal-person-name').value = '';
+      document.getElementById('modal-person-phone').value = '';
+    }
+
+    async function submitAddPerson(e) {
+      e.preventDefault();
+      const name = document.getElementById('modal-person-name').value.trim();
+      const phone = document.getElementById('modal-person-phone').value.trim();
+      if (!name || !phone) return;
+
+      try {
+        const res = await fetch('/api/whitelist/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone })
+        });
+        if (res.ok) {
+          closeAddModal();
+          showToast(`Contato "${name}" adicionado à whitelist!`);
+          fetchWhitelist();
+        } else {
+          showToast('Erro ao adicionar contato', 'error');
+        }
+      } catch (e) {
+        showToast('Erro ao conectar ao servidor', 'error');
+      }
+    }
+
+    async function savePackSettings() {
+      const packName = document.getElementById('settings-pack-name').value.trim();
+      const packAuthor = document.getElementById('settings-pack-author').value.trim();
+      try {
+        const res = await fetch('/api/bot/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ packName, packAuthor })
+        });
+        if (res.ok) {
+          showToast('Metadados salvos com sucesso!');
+        }
+      } catch (e) {
+        showToast('Erro ao salvar metadados', 'error');
+      }
+    }
+
+    async function clearActivities() {
+      if (!confirm('Deseja limpar o histórico de atividades recentes?')) return;
+      try {
+        const res = await fetch('/api/recent/clear', { method: 'POST' });
+        if (res.ok) {
+          showToast('Histórico de atividades limpo!');
+          fetchRecent();
+        }
+      } catch (e) {
+        showToast('Erro ao limpar histórico', 'error');
+      }
+    }
+
+    function refreshData() {
+      fetchStatus();
+      fetchWhitelist();
+      fetchRecent();
+      showToast('Dados atualizados!');
+    }
+
+    // Initial Load & Polling Loop (every 3 seconds)
+    document.addEventListener('DOMContentLoaded', () => {
+      initIcons();
+      refreshData();
+      setInterval(() => {
+        fetchStatus();
+        fetchWhitelist();
+        fetchRecent();
+      }, 3000);
+    });
+  </script>
+</body>
+</html>

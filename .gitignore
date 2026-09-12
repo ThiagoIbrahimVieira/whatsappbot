@@ -11,6 +11,10 @@ node_modules/
 auth/
 *.session.json
 
+# Dados em disco (whitelist de contatos e configurações do bot)
+data/
+
+
 # Arquivos temporários de processamento de mídia
 tmp/
 temp/

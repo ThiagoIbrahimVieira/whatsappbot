@@ -38,6 +38,7 @@ async function getAllFiles(dir, base = '') {
         entry.name === 'node_modules' ||
         entry.name === '.git' ||
         entry.name === 'auth' ||
+        entry.name === 'data' ||
         entry.name === 'tmp' ||
         entry.name === '.system_generated'
       ) {
@@ -49,9 +50,9 @@ async function getAllFiles(dir, base = '') {
         entry.name === '.env' ||
         entry.name === 'bot.pid' ||
         entry.name === 'bot.log' ||
-        entry.name.endsWith('.zip') ||
-        entry.name.endsWith('.png') ||
-        entry.name.endsWith('.html')
+        entry.name === 'qrcode.html' ||
+        entry.name === 'qrcode.png' ||
+        entry.name.endsWith('.zip')
       ) {
         continue;
       }
@@ -102,7 +103,7 @@ async function upload() {
 
   console.log('📦 Criando novo Git Commit...');
   const commitData = await apiRequest('/git/commits', 'POST', {
-    message: 'fix: suporte completo a auto-sticker sem comandos, @lid e self-chat',
+    message: 'feat: integracao do dashboard web com master switch, controle de acesso e whitelist',
     tree: treeData.sha,
     parents: [parentCommitSha],
   });

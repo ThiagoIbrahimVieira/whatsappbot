@@ -19,6 +19,8 @@ export declare const envSchema: z.ZodObject<{
     PAIRING_NUMBER: z.ZodDefault<z.ZodOptional<z.ZodEffects<z.ZodEffects<z.ZodString, string, string>, string, string>>>;
     STICKER_PACK_NAME: z.ZodDefault<z.ZodOptional<z.ZodString>>;
     STICKER_PACK_AUTHOR: z.ZodDefault<z.ZodOptional<z.ZodString>>;
+    WEB_PORT: z.ZodDefault<z.ZodNumber>;
+    WEB_HOST: z.ZodDefault<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
     NODE_ENV: "development" | "production" | "test";
     AUTO_STICKER: boolean;
@@ -39,6 +41,8 @@ export declare const envSchema: z.ZodObject<{
     PAIRING_NUMBER: string;
     STICKER_PACK_NAME: string;
     STICKER_PACK_AUTHOR: string;
+    WEB_PORT: number;
+    WEB_HOST: string;
 }, {
     NODE_ENV?: "development" | "production" | "test" | undefined;
     AUTO_STICKER?: string | boolean | undefined;
@@ -59,4 +63,6 @@ export declare const envSchema: z.ZodObject<{
     PAIRING_NUMBER?: string | undefined;
     STICKER_PACK_NAME?: string | undefined;
     STICKER_PACK_AUTHOR?: string | undefined;
+    WEB_PORT?: number | undefined;
+    WEB_HOST?: string | undefined;
 }>;

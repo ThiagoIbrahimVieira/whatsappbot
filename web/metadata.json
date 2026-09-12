@@ -1,0 +1,6 @@
+{
+  "name": "WhatsApp Auto Sticker",
+  "description": "Admin dashboard and control panel for personal WhatsApp sticker automation bot.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
