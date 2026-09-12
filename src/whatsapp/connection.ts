@@ -148,6 +148,7 @@ export class WhatsAppConnection {
       if (upsert.type !== 'notify' && upsert.type !== 'append') return;
 
       for (const msg of upsert.messages) {
+        console.log(`📩 Nova mensagem detectada! Chat: ${msg.key?.remoteJid}, De mim: ${msg.key?.fromMe}`);
         try {
           await messageRouter.handleMessage(this.sock!, msg);
         } catch (err) {

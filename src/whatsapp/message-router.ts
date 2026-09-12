@@ -63,14 +63,23 @@ export class MessageRouter {
 
     // =========================================================================
     // REGRA 3: SE FOR MENSAGEM DA PRÓPRIA CONTA, IGNORAR (PREVENÇÃO DE LOOP)
-    // EXCETO SE O USUÁRIO ESTIVER CONVERSANDO CONSIGO MESMO (CHAT "VOCÊ" / MENSAGENS SALVAS)
-    // OU SE IGNORE_OWN_MESSAGES ESTIVER DESATIVADO
+    // EXCETO SE:
+    // 1. O usuário estiver no chat com ele mesmo (isSelfChat)
+    // 2. Ou se for um comando manual explícito (/help, /sticker, /status, etc.)
+    // 3. Ou se IGNORE_OWN_MESSAGES for false
     // =========================================================================
-    const myPhone = sock.user?.id?.split(':')[0]?.split('@')[0] || config.PAIRING_NUMBER;
-    const chatPhone = chatId.split('@')[0];
+    const myPhone = (sock.user?.id || '').split(':')[0].split('@')[0] || config.PAIRING_NUMBER;
+    const chatPhone = (chatId || '').split(':')[0].split('@')[0];
     const isSelfChat = Boolean(myPhone && chatPhone && myPhone === chatPhone);
 
-    if (key.fromMe && config.IGNORE_OWN_MESSAGES && !isSelfChat) {
+    const rawText = (rawMessage.message?.conversation ||
+      rawMessage.message?.extendedTextMessage?.text ||
+      rawMessage.message?.imageMessage?.caption ||
+      rawMessage.message?.videoMessage?.caption || '').trim();
+    const isExplicitCommand = rawText.startsWith('/');
+
+    if (key.fromMe && config.IGNORE_OWN_MESSAGES && !isSelfChat && !isExplicitCommand) {
+      console.log(`⏩ Mensagem ignorada: enviada pela própria conta para terceiros`);
       logger.debug(
         { event: 'message_ignored_own', messageId },
         'Mensagem enviada pela própria conta ignorada para evitar loop'
@@ -137,13 +146,13 @@ export class MessageRouter {
       `Mensagem privada recebida (tipo: ${detected.type})`
     );
 
-    // =========================================================================
-    // REGRA 6: PROCESSAMENTO DE COMANDOS MANUAIS
-    // =========================================================================
     const commandText = extracted.caption || extracted.text || '';
     const parsedCmd = parseCommand(commandText);
 
+    console.log(`💬 Chat ${chatId} | Tipo: ${detected.type} | Texto: "${commandText}"`);
+
     if (config.COMMANDS_ENABLED && parsedCmd.isCommand) {
+      console.log(`🤖 Executando comando /${parsedCmd.name}...`);
       await commandRouter.route({
         message: extracted,
         command: parsedCmd,
@@ -243,6 +252,8 @@ export class MessageRouter {
             { isAnimated: result.isAnimated }
           );
 
+          console.log(`✅ Figurinha entregue com sucesso para ${sourceMessage.chatId}!`);
+
           return result;
         } finally {
           // Garante a limpeza completa dos arquivos temporários após conclusão ou erro
@@ -250,6 +261,7 @@ export class MessageRouter {
         }
       });
     } catch (err: any) {
+      console.error(`❌ Falha ao processar figurinha: ${err?.message || err}`);
       logger.error({ err, jobId }, 'Erro durante processamento do job de figurinha');
 
       // Se falhar em conversa privada, envia uma mensagem amigável de erro
