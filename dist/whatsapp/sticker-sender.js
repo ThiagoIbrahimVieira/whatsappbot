@@ -1,4 +1,5 @@
 import { CONSTANTS } from '../config/constants.js';
+import { recentMessages } from '../utils/cache.js';
 import { WhatsAppSendError } from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
 import { sanitizeJidForLogs } from './chat-utils.js';
@@ -9,12 +10,15 @@ export class StickerSender {
     async sendSticker(sock, chatId, stickerBuffer, quotedMessage, options) {
         try {
             logger.debug({ chat: sanitizeJidForLogs(chatId) }, 'Enviando figurinha para o WhatsApp...');
-            await sock.sendMessage(chatId, {
+            const sent = await sock.sendMessage(chatId, {
                 sticker: stickerBuffer,
                 isAnimated: Boolean(options?.isAnimated),
                 width: CONSTANTS.STICKER_WIDTH,
                 height: CONSTANTS.STICKER_HEIGHT,
             }, quotedMessage ? { quoted: quotedMessage } : undefined);
+            if (sent?.key?.id) {
+                recentMessages.add(sent.key.id);
+            }
             logger.info({
                 event: 'sticker_sent',
                 chat: sanitizeJidForLogs(chatId),
@@ -31,7 +35,10 @@ export class StickerSender {
      */
     async sendText(sock, chatId, text, quotedMessage) {
         try {
-            await sock.sendMessage(chatId, { text }, quotedMessage ? { quoted: quotedMessage } : undefined);
+            const sent = await sock.sendMessage(chatId, { text }, quotedMessage ? { quoted: quotedMessage } : undefined);
+            if (sent?.key?.id) {
+                recentMessages.add(sent.key.id);
+            }
         }
         catch (err) {
             logger.error({ err, chat: sanitizeJidForLogs(chatId) }, 'Falha ao enviar mensagem de texto para o chat');

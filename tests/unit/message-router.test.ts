@@ -4,6 +4,7 @@ import { mediaDownloader } from '../../src/whatsapp/media-downloader.js';
 import { stickerProcessor } from '../../src/media/sticker-processor.js';
 import { stickerSender } from '../../src/whatsapp/sticker-sender.js';
 import { recentMessages } from '../../src/utils/cache.js';
+import { config } from '../../src/config/config.js';
 
 describe('Message Router Business Rules', () => {
   let mockSock: any;
@@ -137,7 +138,9 @@ describe('Message Router Business Rules', () => {
   // =========================================================================
   // MENSAGENS PRÓPRIAS: IGNORAR (PREVENÇÃO DE LOOP)
   // =========================================================================
-  it('deve ignorar foto enviada pela própria conta (fromMe = true)', async () => {
+  it('deve ignorar foto enviada pela própria conta quando IGNORE_OWN_MESSAGES for true', async () => {
+    vi.spyOn(config, 'IGNORE_OWN_MESSAGES', 'get').mockReturnValue(true);
+
     const rawMsg = {
       key: {
         id: 'msg-own-photo',

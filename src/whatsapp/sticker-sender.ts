@@ -1,5 +1,6 @@
 import type { WASocket } from '@whiskeysockets/baileys';
 import { CONSTANTS } from '../config/constants.js';
+import { recentMessages } from '../utils/cache.js';
 import { WhatsAppSendError } from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
 import { sanitizeJidForLogs } from './chat-utils.js';
@@ -18,7 +19,7 @@ export class StickerSender {
     try {
       logger.debug({ chat: sanitizeJidForLogs(chatId) }, 'Enviando figurinha para o WhatsApp...');
 
-      await sock.sendMessage(
+      const sent = await sock.sendMessage(
         chatId,
         {
           sticker: stickerBuffer,
@@ -28,6 +29,10 @@ export class StickerSender {
         },
         quotedMessage ? { quoted: quotedMessage } : undefined
       );
+
+      if (sent?.key?.id) {
+        recentMessages.add(sent.key.id);
+      }
 
       logger.info(
         {
@@ -58,11 +63,15 @@ export class StickerSender {
     quotedMessage?: any
   ): Promise<void> {
     try {
-      await sock.sendMessage(
+      const sent = await sock.sendMessage(
         chatId,
         { text },
         quotedMessage ? { quoted: quotedMessage } : undefined
       );
+
+      if (sent?.key?.id) {
+        recentMessages.add(sent.key.id);
+      }
     } catch (err) {
       logger.error(
         { err, chat: sanitizeJidForLogs(chatId) },
