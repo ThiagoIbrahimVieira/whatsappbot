@@ -147,27 +147,64 @@
       <section id="view-dashboard" class="space-y-6">
         
         <!-- WhatsApp Disconnected Reconnect Banner -->
-        <div id="whatsapp-disconnect-banner" class="hidden p-4 md:p-5 rounded-2xl bg-amber-50 border border-amber-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-              <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h4 class="text-sm font-bold text-amber-950">WhatsApp Desconectado do Bot</h4>
-              <p class="text-xs text-amber-800 mt-0.5" id="whatsapp-disconnect-message">
-                A sessão precisa ser vinculada novamente para processar mensagens.
-              </p>
-              <div id="pairing-code-display" class="hidden mt-2 p-2 bg-white rounded-lg border border-amber-300 inline-flex items-center gap-2">
-                <span class="text-xs text-slate-600 font-medium">Código de Pareamento:</span>
-                <span id="pairing-code-val" class="font-mono text-base font-bold text-emerald-700 tracking-wider"></span>
+        <div id="whatsapp-disconnect-banner" class="hidden p-5 rounded-2xl bg-amber-50/90 border border-amber-200 shadow-xs space-y-4">
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-amber-200/70">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-amber-950">WhatsApp Desconectado do Bot</h4>
+                <p class="text-xs text-amber-800 mt-0.5">
+                  Conecte o seu WhatsApp digitando seu número abaixo para receber o código ou escaneando o QR Code.
+                </p>
               </div>
             </div>
+            <div class="flex items-center gap-2 w-full md:w-auto">
+              <button onclick="resetWhatsAppAuth()" class="w-full md:w-auto px-4 py-2 rounded-xl text-xs font-bold text-amber-950 bg-amber-200 hover:bg-amber-300 border border-amber-300 shadow-2xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                Resetar Sessão Antiga
+              </button>
+            </div>
           </div>
-          <div class="flex items-center gap-2 w-full md:w-auto">
-            <button onclick="resetWhatsAppAuth()" class="w-full md:w-auto px-4 py-2 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 shadow-xs flex items-center justify-center gap-2 transition-colors cursor-pointer">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-              Resetar & Gerar Novo Código
-            </button>
+
+          <!-- Connection Options: Pairing Code or QR Code -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-1">
+            <!-- Col 1: Direct Pairing Code -->
+            <div class="bg-white p-4 rounded-xl border border-amber-200 space-y-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="key-round" class="w-4 h-4 text-emerald-600"></i>
+                <h5 class="text-xs font-bold text-slate-900">Código de Pareamento (Recomendado)</h5>
+              </div>
+              <p class="text-[11px] text-slate-500 leading-relaxed">
+                Digite seu número com DDI e DDD para receber o código de 8 dígitos na hora:
+              </p>
+              <div class="flex gap-2">
+                <input type="text" id="manual-pairing-phone" placeholder="Ex: 5511999998888" class="text-xs border border-slate-300 rounded-xl px-3 py-2 flex-1 focus:ring-2 focus:ring-emerald-500 font-mono">
+                <button onclick="requestManualPairing()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-2xs cursor-pointer whitespace-nowrap">
+                  Gerar Código
+                </button>
+              </div>
+              <div id="pairing-code-display" class="hidden p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col items-center justify-center gap-1 text-center">
+                <span class="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">Código de Pareamento Gerado:</span>
+                <span id="pairing-code-val" class="font-mono text-2xl font-extrabold text-emerald-700 tracking-widest my-1"></span>
+                <span class="text-[10px] text-emerald-700">No WhatsApp: <b>Aparelhos conectados</b> &gt; <b>Conectar um aparelho</b> &gt; <b>Conectar com número de telefone</b></span>
+              </div>
+            </div>
+
+            <!-- Col 2: QR Code Scanning -->
+            <div class="bg-white p-4 rounded-xl border border-amber-200 space-y-3 flex flex-col items-center text-center">
+              <div class="flex items-center gap-2 w-full justify-start">
+                <i data-lucide="qr-code" class="w-4 h-4 text-slate-700"></i>
+                <h5 class="text-xs font-bold text-slate-900">Escanear QR Code</h5>
+              </div>
+              <div id="qr-code-container" class="flex items-center justify-center p-2 bg-slate-50 rounded-xl border border-slate-200 min-h-[160px] w-full">
+                <span class="text-xs text-slate-400">Aguardando QR Code...</span>
+              </div>
+              <p class="text-[10px] text-slate-500">
+                Aparelhos Conectados &gt; Conectar um aparelho &gt; Aponte a câmera
+              </p>
+            </div>
           </div>
         </div>
 
@@ -688,10 +725,17 @@
             if (data.pairingCode) {
               pairingDisplay.classList.remove('hidden');
               pairingVal.textContent = data.pairingCode;
-            } else {
-              pairingDisplay.classList.add('hidden');
+            }
+            const qrContainer = document.getElementById('qr-code-container');
+            if (qrContainer && data.qrSvg) {
+              qrContainer.innerHTML = data.qrSvg;
             }
           }
+        }
+
+        if (data.accessMode) {
+          currentAccessMode = data.accessMode;
+          updateAccessModeUI(currentAccessMode);
         }
 
         if (sidebarPhone) sidebarPhone.textContent = data.phoneNumber || 'Próprio WhatsApp';
@@ -959,7 +1003,11 @@
       }
     }
 
-    async function selectAccessMode(mode) {
+    async function selectAccessMode(rawMode) {
+      let mode = rawMode;
+      if (rawMode === 'only_me') mode = 'self';
+      if (rawMode === 'everyone') mode = 'all';
+
       try {
         const res = await fetch('/api/access-mode', {
           method: 'POST',
@@ -969,11 +1017,44 @@
         if (res.ok) {
           currentAccessMode = mode;
           updateAccessModeUI(mode);
-          showToast(`Modo de acesso alterado para: ${mode}`);
+          const labels = { self: 'Somente Eu (Only Me)', whitelist: 'Lista Permitida (Whitelist)', all: 'Todos (Everyone)' };
+          showToast(`Modo alterado para: ${labels[mode] || mode}`);
           fetchWhitelist();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showToast('Erro ao alterar modo: ' + (err.error || 'Inválido'), 'error');
         }
       } catch (e) {
         showToast('Erro ao alterar modo de acesso', 'error');
+      }
+    }
+
+    async function requestManualPairing() {
+      const input = document.getElementById('manual-pairing-phone');
+      const phone = (input?.value || '').trim();
+      if (!phone || phone.replace(/\D/g, '').length < 10) {
+        showToast('Digite um número válido com DDD (ex: 5511999998888)', 'error');
+        return;
+      }
+      try {
+        showToast('Solicitando código de pareamento de 8 dígitos...', 'info');
+        const res = await fetch('/api/bot/request-pairing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phoneNumber: phone })
+        });
+        const json = await res.json();
+        if (res.ok && json.pairingCode) {
+          const pairingDisplay = document.getElementById('pairing-code-display');
+          const pairingVal = document.getElementById('pairing-code-val');
+          if (pairingDisplay) pairingDisplay.classList.remove('hidden');
+          if (pairingVal) pairingVal.textContent = json.pairingCode;
+          showToast(`Código gerado: ${json.pairingCode}! Digite no WhatsApp.`, 'success');
+        } else {
+          showToast(json.error || 'Erro ao gerar código de pareamento', 'error');
+        }
+      } catch (e) {
+        showToast('Erro ao conectar com servidor', 'error');
       }
     }
 

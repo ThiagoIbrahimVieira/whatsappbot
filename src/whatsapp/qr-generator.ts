@@ -26,6 +26,33 @@ export interface QrOutputResult {
   htmlPath: string;
 }
 
+export function getQrSvg(qrString: string): string {
+  const qr = new QRCode(-1, 0);
+  qr.addData(qrString);
+  qr.make();
+
+  const count: number = qr.getModuleCount();
+  const margin = 2;
+  const scale = 6;
+  const size = (count + margin * 2) * scale;
+
+  let rects = '';
+  for (let r = 0; r < count; r++) {
+    for (let c = 0; c < count; c++) {
+      if (qr.modules[r][c]) {
+        const x = (c + margin) * scale;
+        const y = (r + margin) * scale;
+        rects += `<rect x="${x}" y="${y}" width="${scale}" height="${scale}" fill="#000000"/>`;
+      }
+    }
+  }
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <rect width="100%" height="100%" fill="#ffffff" rx="8"/>
+    ${rects}
+  </svg>`;
+}
+
 /**
  * Gera um QR Code em imagem PNG de alta resolução e um arquivo HTML limpo
  * para fácil escaneamento no navegador ou visualizador de imagens do Windows.

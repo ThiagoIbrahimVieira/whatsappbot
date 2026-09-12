@@ -70,6 +70,8 @@ export async function handleApiRequest(req, res, urlPath) {
             whatsappStatus: isConnected ? 'Connected' : 'Disconnected',
             pairingCode: authInfo.pairingCode,
             qrCode: authInfo.qr,
+            qrSvg: authInfo.qrSvg,
+            pairingNumberConfigured: authInfo.pairingNumberConfigured,
             botActive: isBotActive,
             botStatus: isBotActive ? 'active' : 'paused',
             accessMode: accessControl.getAccessMode(),
@@ -200,10 +202,26 @@ export async function handleApiRequest(req, res, urlPath) {
         sendJson(res, 200, { success: removed });
         return true;
     }
+    // POST /api/bot/request-pairing
+    if (urlPath === '/api/bot/request-pairing' && req.method === 'POST') {
+        const body = await readBody(req);
+        try {
+            const code = await whatsappClient.requestPairingForNumber(body.phoneNumber || '');
+            sendJson(res, 200, { success: true, pairingCode: code });
+        }
+        catch (err) {
+            sendJson(res, 400, { success: false, error: err.message || 'Erro ao gerar código de pareamento' });
+        }
+        return true;
+    }
     // POST /api/access-mode
     if (urlPath === '/api/access-mode' && req.method === 'POST') {
         const body = await readBody(req);
-        const mode = body.mode;
+        let mode = body.mode;
+        if (mode === 'only_me')
+            mode = 'self';
+        if (mode === 'everyone')
+            mode = 'all';
         if (mode !== 'self' && mode !== 'whitelist' && mode !== 'all') {
             sendJson(res, 400, { error: 'Modo de acesso inválido. Use self, whitelist ou all.' });
             return true;

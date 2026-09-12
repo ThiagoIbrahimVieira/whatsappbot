@@ -14,7 +14,10 @@ export declare class WhatsAppConnection {
         isConnected: boolean;
         pairingCode: string | null;
         qr: string | null;
+        qrSvg: string | null;
+        pairingNumberConfigured: string | null;
     };
+    requestPairingForNumber(phoneNumber: string): Promise<string>;
     resetAuth(): Promise<void>;
     /**
      * Inicia ou restabelece a conexão com os servidores do WhatsApp.

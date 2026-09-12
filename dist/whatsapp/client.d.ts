@@ -519,6 +519,9 @@ export declare const whatsappClient: {
         isConnected: boolean;
         pairingCode: string | null;
         qr: string | null;
+        qrSvg: string | null;
+        pairingNumberConfigured: string | null;
     };
     resetAuth: () => Promise<void>;
+    requestPairingForNumber: (phone: string) => Promise<string>;
 };

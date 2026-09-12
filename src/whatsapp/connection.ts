@@ -9,7 +9,7 @@ import { initAuth, clearAuth } from './auth.js';
 import { messageRouter } from './message-router.js';
 import { logger } from '../utils/logger.js';
 import { config } from '../config/config.js';
-import { generateQrArtifacts } from './qr-generator.js';
+import { generateQrArtifacts, getQrSvg } from './qr-generator.js';
 
 export interface WhatsAppConnectionState {
   socket: WASocket | null;
@@ -29,7 +29,24 @@ export class WhatsAppConnection {
       isConnected: this.isConnected,
       pairingCode: this.currentPairingCode,
       qr: this.currentQr,
+      qrSvg: this.currentQr ? getQrSvg(this.currentQr) : null,
+      pairingNumberConfigured: config.PAIRING_NUMBER || null,
     };
+  }
+
+  public async requestPairingForNumber(phoneNumber: string): Promise<string> {
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    if (!cleanNumber || cleanNumber.length < 10) {
+      throw new Error('Número de telefone inválido. Digite com DDD e DDI (ex: 5511999998888)');
+    }
+    if (!this.sock) {
+      throw new Error('WhatsApp não está pronto. Aguarde o bot inicializar.');
+    }
+    const pairingCode = await this.sock.requestPairingCode(cleanNumber);
+    const formatted = pairingCode.match(/.{1,4}/g)?.join('-') || pairingCode;
+    this.currentPairingCode = formatted;
+    logger.info({ pairingCode: formatted }, 'Código de pareamento gerado manualmente');
+    return formatted;
   }
 
   public async resetAuth(): Promise<void> {
@@ -67,7 +84,7 @@ export class WhatsAppConnection {
 
     // Se o número para pareamento direto foi informado e o aparelho ainda não foi registrado
     if (usePairingCode) {
-      setTimeout(async () => {
+      const requestWithRetry = async (attempt = 1) => {
         try {
           if (!this.sock || state.creds.registered) return;
           const pairingCode = await this.sock.requestPairingCode(config.PAIRING_NUMBER);
@@ -85,10 +102,14 @@ export class WhatsAppConnection {
           console.log('   5. Toque em "Conectar com número de telefone" no rodapé da tela');
           console.log(`   6. Digite o código de 8 dígitos: ${formatted}`);
           console.log('=============================================================\n');
-        } catch (err) {
-          logger.error({ err }, 'Erro ao solicitar código de pareamento do WhatsApp');
+        } catch (err: any) {
+          logger.warn({ attempt, err: err?.message }, 'Tentativa de solicitar código de pareamento');
+          if (attempt < 4 && !state.creds.registered) {
+            setTimeout(() => requestWithRetry(attempt + 1), 3000 * attempt);
+          }
         }
-      }, 3000);
+      };
+      setTimeout(() => requestWithRetry(1), 3000);
     }
 
     // Salva as credenciais sempre que forem atualizadas
@@ -105,18 +126,19 @@ export class WhatsAppConnection {
           const { pngPath, htmlPath } = await generateQrArtifacts(qr);
 
           console.log('\n=============================================================');
-          console.log('📱 ESCANEIE O QR CODE COM O SEU WHATSAPP PESSOAL:');
+          console.log('📱 ESCANEIE O QR CODE COM O SEU WHATSAPP:');
           console.log('   (WhatsApp > Aparelhos conectados > Conectar um aparelho)');
           console.log('=============================================================');
-          console.log(`\n🖼️  ARQUIVO PNG DE ALTA RESOLUÇÃO GERADO EM:`);
-          console.log(`    ${pngPath}`);
-          console.log(`\n🌐 PÁGINA HTML ABERTA AUTOMATICAMENTE:`);
-          console.log(`    ${htmlPath}`);
-          console.log('\nAguardando autenticação...\n');
+          console.log(`🖼️  PNG: ${pngPath}`);
+          console.log(`🌐 HTML: ${htmlPath}`);
         } catch (err) {
           logger.error({ err }, 'Erro ao gerar artefatos PNG/HTML do QR Code');
-          qrcode.generate(qr, { small: true });
         }
+
+        // SEMPRE imprime o QR no terminal para visualização direta no Termux
+        console.log('\n📱 Ou escaneie diretamente aqui pelo terminal:');
+        qrcode.generate(qr, { small: true });
+        console.log('\nAguardando autenticação...\n');
       }
 
       // 2. Conexão estabelecida com sucesso

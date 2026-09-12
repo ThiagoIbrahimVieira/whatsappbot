@@ -6,5 +6,6 @@ export const whatsappClient = {
     getSocket: () => whatsAppConnection.getSocket(),
     getAuthInfo: () => whatsAppConnection.getAuthInfo(),
     resetAuth: () => whatsAppConnection.resetAuth(),
+    requestPairingForNumber: (phone) => whatsAppConnection.requestPairingForNumber(phone),
 };
 //# sourceMappingURL=client.js.map
