@@ -1,0 +1,37 @@
+# Dependências
+node_modules/
+
+# Build e compilação
+dist/
+
+# Variáveis de ambiente sensíveis
+.env
+.env.local
+.env.*.local
+
+# Autenticação e credenciais de sessão do WhatsApp (NUNCA VERSIONAR)
+auth/
+*.session.json
+
+# Arquivos temporários de processamento de mídia
+tmp/
+temp/
+
+# Logs e relatórios
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cobertura de testes
+coverage/
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
