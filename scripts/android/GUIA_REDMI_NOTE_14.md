@@ -118,8 +118,26 @@ Agora adicione os botões na tela inicial do seu Redmi Note 14:
 
 ---
 
+## 🚀 Passo 8: Inicialização Automática com Termux:Boot (Opcional)
+
+Se você deseja que o bot inicie automaticamente toda vez que o celular for ligado ou reiniciado:
+
+1. Instale o aplicativo **Termux:Boot** pelo F-Droid: [Baixar Termux:Boot](https://f-droid.org/packages/com.termux.boot/).
+2. Abra o app **Termux:Boot** uma vez para conceder a permissão de inicialização.
+3. No Termux, ative o script de boot executando:
+   ```bash
+   mkdir -p ~/.termux/boot
+   cp scripts/android/termux-boot-bot.sh ~/.termux/boot/start-whatsapp-bot.sh
+   chmod +x ~/.termux/boot/start-whatsapp-bot.sh
+   ```
+4. Pronto! Ao ligar o aparelho, o processo iniciará em segundo plano preservando as configurações e horários que você definiu no painel web.
+
+---
+
 ## 🎉 Como Usar no Dia a Dia
 
 - **Quer ativar o bot?** Basta dar um toque no botão 🟢 **Ligar Bot** na sua tela inicial! O bot iniciará em segundo plano consumindo apenas ~80 MB de RAM.
 - **Quer desativar?** Toque em 🔴 **Desligar Bot**. Ele encerra na hora e libera toda a memória do celular.
 - **Quer ver o que o bot está fazendo?** Toque em 📄 **Ver Logs**.
+- **Painel de Controle:** Acesse no navegador do celular: `http://localhost:3000` (ou IP local no Wi-Fi).
+

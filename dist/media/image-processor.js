@@ -5,6 +5,8 @@ import { addExifToWebp } from './metadata.js';
 import { runFFmpeg } from './ffmpeg.js';
 import { ProcessingError, StickerTooLargeError } from '../utils/errors.js';
 import { logger } from '../utils/logger.js';
+import { effectsProcessor } from './effects-processor.js';
+import { memeProcessor } from './meme-processor.js';
 let sharpModule = undefined;
 async function getSharp() {
     if (sharpModule !== undefined)
@@ -48,12 +50,43 @@ export class ImageProcessor {
      */
     async processWithSharp(sharp, input, outputDir, options) {
         const startTime = Date.now();
-        const image = sharp(input);
-        const metadata = await image.metadata();
+        let inputBuffer;
+        if (typeof input === 'string') {
+            inputBuffer = await fs.readFile(input);
+        }
+        else {
+            inputBuffer = input;
+        }
+        const metadata = await sharp(inputBuffer).metadata();
         if (!metadata.format) {
             throw new ProcessingError('Formato de imagem não reconhecido.');
         }
-        const basePipeline = sharp(input)
+        // Fases D, E, B: Transformações e Efeitos aplicados determinística e sequencialmente
+        if (options.rotate) {
+            inputBuffer = await effectsProcessor.rotate(inputBuffer, options.rotate);
+        }
+        if (options.flip) {
+            inputBuffer = await effectsProcessor.flip(inputBuffer);
+        }
+        if (options.mirror) {
+            inputBuffer = await effectsProcessor.mirror(inputBuffer);
+        }
+        if (options.crop) {
+            inputBuffer = await effectsProcessor.crop(inputBuffer, options.crop);
+        }
+        if (options.outline) {
+            inputBuffer = await effectsProcessor.applyOutline(inputBuffer, typeof options.outline === 'string' ? options.outline : '#FFFFFF');
+        }
+        if (options.shadow) {
+            inputBuffer = await effectsProcessor.applyShadow(inputBuffer, options.shadow === 'hard' ? 'hard' : 'soft');
+        }
+        if (options.memeText) {
+            inputBuffer = await memeProcessor.applyMeme(inputBuffer, options.memeText, {
+                topText: options.topText,
+                bottomText: options.bottomText,
+            });
+        }
+        const basePipeline = sharp(inputBuffer)
             .rotate()
             .resize({
             width: CONSTANTS.STICKER_WIDTH,

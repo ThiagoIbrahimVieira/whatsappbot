@@ -6,6 +6,10 @@ export declare class MessageRouter {
      */
     handleMessage(sock: WASocket, rawMessage: any): Promise<void>;
     /**
+     * Processa a resposta do usuário dentro de um fluxo interativo ativo.
+     */
+    private handleInteractiveReply;
+    /**
      * Cria o job e o envia para a fila de processamento em memória.
      */
     private queueMediaProcessing;

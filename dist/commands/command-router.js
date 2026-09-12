@@ -6,6 +6,13 @@ import { handleSticker } from './handlers/sticker.js';
 import { handleStatic } from './handlers/static.js';
 import { handleVideo } from './handlers/video.js';
 import { handleGif } from './handlers/gif.js';
+import { handleMeme } from './handlers/meme.js';
+import { handleOutline } from './handlers/outline.js';
+import { handleShadow } from './handlers/shadow.js';
+import { handleRotate, handleFlip, handleMirror, handleCrop } from './handlers/transforms.js';
+import { handleTrim, handleFps, handleSpeed, handleSlow } from './handlers/video-tools.js';
+import { handleRandom } from './handlers/random.js';
+import { handlePack } from './handlers/pack.js';
 import { logger } from '../utils/logger.js';
 const commandHandlers = {
     ping: handlePing,
@@ -17,6 +24,19 @@ const commandHandlers = {
     static: handleStatic,
     video: handleVideo,
     gif: handleGif,
+    meme: handleMeme,
+    outline: handleOutline,
+    shadow: handleShadow,
+    rotate: handleRotate,
+    flip: handleFlip,
+    mirror: handleMirror,
+    crop: handleCrop,
+    trim: handleTrim,
+    fps: handleFps,
+    speed: handleSpeed,
+    slow: handleSlow,
+    random: handleRandom,
+    pack: handlePack,
 };
 export class CommandRouter {
     /**

@@ -1,45 +1,49 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { config } from '../config/config.js';
 import { logger } from '../utils/logger.js';
+import { atomicWriteFileSync, safeReadJsonSync } from '../utils/atomic-write.js';
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const SETTINGS_FILE = path.join(DATA_DIR, 'bot-settings.json');
+const DEFAULT_SETTINGS = {
+    isBotActive: true,
+    processingMode: 'interactive',
+    qualityPreset: 'original',
+    autoImage: config.AUTO_IMAGE,
+    autoVideo: config.AUTO_VIDEO,
+    autoGif: config.AUTO_GIF,
+    commandsEnabled: config.COMMANDS_ENABLED,
+    autoCropSquare: true,
+    keepQuality: true,
+    replyWithAuthor: true,
+    packName: config.STICKER_PACK_NAME,
+    authorName: config.STICKER_PACK_AUTHOR,
+    partyMode: false,
+    autoOffMinutes: 0,
+    scheduleEnabled: false,
+    scheduleStart: '08:00',
+    scheduleEnd: '22:00',
+    developerMode: false,
+};
 class BotStateManager {
     settings;
     constructor() {
-        this.settings = {
-            isBotActive: true,
-            autoImage: config.AUTO_IMAGE,
-            autoVideo: config.AUTO_VIDEO,
-            autoGif: config.AUTO_GIF,
-            commandsEnabled: config.COMMANDS_ENABLED,
-            autoCropSquare: true,
-            keepQuality: true,
-            replyWithAuthor: true,
-            packName: config.STICKER_PACK_NAME,
-            authorName: config.STICKER_PACK_AUTHOR,
-        };
+        this.settings = { ...DEFAULT_SETTINGS };
         this.loadFromDisk();
     }
     loadFromDisk() {
-        try {
-            if (fs.existsSync(SETTINGS_FILE)) {
-                const raw = fs.readFileSync(SETTINGS_FILE, 'utf-8');
-                const parsed = JSON.parse(raw);
-                this.settings = { ...this.settings, ...parsed };
-                logger.info({ settings: this.settings }, 'Configurações do bot carregadas do disco');
-            }
+        if (config.NODE_ENV === 'test' || process.env.NODE_ENV === 'test') {
+            return;
         }
-        catch (err) {
-            logger.warn({ err }, 'Não foi possível carregar bot-settings.json do disco, usando padrões');
-        }
+        const diskData = safeReadJsonSync(SETTINGS_FILE, {});
+        this.settings = { ...DEFAULT_SETTINGS, ...diskData };
+        logger.info({ settings: this.settings }, 'Configurações do bot carregadas do disco');
     }
     saveToDisk() {
+        if (config.NODE_ENV === 'test' || process.env.NODE_ENV === 'test') {
+            return;
+        }
         try {
-            if (!fs.existsSync(DATA_DIR)) {
-                fs.mkdirSync(DATA_DIR, { recursive: true });
-            }
-            fs.writeFileSync(SETTINGS_FILE, JSON.stringify(this.settings, null, 2), 'utf-8');
+            atomicWriteFileSync(SETTINGS_FILE, JSON.stringify(this.settings, null, 2));
         }
         catch (err) {
             logger.error({ err }, 'Erro ao persistir bot-settings.json no disco');
@@ -58,6 +62,14 @@ class BotStateManager {
         this.saveToDisk();
         logger.info(`Bot alternado para: ${this.settings.isBotActive ? 'ATIVO' : 'PAUSADO'}`);
         return this.settings.isBotActive;
+    }
+    getProcessingMode() {
+        return this.settings.processingMode;
+    }
+    setProcessingMode(mode) {
+        this.settings.processingMode = mode;
+        this.saveToDisk();
+        logger.info({ mode }, `Modo de processamento alterado para: ${mode}`);
     }
     getSettings() {
         return { ...this.settings };

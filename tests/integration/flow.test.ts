@@ -7,12 +7,18 @@ import { stickerSender } from '../../src/whatsapp/sticker-sender.js';
 import { jobQueue } from '../../src/queue/job-queue.js';
 import { cleanAllTmp } from '../../src/utils/files.js';
 import { recentMessages } from '../../src/utils/cache.js';
+import { sessionManager } from '../../src/control/session-manager.js';
+import { botState } from '../../src/control/bot-state.js';
+import { accessControl } from '../../src/control/access-control.js';
 
 describe('Integration Flow: End-to-End Media Processing', () => {
   let mockSock: any;
 
   beforeEach(async () => {
     recentMessages.clear();
+    sessionManager.clear();
+    botState.setProcessingMode('automatic');
+    accessControl.setAccessMode('all');
     await cleanAllTmp();
 
     mockSock = {

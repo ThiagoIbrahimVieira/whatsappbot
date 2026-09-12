@@ -24,6 +24,20 @@ export interface ProcessingOptions {
   maxDurationSeconds?: number;
   quality?: number;
   fps?: number;
+  // Fases B, C, D, E:
+  memeText?: string;
+  topText?: string;
+  bottomText?: string;
+  staticTimestamp?: number | 'middle';
+  trimSeconds?: number;
+  speed?: number;
+  rotate?: number;
+  flip?: boolean;
+  mirror?: boolean;
+  crop?: 'square' | 'portrait' | 'auto';
+  outline?: boolean | string;
+  shadow?: boolean | 'soft' | 'hard';
+  preset?: string;
 }
 
 export interface ProcessingResult {

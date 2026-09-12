@@ -33,12 +33,11 @@
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
-    [x-cloak] { display: none !important; }
-    /* Scrollbar styling */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .trans-all { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
 <body class="bg-[#F8FAFC] text-[#0F172A] antialiased min-h-screen flex flex-col md:flex-row">
@@ -47,7 +46,7 @@
   <!-- DESKTOP SIDEBAR -->
   <!-- ========================================================================= -->
   <aside class="hidden md:flex flex-col w-64 bg-white border-r border-slate-200/80 h-screen sticky top-0 shrink-0 z-20 select-none">
-    <div class="p-6 pb-5 flex items-center gap-3">
+    <div class="p-5 pb-4 flex items-center gap-3">
       <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-slate-900 text-white font-bold tracking-tighter shadow-sm overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-tr from-emerald-600 to-teal-400 opacity-20"></div>
         <span class="relative text-base tracking-normal font-black font-mono">TT</span>
@@ -55,33 +54,80 @@
       </div>
       <div class="flex flex-col min-w-0">
         <span class="font-bold text-sm tracking-tight text-slate-900 truncate">Auto Sticker</span>
-        <span class="text-[11px] text-slate-500 font-medium truncate">Dashboard de Controle</span>
+        <span class="text-[11px] text-slate-500 font-medium truncate">Controle Completo</span>
       </div>
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex-1 px-3 space-y-1.5 py-3">
-      <button onclick="navigate('dashboard')" id="nav-btn-dashboard" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors bg-emerald-50 text-emerald-800">
+    <nav class="flex-1 px-3 space-y-1 py-2 overflow-y-auto">
+      <button onclick="navigate('dashboard')" id="nav-btn-dashboard" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all bg-emerald-50 text-emerald-800">
         <div class="flex items-center gap-3">
           <i data-lucide="layout-dashboard" class="w-4 h-4 text-emerald-600"></i>
           <span>Dashboard</span>
         </div>
       </button>
-      <button onclick="navigate('activity')" id="nav-btn-activity" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+
+      <button onclick="navigate('editor')" id="nav-btn-editor" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="wand-2" class="w-4 h-4"></i>
+          <span>Criar Sticker</span>
+        </div>
+        <span class="text-[9px] uppercase font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-purple-100 text-purple-800">Editor</span>
+      </button>
+
+      <button onclick="navigate('library')" id="nav-btn-library" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="image" class="w-4 h-4"></i>
+          <span>Biblioteca</span>
+        </div>
+        <span id="nav-library-count" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
+      </button>
+
+      <button onclick="navigate('packs')" id="nav-btn-packs" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="package" class="w-4 h-4"></i>
+          <span>Pacotes</span>
+        </div>
+      </button>
+
+      <button onclick="navigate('ranking')" id="nav-btn-ranking" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="trophy" class="w-4 h-4"></i>
+          <span>Ranking & Stats</span>
+        </div>
+      </button>
+
+      <button onclick="navigate('automations')" id="nav-btn-automations" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+          <span>Presets & Auto</span>
+        </div>
+      </button>
+
+      <button onclick="navigate('access')" id="nav-btn-access" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+        <div class="flex items-center gap-3">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+          <span>Acesso</span>
+        </div>
+        <span id="nav-whitelist-count" class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
+      </button>
+
+      <button onclick="navigate('activity')" id="nav-btn-activity" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
         <div class="flex items-center gap-3">
           <i data-lucide="activity" class="w-4 h-4"></i>
           <span>Atividade</span>
         </div>
-        <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Live</span>
+        <span class="text-[9px] uppercase font-extrabold tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Live</span>
       </button>
-      <button onclick="navigate('access')" id="nav-btn-access" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+
+      <button onclick="navigate('system')" id="nav-btn-system" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
         <div class="flex items-center gap-3">
-          <i data-lucide="shield-check" class="w-4 h-4"></i>
-          <span>Controle de Acesso</span>
+          <i data-lucide="cpu" class="w-4 h-4"></i>
+          <span>Sistema & Monitor</span>
         </div>
-        <span id="nav-whitelist-count" class="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
       </button>
-      <button onclick="navigate('settings')" id="nav-btn-settings" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+
+      <button onclick="navigate('settings')" id="nav-btn-settings" class="nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900">
         <div class="flex items-center gap-3">
           <i data-lucide="sliders" class="w-4 h-4"></i>
           <span>Configurações</span>
@@ -89,19 +135,19 @@
       </button>
     </nav>
 
-    <!-- Sidebar Footer / WhatsApp Info Card -->
+    <!-- Sidebar Footer -->
     <div class="p-3 border-t border-slate-100 bg-slate-50/50">
-      <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-xs space-y-2.5">
+      <div class="p-3 rounded-xl bg-white border border-slate-200/80 shadow-xs space-y-2">
         <div class="flex items-center justify-between">
-          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">WhatsApp</span>
-          <span id="sidebar-status-badge" class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">WhatsApp</span>
+          <span id="sidebar-status-badge" class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             Conectado
           </span>
         </div>
         <div>
           <div id="sidebar-phone" class="font-mono text-xs font-bold text-slate-800 truncate">Próprio Número</div>
-          <div id="sidebar-uptime" class="text-[11px] text-slate-500 mt-0.5">Uptime: 0m</div>
+          <div id="sidebar-uptime" class="text-[10px] text-slate-500 mt-0.5">Uptime: 0m</div>
         </div>
       </div>
     </div>
@@ -110,13 +156,13 @@
   <!-- ========================================================================= -->
   <!-- MAIN CONTENT AREA -->
   <!-- ========================================================================= -->
-  <main class="flex-1 flex flex-col min-w-0 pb-20 md:pb-8">
+  <main class="flex-1 flex flex-col min-w-0 pb-24 md:pb-8">
     
     <!-- Top Header -->
-    <header class="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-4 flex items-center justify-between gap-4">
+    <header class="sticky top-0 z-10 bg-white/85 backdrop-blur-md border-b border-slate-200/80 px-4 md:px-8 py-3.5 flex items-center justify-between gap-4">
       <div>
-        <h1 id="page-title" class="text-lg md:text-xl font-bold text-slate-900 tracking-tight">WhatsApp Auto Sticker</h1>
-        <p id="page-subtitle" class="text-xs text-slate-500 hidden sm:block">Controle de automação de figurinhas e fila de conversão ao vivo.</p>
+        <h1 id="page-title" class="text-base md:text-lg font-bold text-slate-900 tracking-tight">Dashboard de Controle</h1>
+        <p id="page-subtitle" class="text-xs text-slate-500 hidden sm:block">Controle de automações, processamento e stickers em tempo real.</p>
       </div>
 
       <!-- Master Switch & Quick Actions -->
@@ -130,8 +176,8 @@
         <!-- Master Switch Button -->
         <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
           <span class="text-xs font-bold text-slate-700 hidden sm:inline">Bot:</span>
-          <button id="master-switch-btn" onclick="toggleBotMaster()" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-500 focus:outline-none">
-            <span id="master-switch-thumb" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-5"></span>
+          <button id="master-switch-btn" onclick="toggleBotMaster()" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent trans-all bg-emerald-500 focus:outline-none">
+            <span id="master-switch-thumb" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 trans-all translate-x-5"></span>
           </button>
           <span id="master-switch-label" class="text-xs font-bold text-emerald-700">ATIVO</span>
         </div>
@@ -146,7 +192,7 @@
       <!-- ===================================================================== -->
       <section id="view-dashboard" class="space-y-6">
         
-        <!-- WhatsApp Disconnected Reconnect Banner -->
+        <!-- Disconnection Banner -->
         <div id="whatsapp-disconnect-banner" class="hidden p-5 rounded-2xl bg-amber-50/90 border border-amber-200 shadow-xs space-y-4">
           <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-amber-200/70">
             <div class="flex items-start gap-3">
@@ -154,231 +200,548 @@
                 <i data-lucide="alert-triangle" class="w-5 h-5"></i>
               </div>
               <div>
-                <h4 class="text-sm font-bold text-amber-950">WhatsApp Desconectado do Bot</h4>
+                <h4 class="text-sm font-bold text-amber-950">WhatsApp Desconectado</h4>
                 <p class="text-xs text-amber-800 mt-0.5">
-                  Conecte o seu WhatsApp digitando seu número abaixo para receber o código ou escaneando o QR Code.
+                  Conecte solicitando o código de pareamento com o seu número de telefone abaixo.
                 </p>
               </div>
             </div>
-            <div class="flex items-center gap-2 w-full md:w-auto">
-              <button onclick="resetWhatsAppAuth()" class="w-full md:w-auto px-4 py-2 rounded-xl text-xs font-bold text-amber-950 bg-amber-200 hover:bg-amber-300 border border-amber-300 shadow-2xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                Resetar Sessão Antiga
-              </button>
-            </div>
+            <button onclick="resetWhatsAppAuth()" class="px-4 py-2 rounded-xl text-xs font-bold text-amber-950 bg-amber-200 hover:bg-amber-300 border border-amber-300 shadow-2xs flex items-center justify-center gap-1.5 trans-all cursor-pointer">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              Resetar Sessão Antiga
+            </button>
           </div>
 
-          <!-- Connection Options: Pairing Code or QR Code -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-1">
-            <!-- Col 1: Direct Pairing Code -->
             <div class="bg-white p-4 rounded-xl border border-amber-200 space-y-3">
               <div class="flex items-center gap-2">
                 <i data-lucide="key-round" class="w-4 h-4 text-emerald-600"></i>
-                <h5 class="text-xs font-bold text-slate-900">Código de Pareamento (Recomendado)</h5>
+                <h5 class="text-xs font-bold text-slate-900">Código de Pareamento de 8 Dígitos</h5>
               </div>
-              <p class="text-[11px] text-slate-500 leading-relaxed">
-                Digite seu número com DDI e DDD para receber o código de 8 dígitos na hora:
-              </p>
               <div class="flex gap-2">
-                <input type="text" id="manual-pairing-phone" placeholder="Ex: 5511999998888" class="text-xs border border-slate-300 rounded-xl px-3 py-2 flex-1 focus:ring-2 focus:ring-emerald-500 font-mono">
-                <button onclick="requestManualPairing()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-2xs cursor-pointer whitespace-nowrap">
-                  Gerar Código
-                </button>
+                <input id="manual-pairing-phone" type="text" placeholder="Ex: 5511999998888" class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-emerald-500" />
+                <button onclick="requestManualPairing()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold trans-all cursor-pointer">Gerar Código</button>
               </div>
-              <div id="pairing-code-display" class="hidden p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col items-center justify-center gap-1 text-center">
-                <span class="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">Código de Pareamento Gerado:</span>
-                <span id="pairing-code-val" class="font-mono text-2xl font-extrabold text-emerald-700 tracking-widest my-1"></span>
-                <span class="text-[10px] text-emerald-700">No WhatsApp: <b>Aparelhos conectados</b> &gt; <b>Conectar um aparelho</b> &gt; <b>Conectar com número de telefone</b></span>
+              <div id="pairing-code-display" class="hidden p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-center">
+                <span class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider block">Código para digitar no WhatsApp:</span>
+                <span id="pairing-code-val" class="font-mono text-xl font-black text-emerald-900 tracking-widest mt-1 block select-all"></span>
               </div>
             </div>
 
-            <!-- Col 2: QR Code Scanning -->
-            <div class="bg-white p-4 rounded-xl border border-amber-200 space-y-3 flex flex-col items-center text-center">
-              <div class="flex items-center gap-2 w-full justify-start">
-                <i data-lucide="qr-code" class="w-4 h-4 text-slate-700"></i>
-                <h5 class="text-xs font-bold text-slate-900">Escanear QR Code</h5>
-              </div>
-              <div id="qr-code-container" class="flex items-center justify-center p-2 bg-slate-50 rounded-xl border border-slate-200 min-h-[160px] w-full">
-                <span class="text-xs text-slate-400">Aguardando QR Code...</span>
-              </div>
-              <p class="text-[10px] text-slate-500">
-                Aparelhos Conectados &gt; Conectar um aparelho &gt; Aponte a câmera
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Metrics 4-Card Grid -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Card 1: Total Convertidos -->
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
-            <div class="flex items-center justify-between text-slate-500">
-              <span class="text-xs font-semibold">Figurinhas Criadas</span>
-              <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-              </div>
-            </div>
-            <div id="metric-total-stickers" class="text-2xl md:text-3xl font-extrabold text-slate-900 font-mono">0</div>
-            <p class="text-[11px] text-slate-500 flex items-center gap-1">
-              <span class="text-emerald-600 font-semibold">100%</span> taxa de sucesso
-            </p>
-          </div>
-
-          <!-- Card 2: Imagens Convertidas -->
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
-            <div class="flex items-center justify-between text-slate-500">
-              <span class="text-xs font-semibold">Fotos Estáticas</span>
-              <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <i data-lucide="file-image" class="w-4 h-4"></i>
-              </div>
-            </div>
-            <div id="metric-image-stickers" class="text-2xl md:text-3xl font-extrabold text-slate-900 font-mono">0</div>
-            <p class="text-[11px] text-slate-500">Sharp (WebP 512x512)</p>
-          </div>
-
-          <!-- Card 3: Vídeos / GIFs -->
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
-            <div class="flex items-center justify-between text-slate-500">
-              <span class="text-xs font-semibold">Vídeos / Animados</span>
-              <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-                <i data-lucide="video" class="w-4 h-4"></i>
-              </div>
-            </div>
-            <div id="metric-video-stickers" class="text-2xl md:text-3xl font-extrabold text-slate-900 font-mono">0</div>
-            <p class="text-[11px] text-slate-500">FFmpeg (WebP Animado &lt;500KB)</p>
-          </div>
-
-          <!-- Card 4: Fila / Atividade -->
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
-            <div class="flex items-center justify-between text-slate-500">
-              <span class="text-xs font-semibold">Fila / Espera</span>
-              <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                <i data-lucide="clock" class="w-4 h-4"></i>
-              </div>
-            </div>
-            <div id="metric-queue-length" class="text-2xl md:text-3xl font-extrabold text-slate-900 font-mono">0</div>
-            <p class="text-[11px] text-slate-500">JobQueue sequencial</p>
-          </div>
-        </div>
-
-        <!-- 2-Column Grid: Quick Automation Switches + Recent Mini Stream -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-          <!-- Left: Quick Automation Switches (5 cols) -->
-          <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="bg-white p-4 rounded-xl border border-amber-200 flex flex-col items-center justify-center text-center space-y-2">
               <div class="flex items-center gap-2">
-                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
-                <h3 class="text-sm font-bold text-slate-900">Automação Rápida</h3>
+                <i data-lucide="qr-code" class="w-4 h-4 text-slate-600"></i>
+                <h5 class="text-xs font-bold text-slate-900">QR Code Alternativo</h5>
               </div>
-              <span class="text-xs text-slate-500">Tempo real</span>
-            </div>
-
-            <div class="space-y-3">
-              <!-- Switch: Auto Image -->
-              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 transition-colors">
-                <div>
-                  <span class="text-xs font-semibold text-slate-900 block">Fotos Automáticas</span>
-                  <span class="text-[11px] text-slate-500 block">Converte fotos recebidas sem comando</span>
-                </div>
-                <input type="checkbox" id="switch-auto-image" onchange="updateQuickSetting('autoImage', this.checked)" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer" checked>
-              </div>
-
-              <!-- Switch: Auto Video -->
-              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 transition-colors">
-                <div>
-                  <span class="text-xs font-semibold text-slate-900 block">Vídeos Curtos Automáticos</span>
-                  <span class="text-[11px] text-slate-500 block">Converte vídeos &lt;10s para figurinhas</span>
-                </div>
-                <input type="checkbox" id="switch-auto-video" onchange="updateQuickSetting('autoVideo', this.checked)" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer" checked>
-              </div>
-
-              <!-- Switch: Auto GIF -->
-              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 transition-colors">
-                <div>
-                  <span class="text-xs font-semibold text-slate-900 block">GIFs Automáticos</span>
-                  <span class="text-[11px] text-slate-500 block">Converte reproduções em loop</span>
-                </div>
-                <input type="checkbox" id="switch-auto-gif" onchange="updateQuickSetting('autoGif', this.checked)" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer" checked>
-              </div>
-
-              <!-- Switch: Commands -->
-              <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 hover:bg-slate-50 transition-colors">
-                <div>
-                  <span class="text-xs font-semibold text-slate-900 block">Comandos de Texto</span>
-                  <span class="text-[11px] text-slate-500 block">Habilita /sticker, /ping, /help</span>
-                </div>
-                <input type="checkbox" id="switch-commands" onchange="updateQuickSetting('commandsEnabled', this.checked)" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer" checked>
+              <div id="dashboard-qr-container" class="w-32 h-32 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center overflow-hidden">
+                <span class="text-[10px] text-slate-400">Aguardando QR...</span>
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Access Mode Indicator Callout -->
-            <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200/60 flex items-center justify-between">
-              <div>
-                <span class="text-xs font-bold text-emerald-900 block">Modo de Acesso Atual</span>
-                <span id="dashboard-access-label" class="text-xs text-emerald-700 font-medium">Somente Eu (Only Me)</span>
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Hoje</span>
+              <span id="metric-today" class="text-xl font-black text-slate-900 mt-1 block">0</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Na Fila</span>
+              <span id="metric-queued" class="text-xl font-black text-slate-900 mt-1 block">0</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><i data-lucide="clock" class="w-5 h-5"></i></div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Falhas</span>
+              <span id="metric-failed" class="text-xl font-black text-slate-900 mt-1 block">0</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center"><i data-lucide="alert-circle" class="w-5 h-5"></i></div>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Biblioteca</span>
+              <span id="metric-library-total" class="text-xl font-black text-slate-900 mt-1 block">0</span>
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center"><i data-lucide="folder-heart" class="w-5 h-5"></i></div>
+          </div>
+        </div>
+
+        <!-- Quick Toggles & Flow Info -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-emerald-600"></i>
+              Gatilhos de Conversão Automática
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer trans-all">
+                <div class="flex items-center gap-2.5">
+                  <i data-lucide="image" class="w-4 h-4 text-slate-600"></i>
+                  <span class="text-xs font-semibold text-slate-800">Fotos</span>
+                </div>
+                <input id="toggle-img" type="checkbox" onchange="updateQuickSetting('images', this.checked)" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+              </label>
+              <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer trans-all">
+                <div class="flex items-center gap-2.5">
+                  <i data-lucide="video" class="w-4 h-4 text-slate-600"></i>
+                  <span class="text-xs font-semibold text-slate-800">Vídeos</span>
+                </div>
+                <input id="toggle-vid" type="checkbox" onchange="updateQuickSetting('videos', this.checked)" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+              </label>
+              <label class="flex items-center justify-between p-3.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer trans-all">
+                <div class="flex items-center gap-2.5">
+                  <i data-lucide="film" class="w-4 h-4 text-slate-600"></i>
+                  <span class="text-xs font-semibold text-slate-800">GIFs</span>
+                </div>
+                <input id="toggle-gif" type="checkbox" onchange="updateQuickSetting('gifs', this.checked)" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
+              </label>
+            </div>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <i data-lucide="message-square" class="w-4 h-4 text-slate-500"></i>
+                <div>
+                  <span class="text-xs font-bold text-slate-800 block">Modo de Processamento</span>
+                  <span id="dash-processing-mode-desc" class="text-[11px] text-slate-500">Interativo: Envia opções 👀 ao receber mídia</span>
+                </div>
               </div>
-              <button onclick="navigate('access')" class="text-xs font-bold text-emerald-700 bg-white px-3 py-1.5 rounded-lg border border-emerald-300 shadow-xs hover:bg-emerald-50">
-                Gerenciar
+              <button onclick="navigate('automations')" class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-100 trans-all cursor-pointer">Alterar</button>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Status Card -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-4 h-4 text-purple-600"></i>
+              Ações Rápidas
+            </h3>
+            <div class="space-y-2">
+              <button onclick="navigate('editor')" class="w-full p-2.5 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-900 text-xs font-bold flex items-center justify-between trans-all cursor-pointer">
+                <span class="flex items-center gap-2"><i data-lucide="wand-2" class="w-4 h-4"></i> Criar Sticker Manual</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+              <button onclick="navigate('library')" class="w-full p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 text-xs font-bold flex items-center justify-between trans-all cursor-pointer">
+                <span class="flex items-center gap-2"><i data-lucide="folder-heart" class="w-4 h-4"></i> Ver Favoritos</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+              <button onclick="navigate('ranking')" class="w-full p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-xs font-bold flex items-center justify-between trans-all cursor-pointer">
+                <span class="flex items-center gap-2"><i data-lucide="trophy" class="w-4 h-4"></i> Ver Ranking</span>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </button>
             </div>
           </div>
+        </div>
 
-          <!-- Right: Recent Activity Stream (7 cols) -->
-          <div class="lg:col-span-7 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div class="flex items-center gap-2">
-                <i data-lucide="activity" class="w-4 h-4 text-emerald-600"></i>
-                <h3 class="text-sm font-bold text-slate-900">Atividades Recentes</h3>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 2: EDITOR WEB (CRIAR STICKER) -->
+      <!-- ===================================================================== -->
+      <section id="view-editor" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Estúdio de Criação de Stickers</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Faça upload de uma foto do celular ou computador, aplique efeitos determinísticos e gere a figurinha sem IA.</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Coluna 1: Upload & Controles -->
+            <div class="space-y-4">
+              <div class="border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-2xl p-6 text-center cursor-pointer trans-all bg-slate-50/50" onclick="document.getElementById('editor-file-input').click()">
+                <input id="editor-file-input" type="file" accept="image/*" class="hidden" onchange="handleEditorFileUpload(event)" />
+                <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-slate-400 mb-2"></i>
+                <span class="text-xs font-bold text-slate-800 block">Clique para escolher uma imagem</span>
+                <span class="text-[11px] text-slate-400 block mt-0.5">PNG, JPG, WebP ou GIF (Máx. 15MB)</span>
               </div>
-              <button onclick="navigate('activity')" class="text-xs font-semibold text-emerald-600 hover:text-emerald-700">Ver todas &rarr;</button>
+
+              <!-- Ajustes de Efeito -->
+              <div class="space-y-3 pt-2">
+                <label class="block">
+                  <span class="text-xs font-bold text-slate-700">Texto do Meme (Topo | Rodapé):</span>
+                  <input id="editor-meme-text" type="text" placeholder="Ex: QUANDO O CÓDIGO | COMPILA DE PRIMEIRA" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500" />
+                </label>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="block">
+                    <span class="text-xs font-bold text-slate-700">Corte (Crop):</span>
+                    <select id="editor-crop-select" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500">
+                      <option value="square">Quadrado (Padrão 1:1)</option>
+                      <option value="portrait">Retrato (3:4)</option>
+                      <option value="auto">Auto-Crop (Aparar bordas)</option>
+                    </select>
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs font-bold text-slate-700">Rotação:</span>
+                    <select id="editor-rotate-select" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500">
+                      <option value="0">0° (Sem rotação)</option>
+                      <option value="90">90° Horário</option>
+                      <option value="180">180° Invertido</option>
+                      <option value="270">270°</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <label class="block">
+                    <span class="text-xs font-bold text-slate-700">Borda (Outline):</span>
+                    <select id="editor-outline-select" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500">
+                      <option value="">Nenhuma</option>
+                      <option value="#FFFFFF">Branco Clássico</option>
+                      <option value="#000000">Preto</option>
+                      <option value="#10B981">Verde WhatsApp</option>
+                    </select>
+                  </label>
+
+                  <label class="block">
+                    <span class="text-xs font-bold text-slate-700">Sombra (Shadow):</span>
+                    <select id="editor-shadow-select" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500">
+                      <option value="">Nenhuma</option>
+                      <option value="soft">Suave (Soft)</option>
+                      <option value="hard">Marcada (Hard)</option>
+                    </select>
+                  </label>
+                </div>
+
+                <div class="flex items-center gap-4 pt-1">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input id="editor-flip-chk" type="checkbox" class="w-4 h-4 rounded text-emerald-600" />
+                    <span class="text-xs font-semibold text-slate-700">Flip Vertical</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input id="editor-mirror-chk" type="checkbox" class="w-4 h-4 rounded text-emerald-600" />
+                    <span class="text-xs font-semibold text-slate-700">Mirror Horizontal</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input id="editor-save-library-chk" type="checkbox" checked class="w-4 h-4 rounded text-emerald-600" />
+                    <span class="text-xs font-semibold text-slate-700">Salvar na Biblioteca</span>
+                  </label>
+                </div>
+
+                <button onclick="processEditorSticker()" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm trans-all flex items-center justify-center gap-2 cursor-pointer mt-4">
+                  <i data-lucide="sparkles" class="w-4 h-4"></i>
+                  Gerar Figurinha WebP (512x512)
+                </button>
+              </div>
             </div>
 
-            <!-- Activity List -->
-            <div id="dashboard-activity-list" class="divide-y divide-slate-100 max-h-[340px] overflow-y-auto pr-1">
-              <div class="py-6 text-center text-xs text-slate-400">Nenhuma atividade registrada ainda. Envie uma foto ou vídeo para começar!</div>
+            <!-- Coluna 2: Preview & Resultado -->
+            <div class="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200 rounded-2xl text-center space-y-4">
+              <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pré-visualização do Sticker</span>
+              <div class="w-64 h-64 bg-white border-2 border-slate-200 rounded-2xl flex items-center justify-center overflow-hidden shadow-inner relative">
+                <!-- Checkered background for transparency -->
+                <div class="absolute inset-0 opacity-15" style="background-image: radial-gradient(#000 10%, transparent 11%), radial-gradient(#000 10%, transparent 11%); background-size: 16px 16px; background-position: 0 0, 8px 8px;"></div>
+                <img id="editor-preview-img" src="" class="max-w-full max-h-full object-contain relative hidden" />
+                <div id="editor-preview-empty" class="text-slate-400 flex flex-col items-center gap-2">
+                  <i data-lucide="image" class="w-8 h-8"></i>
+                  <span class="text-xs font-semibold">Nenhuma imagem carregada</span>
+                </div>
+              </div>
+
+              <div id="editor-result-info" class="hidden text-xs text-slate-600 space-y-1">
+                <span id="editor-result-meta" class="font-mono font-bold text-slate-900 block">512x512 • 45 KB</span>
+                <a id="editor-download-link" href="#" download="sticker.webp" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-bold text-[11px] trans-all mt-2">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i> Baixar WebP
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       <!-- ===================================================================== -->
-      <!-- VIEW 2: ACTIVITY STREAM -->
+      <!-- VIEW 3: BIBLIOTECA & FAVORITOS -->
       <!-- ===================================================================== -->
-      <section id="view-activity" class="space-y-6 hidden">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 class="text-xl font-bold text-slate-900">Histórico de Atividade</h2>
-            <p class="text-xs text-slate-500">Registro em tempo real de mensagens recebidas, conversões e tentativas não autorizadas.</p>
+      <section id="view-library" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Biblioteca de Stickers</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Todas as figurinhas geradas pelo bot salvas com deduplicação SHA256.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="setLibraryFilter(false)" id="lib-filter-all" class="px-3 py-1.5 rounded-lg text-xs font-bold trans-all bg-emerald-50 text-emerald-800">Todos</button>
+              <button onclick="setLibraryFilter(true)" id="lib-filter-fav" class="px-3 py-1.5 rounded-lg text-xs font-bold trans-all text-slate-600 hover:bg-slate-100 flex items-center gap-1">
+                <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500"></i> Favoritos
+              </button>
+            </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="clearActivities()" class="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-xs">
-              Limpar Histórico
-            </button>
-            <button onclick="refreshData()" class="px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 shadow-xs flex items-center gap-1.5">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-              Atualizar
-            </button>
+
+          <!-- Grid de Stickers -->
+          <div id="library-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 pt-2">
+            <!-- Preenchido dinamicamente via JS -->
+          </div>
+          <div id="library-empty" class="hidden py-12 text-center text-slate-400 space-y-2">
+            <i data-lucide="images" class="w-8 h-8 mx-auto text-slate-300"></i>
+            <span class="text-xs font-semibold block">Nenhuma figurinha nesta categoria.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 4: PACOTES (PACKS) -->
+      <!-- ===================================================================== -->
+      <section id="view-packs" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Coleções & Pacotes de Figurinhas</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Organize figurinhas em pacotes personalizados.</p>
+            </div>
+            <div class="flex gap-2">
+              <input id="new-pack-name" type="text" placeholder="Nome do novo pacote" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500" />
+              <button onclick="createNewPack()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold trans-all cursor-pointer">Criar Pacote</button>
+            </div>
+          </div>
+
+          <div id="packs-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+            <!-- Preenchido dinamicamente via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 5: RANKING & ANALYTICS -->
+      <!-- ===================================================================== -->
+      <section id="view-ranking" class="hidden space-y-6">
+        <!-- Period Filters -->
+        <div class="flex items-center justify-between gap-4">
+          <h3 class="text-base font-bold text-slate-900">Ranking de Conversão de Figurinha</h3>
+          <div class="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
+            <button onclick="setRankingPeriod('today')" id="rank-btn-today" class="px-3 py-1 rounded-lg text-xs font-bold trans-all bg-emerald-50 text-emerald-800">Hoje</button>
+            <button onclick="setRankingPeriod('7days')" id="rank-btn-7days" class="px-3 py-1 rounded-lg text-xs font-bold trans-all text-slate-600 hover:bg-slate-100">7 Dias</button>
+            <button onclick="setRankingPeriod('30days')" id="rank-btn-30days" class="px-3 py-1 rounded-lg text-xs font-bold trans-all text-slate-600 hover:bg-slate-100">30 Dias</button>
+            <button onclick="setRankingPeriod('allTime')" id="rank-btn-allTime" class="px-3 py-1 rounded-lg text-xs font-bold trans-all text-slate-600 hover:bg-slate-100">Total</button>
           </div>
         </div>
 
+        <!-- Analytics Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Stickers Concluídos</span>
+            <span id="rank-total-stickers" class="text-xl font-black text-slate-900 block mt-1">0</span>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Fotos Convertidas</span>
+            <span id="rank-images" class="text-xl font-black text-slate-900 block mt-1">0</span>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Vídeos & GIFs</span>
+            <span id="rank-videos" class="text-xl font-black text-slate-900 block mt-1">0</span>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Tempo Médio</span>
+            <span id="rank-avg-time" class="text-xl font-black text-slate-900 block mt-1">0 ms</span>
+          </div>
+        </div>
+
+        <!-- Ranking Leaderboard -->
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200/80">
-                <tr>
-                  <th class="py-3 px-4">Hora</th>
-                  <th class="py-3 px-4">Chat / Usuário</th>
-                  <th class="py-3 px-4">Tipo</th>
-                  <th class="py-3 px-4">Status</th>
-                  <th class="py-3 px-4">Duração</th>
-                  <th class="py-3 px-4">Detalhes</th>
+          <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-900">Usuários Mais Ativos (Stickers Gerados com Sucesso)</span>
+            <span class="text-[10px] text-slate-400">Números mascarados por privacidade</span>
+          </div>
+          <div id="ranking-list" class="divide-y divide-slate-100">
+            <!-- Preenchido dinamicamente via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 6: PRESETS & AUTOMAÇÕES -->
+      <!-- ===================================================================== -->
+      <section id="view-automations" class="hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Modo de Processamento & Presets -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Modo de Processamento</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Escolha como o bot reage quando alguém envia uma mídia no chat privado.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <label class="p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 cursor-pointer trans-all flex flex-col justify-between" id="proc-mode-interactive-card">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-900">Interativo (Padrão)</span>
+                    <input type="radio" name="proc-mode" value="interactive" onchange="changeProcessingMode('interactive')" class="text-emerald-600">
+                  </div>
+                  <p class="text-[11px] text-slate-500 leading-relaxed">
+                    Responde: *"Recebi sua mídia 👀 O que quer fazer?"* com menu de opções e sessão de 5 minutos.
+                  </p>
+                </div>
+              </label>
+
+              <label class="p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 cursor-pointer trans-all flex flex-col justify-between" id="proc-mode-automatic-card">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-bold text-slate-900">Automático</span>
+                    <input type="radio" name="proc-mode" value="automatic" onchange="changeProcessingMode('automatic')" class="text-emerald-600">
+                  </div>
+                  <p class="text-[11px] text-slate-500 leading-relaxed">
+                    Converte imediatamente a mídia em figurinha sem enviar perguntas.
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            <!-- Presets de Qualidade -->
+            <div class="pt-4 border-t border-slate-100 space-y-3">
+              <h4 class="text-xs font-bold text-slate-900">Presets de Qualidade & Compressão</h4>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="presets-grid">
+                <!-- Preenchido dinamicamente via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Automações: Auto-Off, Schedule e Party Mode -->
+          <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-5">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">Automações & Desligamento</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Economize bateria e configure horários de atividade do bot.</p>
+            </div>
+
+            <!-- Party Mode -->
+            <div class="p-4 rounded-xl bg-pink-50 border border-pink-200 flex items-center justify-between">
+              <div class="space-y-0.5">
+                <span class="text-xs font-bold text-pink-950 flex items-center gap-1.5">
+                  <i data-lucide="party-popper" class="w-4 h-4 text-pink-600"></i> Party Mode
+                </span>
+                <span class="text-[11px] text-pink-800 block">Ativa todas as mídias e ranking. *(Grupos continuam 100% bloqueados)*</span>
+              </div>
+              <input id="auto-party-mode-chk" type="checkbox" onchange="togglePartyMode(this.checked)" class="w-5 h-5 rounded text-pink-600" />
+            </div>
+
+            <!-- Auto-Off -->
+            <div class="space-y-2">
+              <span class="text-xs font-bold text-slate-800 block">Desligamento Automático (Auto-Off):</span>
+              <select id="auto-off-select" onchange="updateAutoOff(this.value)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-emerald-500">
+                <option value="0">Nunca (Never - Permanece ligado)</option>
+                <option value="30">Após 30 minutos de inatividade</option>
+                <option value="60">Após 1 hora</option>
+                <option value="180">Após 3 horas</option>
+              </select>
+              <span id="auto-off-timer-label" class="text-[11px] text-emerald-700 font-mono block hidden"></span>
+            </div>
+
+            <!-- Schedule -->
+            <div class="space-y-3 pt-2 border-t border-slate-100">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-800">Horário Programado (Schedule):</span>
+                <input id="auto-schedule-chk" type="checkbox" onchange="updateSchedule()" class="w-4 h-4 rounded text-emerald-600" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="block">
+                  <span class="text-[11px] font-semibold text-slate-500">Ligar às:</span>
+                  <input id="auto-schedule-start" type="time" value="08:00" onchange="updateSchedule()" class="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono" />
+                </label>
+                <label class="block">
+                  <span class="text-[11px] font-semibold text-slate-500">Pausar às (suporta virada):</span>
+                  <input id="auto-schedule-end" type="time" value="22:00" onchange="updateSchedule()" class="w-full mt-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 7: CONTROLE DE ACESSO -->
+      <!-- ===================================================================== -->
+      <section id="view-access" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-6">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Modo de Acesso</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Defina quem tem permissão para receber figurinhas em conversas privadas.</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button onclick="selectAccessMode('self')" id="access-card-self" class="p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 text-left trans-all">
+              <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="user" class="w-4 h-4 text-slate-600"></i>
+                <span class="text-xs font-bold text-slate-900">Somente Eu (Only Me)</span>
+              </div>
+              <p class="text-[11px] text-slate-500">Processa apenas mídias no chat com o seu próprio número.</p>
+            </button>
+
+            <button onclick="selectAccessMode('whitelist')" id="access-card-whitelist" class="p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 text-left trans-all">
+              <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="list-checks" class="w-4 h-4 text-slate-600"></i>
+                <span class="text-xs font-bold text-slate-900">Lista Permitida (Whitelist)</span>
+              </div>
+              <p class="text-[11px] text-slate-500">Apenas números adicionados abaixo têm acesso.</p>
+            </button>
+
+            <button onclick="selectAccessMode('all')" id="access-card-all" class="p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 text-left trans-all">
+              <div class="flex items-center gap-2 mb-1">
+                <i data-lucide="users" class="w-4 h-4 text-slate-600"></i>
+                <span class="text-xs font-bold text-slate-900">Todos (Everyone)</span>
+              </div>
+              <p class="text-[11px] text-slate-500">Qualquer pessoa em chat privado. *(Grupos continuam bloqueados)*</p>
+            </button>
+          </div>
+
+          <!-- Add to Whitelist Form -->
+          <div class="pt-4 border-t border-slate-100 space-y-4">
+            <h4 class="text-xs font-bold text-slate-900">Contatos Autorizados</h4>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input id="whitelist-input-name" type="text" placeholder="Nome do contato (opcional)" class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-emerald-500" />
+              <input id="whitelist-input-phone" type="text" placeholder="Telefone (ex: 5511999998888)" class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono focus:outline-none focus:border-emerald-500" />
+              <button onclick="addContactToWhitelist()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold trans-all cursor-pointer">Adicionar</button>
+            </div>
+
+            <!-- Contacts Table -->
+            <div class="rounded-xl border border-slate-200 overflow-hidden">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-500">
+                    <th class="py-2.5 px-4 font-semibold">Nome</th>
+                    <th class="py-2.5 px-4 font-semibold">Telefone</th>
+                    <th class="py-2.5 px-4 font-semibold">Convertidos</th>
+                    <th class="py-2.5 px-4 font-semibold text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="whitelist-table-body" class="divide-y divide-slate-100">
+                  <!-- Preenchido dinamicamente via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- VIEW 8: ATIVIDADE AO VIVO -->
+      <!-- ===================================================================== -->
+      <section id="view-activity" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Feed de Eventos em Tempo Real
+            </h3>
+            <button onclick="clearActivityFeed()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold trans-all cursor-pointer">Limpar Feed</button>
+          </div>
+
+          <div class="rounded-xl border border-slate-200 overflow-hidden">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500">
+                  <th class="py-2.5 px-4 font-semibold">Horário</th>
+                  <th class="py-2.5 px-4 font-semibold">Remetente</th>
+                  <th class="py-2.5 px-4 font-semibold">Tipo</th>
+                  <th class="py-2.5 px-4 font-semibold">Status</th>
+                  <th class="py-2.5 px-4 font-semibold">Tempo</th>
+                  <th class="py-2.5 px-4 font-semibold">Detalhes</th>
                 </tr>
               </thead>
-              <tbody id="activity-table-body" class="divide-y divide-slate-100 text-slate-700">
-                <tr>
-                  <td colspan="6" class="py-8 text-center text-slate-400">Nenhum evento registrado ainda.</td>
-                </tr>
+              <tbody id="activity-table-body" class="divide-y divide-slate-100 font-mono text-[11px]">
+                <!-- Preenchido dinamicamente via JS -->
               </tbody>
             </table>
           </div>
@@ -386,173 +749,63 @@
       </section>
 
       <!-- ===================================================================== -->
-      <!-- VIEW 3: ACCESS CONTROL -->
+      <!-- VIEW 9: SISTEMA & MONITOR -->
       <!-- ===================================================================== -->
-      <section id="view-access" class="space-y-6 hidden">
-        <div>
-          <h2 class="text-xl font-bold text-slate-900">Controle de Acesso</h2>
-          <p class="text-xs text-slate-500">Defina quem pode interagir com o bot e crie sua lista de contatos autorizados.</p>
-        </div>
-
-        <!-- 3 Access Mode Selector Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Option 1: Only Me -->
-          <div onclick="selectAccessMode('only_me')" id="mode-card-only_me" class="cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 hover:border-slate-300 shadow-xs relative">
-            <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
-                <i data-lucide="lock" class="w-5 h-5"></i>
-              </div>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Máxima Privacidade</span>
-            </div>
-            <div class="mt-4">
-              <h3 class="text-sm font-bold text-slate-900">Somente Eu (Only Me)</h3>
-              <p class="text-xs text-slate-500 mt-1">Apenas mensagens enviadas no seu próprio chat privado são convertidas.</p>
-            </div>
+      <section id="view-system" class="hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Processo RAM (RSS)</span>
+            <span id="sys-ram-process" class="text-xl font-black text-slate-900 block mt-1">0 MB</span>
           </div>
-
-          <!-- Option 2: Whitelist (Recommended) -->
-          <div onclick="selectAccessMode('whitelist')" id="mode-card-whitelist" class="cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-emerald-500 shadow-sm ring-2 ring-emerald-500/20 relative">
-            <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                <i data-lucide="user-check" class="w-5 h-5"></i>
-              </div>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Recomendado</span>
-            </div>
-            <div class="mt-4">
-              <h3 class="text-sm font-bold text-slate-900">Lista Permitida (Whitelist)</h3>
-              <p class="text-xs text-slate-500 mt-1">Apenas os contatos adicionados à lista abaixo podem usar o bot.</p>
-            </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">RAM Total do Aparelho</span>
+            <span id="sys-ram-system" class="text-xl font-black text-slate-900 block mt-1">0 / 0 MB</span>
           </div>
-
-          <!-- Option 3: Everyone -->
-          <div onclick="selectAccessMode('everyone')" id="mode-card-everyone" class="cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 hover:border-slate-300 shadow-xs relative">
-            <div class="flex items-start justify-between">
-              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
-                <i data-lucide="users" class="w-5 h-5"></i>
-              </div>
-              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Acesso Livre</span>
-            </div>
-            <div class="mt-4">
-              <h3 class="text-sm font-bold text-slate-900">Todos (Everyone)</h3>
-              <p class="text-xs text-slate-500 mt-1">Qualquer pessoa que mandar foto ou vídeo no privado recebe a figurinha.</p>
-            </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Sessões Interativas</span>
+            <span id="sys-active-sessions" class="text-xl font-black text-slate-900 block mt-1">0</span>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
+            <span class="text-[11px] font-bold text-slate-400 uppercase">Uptime do Processo</span>
+            <span id="sys-uptime" class="text-xl font-black text-slate-900 block mt-1">0m</span>
           </div>
         </div>
 
-        <!-- Whitelist Contact Manager Section -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-base font-bold text-slate-900">Contatos Autorizados na Whitelist</h3>
-              <p class="text-xs text-slate-500">Pessoas autorizadas a enviar mídia para o bot gerar figurinhas.</p>
+              <h3 class="text-sm font-bold text-slate-900">Modo Desenvolvedor & Logs da Pipeline</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Telemetria técnica em tempo real (Detector, Validador, Fila, Processador e Compressão).</p>
             </div>
-            <div class="flex items-center gap-2">
-              <input type="text" id="contact-search-input" oninput="filterContacts(this.value)" placeholder="Buscar por nome ou número..." class="text-xs border border-slate-200 rounded-xl px-3 py-2 w-48 sm:w-64 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <button onclick="openAddModal()" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm flex items-center gap-1.5 transition-colors">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                Adicionar Pessoa
-              </button>
-            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input id="dev-mode-chk" type="checkbox" onchange="toggleDevMode(this.checked)" class="w-5 h-5 rounded text-emerald-600" />
+              <span class="text-xs font-bold text-slate-800">Ativar Debug</span>
+            </label>
           </div>
 
-          <!-- Contact Cards Grid -->
-          <div id="whitelist-contacts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div class="col-span-full py-8 text-center text-xs text-slate-400">Nenhum contato na lista permitida. Clique em "Adicionar Pessoa" para liberar amigos ou familiares.</div>
+          <div id="dev-logs-container" class="hidden p-4 rounded-xl bg-slate-950 text-slate-100 font-mono text-xs space-y-1.5 max-h-96 overflow-y-auto">
+            <!-- Logs preenchidos dinamicamente via JS -->
           </div>
         </div>
       </section>
 
       <!-- ===================================================================== -->
-      <!-- VIEW 4: SETTINGS -->
+      <!-- VIEW 10: CONFIGURAÇÕES GERAIS -->
       <!-- ===================================================================== -->
-      <section id="view-settings" class="space-y-6 hidden">
-        <div>
-          <h2 class="text-xl font-bold text-slate-900">Configurações do Sistema</h2>
-          <p class="text-xs text-slate-500">Ajuste os parâmetros de mídia, metadados do pacote de figurinhas e limites de segurança.</p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div class="lg:col-span-8 space-y-6">
-            <!-- Sticker Metadata Card -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
-              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
-                Metadados do Pacote Exif
-              </h3>
-              <p class="text-xs text-slate-500">Informações que aparecem quando alguém toca na figurinha no WhatsApp.</p>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Pacote (Pack Name)</label>
-                  <input type="text" id="settings-pack-name" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500" value="Auto Sticker Bot">
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold text-slate-700 mb-1">Autor (Author)</label>
-                  <input type="text" id="settings-pack-author" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500" value="Criado por mim">
-                </div>
-              </div>
-
-              <div class="pt-2 flex justify-end">
-                <button onclick="savePackSettings()" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors">
-                  Salvar Metadados
-                </button>
-              </div>
-            </div>
-
-            <!-- Engine & Security Info Card -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
-              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <i data-lucide="shield" class="w-4 h-4 text-emerald-600"></i>
-                Regras de Segurança e Anti-Loop
-              </h3>
-              <ul class="text-xs text-slate-600 space-y-2">
-                <li class="flex items-center gap-2">
-                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0"></i>
-                  <span><b>Anti-loop ativo:</b> Ignora figurinhas enviadas para evitar auto-respostas infinitas.</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0"></i>
-                  <span><b>Grupos ignorados:</b> Por padrão, mensagens em grupos são ignoradas para economizar bateria.</span>
-                </li>
-                <li class="flex items-center gap-2">
-                  <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500 shrink-0"></i>
-                  <span><b>Deduplicação de mensagens:</b> Cache LRU de 500 IDs previne reprocessamento de retentativas de rede.</span>
-                </li>
-              </ul>
-            </div>
+      <section id="view-settings" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+          <h3 class="text-base font-bold text-slate-900">Metadados das Figurinhas (EXIF)</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <label class="block">
+              <span class="text-xs font-bold text-slate-700">Nome do Pacote (Pack Name):</span>
+              <input id="settings-pack-name" type="text" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-emerald-500" />
+            </label>
+            <label class="block">
+              <span class="text-xs font-bold text-slate-700">Autor da Figurinha (Author):</span>
+              <input id="settings-author-name" type="text" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold focus:outline-none focus:border-emerald-500" />
+            </label>
           </div>
-
-          <!-- Right Column: System Telemetry (4 cols) -->
-          <div class="lg:col-span-4 space-y-6">
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4">
-              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <i data-lucide="cpu" class="w-4 h-4 text-emerald-600"></i>
-                Telemetria do Sistema
-              </h3>
-              <div class="space-y-3 text-xs">
-                <div class="flex justify-between py-1 border-b border-slate-100">
-                  <span class="text-slate-500">Plataforma</span>
-                  <span id="telemetry-platform" class="font-mono font-semibold text-slate-800">-</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-100">
-                  <span class="text-slate-500">Node.js</span>
-                  <span id="telemetry-node" class="font-mono font-semibold text-slate-800">-</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-100">
-                  <span class="text-slate-500">Memória RAM</span>
-                  <span id="telemetry-ram" class="font-mono font-semibold text-slate-800">-</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-100">
-                  <span class="text-slate-500">Sharp (Pipeline)</span>
-                  <span class="font-mono font-semibold text-emerald-600">Ativo</span>
-                </div>
-                <div class="flex justify-between py-1 border-b border-slate-100">
-                  <span class="text-slate-500">FFmpeg (Vídeo)</span>
-                  <span class="font-mono font-semibold text-emerald-600">Ativo</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <button onclick="saveExifSettings()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold trans-all cursor-pointer">Salvar Metadados</button>
         </div>
       </section>
 
@@ -560,602 +813,798 @@
   </main>
 
   <!-- ========================================================================= -->
-  <!-- MOBILE BOTTOM NAVIGATION BAR -->
+  <!-- MOBILE BOTTOM NAVIGATION -->
   <!-- ========================================================================= -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-4 py-2 flex items-center justify-around">
-    <button onclick="navigate('dashboard')" id="mobile-nav-dashboard" class="flex flex-col items-center gap-1 text-emerald-600">
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 py-1.5 flex items-center justify-around z-30 shadow-lg">
+    <button onclick="navigate('dashboard')" class="flex flex-col items-center gap-0.5 p-1 text-emerald-600">
       <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-      <span class="text-[10px] font-bold">Início</span>
+      <span class="text-[10px] font-semibold">Início</span>
     </button>
-    <button onclick="navigate('activity')" id="mobile-nav-activity" class="flex flex-col items-center gap-1 text-slate-500">
-      <i data-lucide="activity" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Atividade</span>
+    <button onclick="navigate('editor')" class="flex flex-col items-center gap-0.5 p-1 text-slate-500">
+      <i data-lucide="wand-2" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold">Criar</span>
     </button>
-    <button onclick="navigate('access')" id="mobile-nav-access" class="flex flex-col items-center gap-1 text-slate-500">
-      <i data-lucide="shield-check" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Acesso</span>
+    <button onclick="navigate('library')" class="flex flex-col items-center gap-0.5 p-1 text-slate-500">
+      <i data-lucide="image" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold">Stickers</span>
     </button>
-    <button onclick="navigate('settings')" id="mobile-nav-settings" class="flex flex-col items-center gap-1 text-slate-500">
-      <i data-lucide="sliders" class="w-5 h-5"></i>
-      <span class="text-[10px] font-medium">Ajustes</span>
+    <button onclick="navigate('ranking')" class="flex flex-col items-center gap-0.5 p-1 text-slate-500">
+      <i data-lucide="trophy" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold">Ranking</span>
+    </button>
+    <button onclick="navigate('automations')" class="flex flex-col items-center gap-0.5 p-1 text-slate-500">
+      <i data-lucide="zap" class="w-5 h-5"></i>
+      <span class="text-[10px] font-semibold">Ajustes</span>
     </button>
   </nav>
 
-  <!-- ========================================================================= -->
-  <!-- ADD PERSON MODAL -->
-  <!-- ========================================================================= -->
-  <div id="add-person-modal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 space-y-4">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900">Adicionar à Whitelist</h3>
-        <button onclick="closeAddModal()" class="text-slate-400 hover:text-slate-600">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <p class="text-xs text-slate-500">Insira o nome e o número de WhatsApp (com DDD) da pessoa que você deseja liberar para usar o bot.</p>
-
-      <form onsubmit="submitAddPerson(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Nome ou Apelido</label>
-          <input type="text" id="modal-person-name" required placeholder="Ex: Lucas Amigo" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Número de Telefone (WhatsApp)</label>
-          <input type="text" id="modal-person-phone" required placeholder="Ex: 5511999998888" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2.5 font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500">
-          <span class="text-[11px] text-slate-400 mt-1 block">Apenas números (código do país + DDD + número).</span>
-        </div>
-
-        <div class="pt-2 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeAddModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
-          <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs">Adicionar Contato</button>
-        </div>
-      </form>
-    </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-20 md:bottom-6 right-4 md:right-6 max-w-sm px-4 py-3 rounded-xl bg-slate-900 text-white text-xs font-semibold shadow-xl border border-slate-800 flex items-center gap-3 transform translate-y-20 opacity-0 pointer-events-none trans-all z-50">
+    <span id="toast-icon"></span>
+    <span id="toast-msg">Mensagem</span>
   </div>
 
-  <!-- ========================================================================= -->
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <!-- ========================================================================= -->
-  <div id="toast-container" class="fixed bottom-20 md:bottom-6 right-6 z-50 space-y-2 pointer-events-none"></div>
-
-  <!-- ========================================================================= -->
-  <!-- JAVASCRIPT CONTROLLER & API INTEGRATION -->
-  <!-- ========================================================================= -->
+  <!-- JavaScript Application Logic -->
   <script>
-    // State
-    let currentView = 'dashboard';
     let isBotActive = true;
-    let currentAccessMode = 'whitelist';
-    let allContacts = [];
-    let recentActivities = [];
+    let currentView = 'dashboard';
+    let currentAccessMode = 'self';
+    let currentRankPeriod = 'allTime';
+    let libraryFavoritesOnly = false;
+    let editorImageBase64 = null;
 
-    // Initialize Lucide Icons
     function initIcons() {
-      lucide.createIcons();
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
     }
 
-    // Toast Notification
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      const bg = type === 'error' ? 'bg-rose-600' : 'bg-slate-900';
-      toast.className = `${bg} text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
-      toast.innerHTML = `<span>${message}</span>`;
-      container.appendChild(toast);
-      
-      requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-2', 'opacity-0');
-      });
-
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      if (!toast || !toastMsg) return;
+      toastMsg.innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
       setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-2');
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 3500);
     }
 
-    // Navigation
-    function navigate(view) {
-      currentView = view;
-      ['dashboard', 'activity', 'access', 'settings'].forEach(v => {
+    function navigate(viewName) {
+      currentView = viewName;
+      const views = ['dashboard', 'editor', 'library', 'packs', 'ranking', 'automations', 'access', 'activity', 'system', 'settings'];
+      views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
-        const navBtn = document.getElementById(`nav-btn-${v}`);
-        const mobBtn = document.getElementById(`mobile-nav-${v}`);
-        if (el) el.classList.toggle('hidden', v !== view);
-        if (navBtn) {
-          if (v === view) {
-            navBtn.className = "nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors bg-emerald-50 text-emerald-800";
+        const btn = document.getElementById(`nav-btn-${v}`);
+        if (el) el.classList.toggle('hidden', v !== viewName);
+        if (btn) {
+          if (v === viewName) {
+            btn.className = 'nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all bg-emerald-50 text-emerald-800';
           } else {
-            navBtn.className = "nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-colors text-slate-600 hover:bg-slate-50 hover:text-slate-900";
+            btn.className = 'nav-item w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold trans-all text-slate-600 hover:bg-slate-50 hover:text-slate-900';
           }
-        }
-        if (mobBtn) {
-          mobBtn.className = v === view ? "flex flex-col items-center gap-1 text-emerald-600" : "flex flex-col items-center gap-1 text-slate-500";
         }
       });
 
       const titles = {
-        dashboard: ['WhatsApp Auto Sticker', 'Controle de automação de figurinhas e fila de conversão ao vivo.'],
-        activity: ['Histórico de Atividade', 'Registro em tempo real de mensagens recebidas e figurinhas criadas.'],
-        access: ['Controle de Acesso', 'Defina quem pode usar seu bot e gerencie a lista permitida.'],
-        settings: ['Configurações do Sistema', 'Metadados do pacote e telemetria dos motores de conversão.']
+        dashboard: 'Dashboard de Controle',
+        editor: 'Criar Sticker',
+        library: 'Biblioteca de Stickers',
+        packs: 'Pacotes & Coleções',
+        ranking: 'Ranking de Conversão',
+        automations: 'Presets & Automações',
+        access: 'Controle de Acesso',
+        activity: 'Feed de Atividades',
+        system: 'Monitor do Sistema',
+        settings: 'Configurações'
       };
-      if (titles[view]) {
-        document.getElementById('page-title').textContent = titles[view][0];
-        document.getElementById('page-subtitle').textContent = titles[view][1];
-      }
+      const titleEl = document.getElementById('page-title');
+      if (titleEl) titleEl.innerText = titles[viewName] || 'Dashboard';
+
+      if (viewName === 'library') fetchLibrary();
+      if (viewName === 'packs') fetchPacks();
+      if (viewName === 'ranking') fetchRanking();
+      if (viewName === 'system') fetchSystemTelemetry();
+
       initIcons();
     }
 
-    // API Poll & Data Fetching
+    // Status Polling
     async function fetchStatus() {
       try {
         const res = await fetch('/api/status');
         if (!res.ok) return;
         const data = await res.json();
-        
-        // Update Bot State
-        isBotActive = data.botActive;
+
+        // 1. Bot State
+        isBotActive = Boolean(data.botActive);
         updateMasterSwitchUI(isBotActive);
 
-        // Update WhatsApp Connected Status
-        const statusBadge = document.getElementById('sidebar-status-badge');
-        const statusPill = document.getElementById('header-status-pill');
-        const statusText = document.getElementById('header-status-text');
-        const sidebarPhone = document.getElementById('sidebar-phone');
-        const sidebarUptime = document.getElementById('sidebar-uptime');
-        const disconnBanner = document.getElementById('whatsapp-disconnect-banner');
-        const pairingDisplay = document.getElementById('pairing-code-display');
-        const pairingVal = document.getElementById('pairing-code-val');
-        
+        // 2. WhatsApp Status
+        const banner = document.getElementById('whatsapp-disconnect-banner');
+        const sideBadge = document.getElementById('sidebar-status-badge');
+        const sidePhone = document.getElementById('sidebar-phone');
+        const sideUptime = document.getElementById('sidebar-uptime');
+        const sideIndicator = document.getElementById('sidebar-online-indicator');
+
         if (data.connected) {
-          statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Conectado';
-          statusBadge.className = 'inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700';
-          if (statusText) statusText.textContent = isBotActive ? 'Baileys Ativo' : 'Baileys Pausado';
-          if (statusPill) statusPill.className = 'hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200';
-          if (disconnBanner) disconnBanner.classList.add('hidden');
+          if (banner) banner.classList.add('hidden');
+          if (sideBadge) sideBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Conectado';
+          if (sideBadge) sideBadge.className = 'inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700';
+          if (sideIndicator) sideIndicator.className = 'absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white';
         } else {
-          statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Desconectado';
-          statusBadge.className = 'inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700';
-          if (statusText) statusText.textContent = 'WhatsApp Desconectado';
-          if (statusPill) statusPill.className = 'hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200';
-          if (disconnBanner) {
-            disconnBanner.classList.remove('hidden');
-            if (data.pairingCode) {
-              pairingDisplay.classList.remove('hidden');
-              pairingVal.textContent = data.pairingCode;
-            }
-            const qrContainer = document.getElementById('qr-code-container');
-            if (qrContainer && data.qrSvg) {
-              qrContainer.innerHTML = data.qrSvg;
-            }
+          if (banner) banner.classList.remove('hidden');
+          if (sideBadge) sideBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-500"></span> Desconectado';
+          if (sideBadge) sideBadge.className = 'inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700';
+          if (sideIndicator) sideIndicator.className = 'absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-amber-500 rounded-full border-2 border-white';
+        }
+
+        if (sidePhone) sidePhone.innerText = data.phoneNumber || 'Próprio Número';
+        if (sideUptime) sideUptime.innerText = `Uptime: ${data.uptime || '0m'}`;
+
+        // QR Code
+        const qrContainer = document.getElementById('dashboard-qr-container');
+        if (qrContainer && data.qrSvg && !data.connected) {
+          qrContainer.innerHTML = data.qrSvg;
+        }
+
+        // Metrics
+        const mToday = document.getElementById('metric-today');
+        const mQueued = document.getElementById('metric-queued');
+        const mFailed = document.getElementById('metric-failed');
+        if (mToday) mToday.innerText = data.metrics?.stickersToday || 0;
+        if (mQueued) mQueued.innerText = data.metrics?.queued || 0;
+        if (mFailed) mFailed.innerText = data.metrics?.failed || 0;
+
+        // Quick settings
+        const tImg = document.getElementById('toggle-img');
+        const tVid = document.getElementById('toggle-vid');
+        const tGif = document.getElementById('toggle-gif');
+        if (tImg) tImg.checked = Boolean(data.quickSettings?.images);
+        if (tVid) tVid.checked = Boolean(data.quickSettings?.videos);
+        if (tGif) tGif.checked = Boolean(data.quickSettings?.gifs);
+
+        // Processing Mode
+        const modeDesc = document.getElementById('dash-processing-mode-desc');
+        if (modeDesc) {
+          modeDesc.innerText = data.processingMode === 'interactive'
+            ? 'Interativo: Envia opções 👀 ao receber mídia (TTL 5m)'
+            : 'Automático: Converte diretamente sem perguntas';
+        }
+        updateProcModeUI(data.processingMode || 'interactive');
+
+        // Party mode & Auto Off
+        const partyChk = document.getElementById('auto-party-mode-chk');
+        if (partyChk) partyChk.checked = Boolean(data.partyMode);
+
+        const autoOffSelect = document.getElementById('auto-off-select');
+        if (autoOffSelect) autoOffSelect.value = String(data.autoOffMinutes || 0);
+
+        const timerLabel = document.getElementById('auto-off-timer-label');
+        if (timerLabel) {
+          if (data.autoOffRemainingSeconds > 0) {
+            const m = Math.floor(data.autoOffRemainingSeconds / 60);
+            const s = data.autoOffRemainingSeconds % 60;
+            timerLabel.innerText = `⏱️ Desligamento em ${m}m ${s}s`;
+            timerLabel.classList.remove('hidden');
+          } else {
+            timerLabel.classList.add('hidden');
           }
         }
 
-        if (data.accessMode) {
-          currentAccessMode = data.accessMode;
-          updateAccessModeUI(currentAccessMode);
-        }
+        // Schedule
+        const schedChk = document.getElementById('auto-schedule-chk');
+        const schedStart = document.getElementById('auto-schedule-start');
+        const schedEnd = document.getElementById('auto-schedule-end');
+        if (schedChk) schedChk.checked = Boolean(data.schedule?.enabled);
+        if (schedStart && data.schedule?.start) schedStart.value = data.schedule.start;
+        if (schedEnd && data.schedule?.end) schedEnd.value = data.schedule.end;
 
-        if (sidebarPhone) sidebarPhone.textContent = data.phoneNumber || 'Próprio WhatsApp';
-        if (sidebarUptime) sidebarUptime.textContent = `Uptime: ${data.uptime || '0m'}`;
-
-        // Update Metrics
-        if (data.metrics) {
-          document.getElementById('metric-total-stickers').textContent = data.metrics.totalStickersConverted || 0;
-          document.getElementById('metric-image-stickers').textContent = data.metrics.imagesConverted || 0;
-          document.getElementById('metric-video-stickers').textContent = data.metrics.videosConverted || 0;
-          document.getElementById('metric-queue-length').textContent = data.metrics.queueLength || 0;
-        }
-
-        // Update Quick Settings
-        if (data.settings) {
-          const imgSw = document.getElementById('switch-auto-image');
-          const vidSw = document.getElementById('switch-auto-video');
-          const gifSw = document.getElementById('switch-auto-gif');
-          const cmdSw = document.getElementById('switch-commands');
-          if (imgSw) imgSw.checked = data.settings.autoImage !== false;
-          if (vidSw) vidSw.checked = data.settings.autoVideo !== false;
-          if (gifSw) gifSw.checked = data.settings.autoGif !== false;
-          if (cmdSw) cmdSw.checked = data.settings.commandsEnabled !== false;
-
-          const packName = document.getElementById('settings-pack-name');
-          const packAuthor = document.getElementById('settings-pack-author');
-          if (packName && !packName.matches(':focus')) packName.value = data.settings.packName || 'Auto Sticker Bot';
-          if (packAuthor && !packAuthor.matches(':focus')) packAuthor.value = data.settings.packAuthor || 'Criado por mim';
-        }
-
-        // Update Telemetry
-        if (data.systemInfo) {
-          document.getElementById('telemetry-platform').textContent = data.systemInfo.platform || 'Linux/Android';
-          document.getElementById('telemetry-node').textContent = data.systemInfo.runtime || 'Node.js';
-          document.getElementById('telemetry-ram').textContent = data.systemInfo.memoryUsage || '-';
-        }
+        // Settings inputs
+        const pName = document.getElementById('settings-pack-name');
+        const aName = document.getElementById('settings-author-name');
+        if (pName && !pName.value && data.quickSettings?.packName) pName.value = data.quickSettings.packName;
+        if (aName && !aName.value && data.quickSettings?.authorName) aName.value = data.quickSettings.authorName;
 
       } catch (err) {
-        console.error('Error fetching status:', err);
+        console.warn('Polling status error', err);
       }
     }
 
-    async function fetchWhitelist() {
-      try {
-        const res = await fetch('/api/whitelist');
-        if (!res.ok) return;
-        const data = await res.json();
-        
-        currentAccessMode = data.mode || 'whitelist';
-        allContacts = data.contacts || [];
-        
-        // Update Count
-        const countBadge = document.getElementById('nav-whitelist-count');
-        if (countBadge) countBadge.textContent = allContacts.length;
-
-        updateAccessModeUI(currentAccessMode);
-        renderContacts(allContacts);
-      } catch (err) {
-        console.error('Error fetching whitelist:', err);
-      }
-    }
-
-    async function fetchRecent() {
-      try {
-        const res = await fetch('/api/recent');
-        if (!res.ok) return;
-        const data = await res.json();
-        recentActivities = data.activities || [];
-        renderActivities(recentActivities);
-      } catch (err) {
-        console.error('Error fetching recent activities:', err);
-      }
-    }
-
-    // UI Updates
     function updateMasterSwitchUI(active) {
       const btn = document.getElementById('master-switch-btn');
       const thumb = document.getElementById('master-switch-thumb');
       const label = document.getElementById('master-switch-label');
-      if (active) {
-        btn.className = "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-emerald-500 focus:outline-none";
-        thumb.className = "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-5";
-        label.textContent = "ATIVO";
-        label.className = "text-xs font-bold text-emerald-700";
-      } else {
-        btn.className = "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out bg-slate-300 focus:outline-none";
-        thumb.className = "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out translate-x-0";
-        label.textContent = "PAUSADO";
-        label.className = "text-xs font-bold text-slate-500";
-      }
-    }
-
-    function updateAccessModeUI(mode) {
-      const modes = ['only_me', 'whitelist', 'everyone'];
-      const backendToUi = { self: 'only_me', whitelist: 'whitelist', all: 'everyone' };
-      const uiMode = backendToUi[mode] || mode;
-
-      modes.forEach(m => {
-        const card = document.getElementById(`mode-card-${m}`);
-        if (!card) return;
-        if (m === uiMode) {
-          card.className = "cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-emerald-500 shadow-sm ring-2 ring-emerald-500/20 relative";
+      if (btn && thumb && label) {
+        if (active) {
+          btn.className = 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent trans-all bg-emerald-500 focus:outline-none';
+          thumb.className = 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 trans-all translate-x-5';
+          label.innerText = 'ATIVO';
+          label.className = 'text-xs font-bold text-emerald-700';
         } else {
-          card.className = "cursor-pointer p-5 rounded-2xl border transition-all duration-200 bg-white border-slate-200 hover:border-slate-300 shadow-xs relative";
-        }
-      });
-
-      const labelEl = document.getElementById('dashboard-access-label');
-      if (labelEl) {
-        if (uiMode === 'only_me') labelEl.textContent = 'Somente Eu (Only Me)';
-        else if (uiMode === 'whitelist') labelEl.textContent = `Lista Permitida (${allContacts.length} contatos)`;
-        else labelEl.textContent = 'Todos (Acesso Livre)';
-      }
-    }
-
-    function renderContacts(contacts) {
-      const grid = document.getElementById('whitelist-contacts-grid');
-      if (!grid) return;
-      
-      if (!contacts || contacts.length === 0) {
-        grid.innerHTML = '<div class="col-span-full py-8 text-center text-xs text-slate-400">Nenhum contato na lista permitida. Clique em "Adicionar Pessoa" para liberar amigos ou familiares.</div>';
-        return;
-      }
-
-      grid.innerHTML = contacts.map(c => `
-        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3 group hover:bg-white hover:border-emerald-300 transition-all shadow-2xs">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs shrink-0">
-              ${c.name.charAt(0).toUpperCase()}
-            </div>
-            <div class="min-w-0">
-              <span class="text-xs font-bold text-slate-900 block truncate">${c.name}</span>
-              <span class="text-[11px] font-mono text-slate-500 block truncate">${c.phone}</span>
-            </div>
-          </div>
-          <button onclick="removeContact('${c.id}')" title="Remover" class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors">
-            <i data-lucide="trash-2" class="w-4 h-4"></i>
-          </button>
-        </div>
-      `).join('');
-      initIcons();
-    }
-
-    function filterContacts(query) {
-      if (!query || !query.trim()) {
-        renderContacts(allContacts);
-        return;
-      }
-      const q = query.toLowerCase();
-      const filtered = allContacts.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q));
-      renderContacts(filtered);
-    }
-
-    function renderActivities(activities) {
-      // 1. Dashboard Mini List
-      const miniList = document.getElementById('dashboard-activity-list');
-      if (miniList) {
-        if (!activities || activities.length === 0) {
-          miniList.innerHTML = '<div class="py-6 text-center text-xs text-slate-400">Nenhuma atividade registrada ainda. Envie uma foto ou vídeo para começar!</div>';
-        } else {
-          miniList.innerHTML = activities.slice(0, 5).map(act => {
-            const isOk = act.status === 'Processed';
-            const isUnauth = act.status === 'Unauthorized';
-            const badgeClass = isOk ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : isUnauth ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-rose-50 text-rose-700 border-rose-200';
-            const icon = act.mediaType === 'VIDEO' ? 'video' : act.mediaType === 'GIF' ? 'film' : 'file-image';
-            
-            return `
-              <div class="py-3 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
-                    <i data-lucide="${icon}" class="w-4 h-4"></i>
-                  </div>
-                  <div class="min-w-0">
-                    <span class="text-xs font-semibold text-slate-800 block truncate">${act.senderPhone || act.chatJid}</span>
-                    <span class="text-[10px] text-slate-400 block">${act.timeAgo || act.timestamp || 'agora'}</span>
-                  </div>
-                </div>
-                <div class="flex items-center gap-2 shrink-0">
-                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
-                    ${act.status}
-                  </span>
-                  ${act.durationMs ? `<span class="text-[10px] font-mono text-slate-400">${act.durationMs}ms</span>` : ''}
-                </div>
-              </div>
-            `;
-          }).join('');
+          btn.className = 'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent trans-all bg-slate-300 focus:outline-none';
+          thumb.className = 'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 trans-all translate-x-0';
+          label.innerText = 'PAUSADO';
+          label.className = 'text-xs font-bold text-slate-500';
         }
       }
-
-      // 2. Full Table View
-      const tableBody = document.getElementById('activity-table-body');
-      if (tableBody) {
-        if (!activities || activities.length === 0) {
-          tableBody.innerHTML = '<tr><td colspan="6" class="py-8 text-center text-slate-400">Nenhum evento registrado ainda.</td></tr>';
-        } else {
-          tableBody.innerHTML = activities.map(act => {
-            const isOk = act.status === 'Processed';
-            const isUnauth = act.status === 'Unauthorized';
-            const badgeClass = isOk ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : isUnauth ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-rose-50 text-rose-700 border-rose-200';
-            
-            return `
-              <tr class="hover:bg-slate-50/50">
-                <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">${act.timestamp || '-'}</td>
-                <td class="py-3 px-4 font-mono font-semibold text-slate-800">${act.senderPhone || act.chatJid}</td>
-                <td class="py-3 px-4 font-semibold text-slate-700">${act.mediaType || 'UNKNOWN'}</td>
-                <td class="py-3 px-4">
-                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold border ${badgeClass}">${act.status}</span>
-                </td>
-                <td class="py-3 px-4 font-mono text-slate-500">${act.durationMs ? `${act.durationMs}ms` : '-'}</td>
-                <td class="py-3 px-4 text-slate-500 truncate max-w-xs">${act.detail || '-'}</td>
-              </tr>
-            `;
-          }).join('');
-        }
-      }
-      initIcons();
     }
 
-    // User Actions
+    function updateProcModeUI(mode) {
+      const cardInt = document.getElementById('proc-mode-interactive-card');
+      const cardAuto = document.getElementById('proc-mode-automatic-card');
+      const radioInt = document.querySelector('input[name="proc-mode"][value="interactive"]');
+      const radioAuto = document.querySelector('input[name="proc-mode"][value="automatic"]');
+
+      if (radioInt) radioInt.checked = mode === 'interactive';
+      if (radioAuto) radioAuto.checked = mode === 'automatic';
+
+      if (cardInt) cardInt.className = mode === 'interactive' ? 'p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 cursor-pointer trans-all flex flex-col justify-between' : 'p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer trans-all flex flex-col justify-between';
+      if (cardAuto) cardAuto.className = mode === 'automatic' ? 'p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/40 cursor-pointer trans-all flex flex-col justify-between' : 'p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 cursor-pointer trans-all flex flex-col justify-between';
+    }
+
     async function toggleBotMaster() {
-      const next = !isBotActive;
       try {
-        const res = await fetch('/api/bot/toggle', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ active: next })
-        });
-        if (res.ok) {
-          isBotActive = next;
-          updateMasterSwitchUI(isBotActive);
-          showToast(isBotActive ? 'Bot ativado com sucesso!' : 'Bot pausado (mensagens ignoradas)');
-          fetchStatus();
-        }
-      } catch (e) {
+        const res = await fetch('/api/bot/toggle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ active: !isBotActive }) });
+        const data = await res.json();
+        isBotActive = Boolean(data.active);
+        updateMasterSwitchUI(isBotActive);
+        showToast(isBotActive ? 'Bot ativado com sucesso!' : 'Bot pausado.');
+      } catch {
         showToast('Erro ao alternar status do bot', 'error');
       }
     }
 
-    async function resetWhatsAppAuth() {
-      if (!confirm('Deseja limpar as credenciais antigas e solicitar um novo código de pareamento do WhatsApp?')) return;
+    async function changeProcessingMode(mode) {
       try {
-        showToast('Limpando sessão antiga e solicitando novo código...', 'info');
-        const res = await fetch('/api/bot/reset-auth', { method: 'POST' });
-        const json = await res.json();
-        showToast(json.message || 'Sessão limpa! Aguarde o novo código...', 'success');
-        setTimeout(fetchStatus, 3000);
-      } catch (err) {
-        showToast('Erro ao resetar sessão: ' + err.message, 'error');
+        const res = await fetch('/api/processing-mode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode }) });
+        if (res.ok) {
+          updateProcModeUI(mode);
+          showToast(`Modo alterado para ${mode === 'interactive' ? 'Interativo' : 'Automático'}!`);
+          fetchStatus();
+        }
+      } catch {
+        showToast('Erro ao alterar modo de processamento', 'error');
       }
     }
 
     async function updateQuickSetting(key, val) {
       try {
-        const res = await fetch('/api/bot/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ [key]: val })
-        });
-        if (res.ok) {
-          showToast('Configuração salva!');
-          fetchStatus();
-        }
-      } catch (e) {
+        await fetch('/api/bot/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ [key]: val }) });
+        showToast('Configuração atualizada!');
+        fetchStatus();
+      } catch {
         showToast('Erro ao salvar configuração', 'error');
-      }
-    }
-
-    async function selectAccessMode(rawMode) {
-      let mode = rawMode;
-      if (rawMode === 'only_me') mode = 'self';
-      if (rawMode === 'everyone') mode = 'all';
-
-      try {
-        const res = await fetch('/api/access-mode', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode })
-        });
-        if (res.ok) {
-          currentAccessMode = mode;
-          updateAccessModeUI(mode);
-          const labels = { self: 'Somente Eu (Only Me)', whitelist: 'Lista Permitida (Whitelist)', all: 'Todos (Everyone)' };
-          showToast(`Modo alterado para: ${labels[mode] || mode}`);
-          fetchWhitelist();
-        } else {
-          const err = await res.json().catch(() => ({}));
-          showToast('Erro ao alterar modo: ' + (err.error || 'Inválido'), 'error');
-        }
-      } catch (e) {
-        showToast('Erro ao alterar modo de acesso', 'error');
       }
     }
 
     async function requestManualPairing() {
       const input = document.getElementById('manual-pairing-phone');
       const phone = (input?.value || '').trim();
-      if (!phone || phone.replace(/\D/g, '').length < 10) {
-        showToast('Digite um número válido com DDD (ex: 5511999998888)', 'error');
-        return;
-      }
+      if (!phone) return showToast('Digite seu número com DDI e DDD', 'error');
       try {
-        showToast('Solicitando código de pareamento de 8 dígitos...', 'info');
-        const res = await fetch('/api/bot/request-pairing', {
+        showToast('Solicitando código...', 'info');
+        const res = await fetch('/api/bot/request-pairing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phoneNumber: phone }) });
+        const data = await res.json();
+        if (data.pairingCode) {
+          const display = document.getElementById('pairing-code-display');
+          const val = document.getElementById('pairing-code-val');
+          if (display) display.classList.remove('hidden');
+          if (val) val.innerText = data.pairingCode;
+          showToast('Código gerado com sucesso!');
+        }
+      } catch {
+        showToast('Erro ao solicitar pareamento', 'error');
+      }
+    }
+
+    async function resetWhatsAppAuth() {
+      if (!confirm('Deseja resetar as credenciais do WhatsApp para gerar uma nova conexão?')) return;
+      try {
+        await fetch('/api/bot/reset-auth', { method: 'POST' });
+        showToast('Sessão resetada! Gerando novo código...');
+        setTimeout(fetchStatus, 3000);
+      } catch {
+        showToast('Erro ao resetar', 'error');
+      }
+    }
+
+    // Editor Web
+    function handleEditorFileUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        editorImageBase64 = e.target.result;
+        const img = document.getElementById('editor-preview-img');
+        const empty = document.getElementById('editor-preview-empty');
+        if (img) {
+          img.src = editorImageBase64;
+          img.classList.remove('hidden');
+        }
+        if (empty) empty.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function processEditorSticker() {
+      if (!editorImageBase64) {
+        return showToast('Selecione uma imagem primeiro', 'error');
+      }
+
+      const memeText = document.getElementById('editor-meme-text')?.value || '';
+      const crop = document.getElementById('editor-crop-select')?.value || 'square';
+      const rotate = Number(document.getElementById('editor-rotate-select')?.value) || 0;
+      const outline = document.getElementById('editor-outline-select')?.value || '';
+      const shadow = document.getElementById('editor-shadow-select')?.value || '';
+      const flip = Boolean(document.getElementById('editor-flip-chk')?.checked);
+      const mirror = Boolean(document.getElementById('editor-mirror-chk')?.checked);
+      const saveToLibrary = Boolean(document.getElementById('editor-save-library-chk')?.checked);
+
+      showToast('Processando figurinha...', 'info');
+
+      try {
+        const res = await fetch('/api/editor/process', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phoneNumber: phone })
+          body: JSON.stringify({
+            image: editorImageBase64,
+            saveToLibrary,
+            options: { memeText, crop, rotate, outline, shadow, flip, mirror }
+          })
         });
-        const json = await res.json();
-        if (res.ok && json.pairingCode) {
-          const pairingDisplay = document.getElementById('pairing-code-display');
-          const pairingVal = document.getElementById('pairing-code-val');
-          if (pairingDisplay) pairingDisplay.classList.remove('hidden');
-          if (pairingVal) pairingVal.textContent = json.pairingCode;
-          showToast(`Código gerado: ${json.pairingCode}! Digite no WhatsApp.`, 'success');
+
+        const data = await res.json();
+        if (res.ok && data.base64Webp) {
+          const img = document.getElementById('editor-preview-img');
+          const info = document.getElementById('editor-result-info');
+          const meta = document.getElementById('editor-result-meta');
+          const dl = document.getElementById('editor-download-link');
+
+          if (img) img.src = data.base64Webp;
+          if (info) info.classList.remove('hidden');
+          if (meta) meta.innerText = `${data.width}x${data.height} • ${Math.round(data.sizeBytes / 1024)} KB (${data.processingTimeMs}ms)`;
+          if (dl) dl.href = data.base64Webp;
+
+          showToast('Figurinha WebP criada com sucesso!');
         } else {
-          showToast(json.error || 'Erro ao gerar código de pareamento', 'error');
+          showToast(data.error || 'Erro ao processar', 'error');
+        }
+      } catch {
+        showToast('Erro no editor', 'error');
+      }
+    }
+
+    // Library & Favorites
+    async function fetchLibrary() {
+      try {
+        const res = await fetch(`/api/library${libraryFavoritesOnly ? '?favorites=true' : ''}`);
+        const data = await res.json();
+        const grid = document.getElementById('library-grid');
+        const empty = document.getElementById('library-empty');
+        const count = document.getElementById('metric-library-total');
+        const navCount = document.getElementById('nav-library-count');
+
+        const items = data.items || [];
+        if (count) count.innerText = items.length;
+        if (navCount) navCount.innerText = items.length;
+
+        if (items.length === 0) {
+          if (grid) grid.innerHTML = '';
+          if (empty) empty.classList.remove('hidden');
+          return;
+        }
+
+        if (empty) empty.classList.add('hidden');
+        if (grid) {
+          grid.innerHTML = items.map(item => `
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex flex-col items-center gap-2 group hover:border-emerald-500 trans-all">
+              <div class="w-full aspect-square bg-white rounded-lg flex items-center justify-center p-2 relative overflow-hidden">
+                <img src="/api/library/image/${item.id}" class="max-w-full max-h-full object-contain" loading="lazy" />
+                <button onclick="toggleFavorite('${item.id}')" class="absolute top-1 right-1 p-1 rounded-full bg-white/90 shadow-xs hover:scale-110 trans-all cursor-pointer">
+                  <i data-lucide="star" class="w-3.5 h-3.5 ${item.isFavorite ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}"></i>
+                </button>
+              </div>
+              <div class="w-full flex items-center justify-between text-[10px] text-slate-500 font-semibold px-1">
+                <span>${Math.round(item.sizeBytes / 1024)} KB</span>
+                <a href="/api/library/image/${item.id}" download="${item.id}.webp" class="hover:text-emerald-600 trans-all"><i data-lucide="download" class="w-3.5 h-3.5"></i></a>
+              </div>
+            </div>
+          `).join('');
+        }
+        initIcons();
+      } catch (e) {
+        console.warn('Library fetch error', e);
+      }
+    }
+
+    function setLibraryFilter(favs) {
+      libraryFavoritesOnly = favs;
+      const btnAll = document.getElementById('lib-filter-all');
+      const btnFav = document.getElementById('lib-filter-fav');
+      if (btnAll) btnAll.className = !favs ? 'px-3 py-1.5 rounded-lg text-xs font-bold trans-all bg-emerald-50 text-emerald-800' : 'px-3 py-1.5 rounded-lg text-xs font-bold trans-all text-slate-600 hover:bg-slate-100';
+      if (btnFav) btnFav.className = favs ? 'px-3 py-1.5 rounded-lg text-xs font-bold trans-all bg-emerald-50 text-emerald-800 flex items-center gap-1' : 'px-3 py-1.5 rounded-lg text-xs font-bold trans-all text-slate-600 hover:bg-slate-100 flex items-center gap-1';
+      fetchLibrary();
+    }
+
+    async function toggleFavorite(id) {
+      try {
+        const res = await fetch('/api/library/favorite', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+        const data = await res.json();
+        showToast(data.isFavorite ? 'Adicionado aos favoritos ⭐' : 'Removido dos favoritos');
+        fetchLibrary();
+      } catch {
+        showToast('Erro ao favoritar', 'error');
+      }
+    }
+
+    // Packs
+    async function fetchPacks() {
+      try {
+        const res = await fetch('/api/packs');
+        const data = await res.json();
+        const list = document.getElementById('packs-list');
+        const packs = data.packs || [];
+
+        if (list) {
+          if (packs.length === 0) {
+            list.innerHTML = '<div class="col-span-full py-8 text-center text-xs text-slate-400">Nenhum pacote criado ainda.</div>';
+            return;
+          }
+          list.innerHTML = packs.map(p => `
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900">${p.name}</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">${p.stickerIds?.length || 0} stickers</span>
+              </div>
+              <span class="text-[11px] text-slate-500 block">${p.description || 'Coleção de figurinhas'}</span>
+            </div>
+          `).join('');
         }
       } catch (e) {
-        showToast('Erro ao conectar com servidor', 'error');
+        console.warn('Packs fetch error', e);
+      }
+    }
+
+    async function createNewPack() {
+      const input = document.getElementById('new-pack-name');
+      const name = (input?.value || '').trim();
+      if (!name) return showToast('Digite o nome do pacote', 'error');
+
+      try {
+        await fetch('/api/packs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+        if (input) input.value = '';
+        showToast('Pacote criado com sucesso!');
+        fetchPacks();
+      } catch {
+        showToast('Erro ao criar pacote', 'error');
+      }
+    }
+
+    // Ranking & Analytics
+    async function fetchRanking() {
+      try {
+        const [statRes, rankRes] = await Promise.all([
+          fetch(`/api/statistics?period=${currentRankPeriod}`),
+          fetch(`/api/ranking?period=${currentRankPeriod}`)
+        ]);
+        const stats = (await statRes.json()).analytics;
+        const ranks = (await rankRes.json()).ranking || [];
+
+        const totalEl = document.getElementById('rank-total-stickers');
+        const imgEl = document.getElementById('rank-images');
+        const vidEl = document.getElementById('rank-videos');
+        const timeEl = document.getElementById('rank-avg-time');
+
+        if (totalEl) totalEl.innerText = stats?.total || 0;
+        if (imgEl) imgEl.innerText = stats?.images || 0;
+        if (vidEl) vidEl.innerText = (stats?.videos || 0) + (stats?.gifs || 0);
+        if (timeEl) timeEl.innerText = `${stats?.avgProcessingTimeMs || 0} ms`;
+
+        const list = document.getElementById('ranking-list');
+        if (list) {
+          if (ranks.length === 0) {
+            list.innerHTML = '<div class="p-8 text-center text-xs text-slate-400">Nenhum sticker concluído neste período.</div>';
+            return;
+          }
+          const medals = ['🥇', '🥈', '🥉'];
+          list.innerHTML = ranks.map(r => `
+            <div class="p-3.5 flex items-center justify-between hover:bg-slate-50/60 trans-all">
+              <div class="flex items-center gap-3">
+                <span class="text-base">${medals[r.rank - 1] || `#${r.rank}`}</span>
+                <div>
+                  <span class="text-xs font-bold text-slate-800 block">${r.name}</span>
+                  <span class="text-[11px] font-mono text-slate-400">${r.maskedPhone}</span>
+                </div>
+              </div>
+              <span class="text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100">${r.count} stickers</span>
+            </div>
+          `).join('');
+        }
+      } catch (e) {
+        console.warn('Ranking fetch error', e);
+      }
+    }
+
+    function setRankingPeriod(period) {
+      currentRankPeriod = period;
+      ['today', '7days', '30days', 'allTime'].forEach(p => {
+        const btn = document.getElementById(`rank-btn-${p}`);
+        if (btn) {
+          btn.className = p === period
+            ? 'px-3 py-1 rounded-lg text-xs font-bold trans-all bg-emerald-50 text-emerald-800'
+            : 'px-3 py-1 rounded-lg text-xs font-bold trans-all text-slate-600 hover:bg-slate-100';
+        }
+      });
+      fetchRanking();
+    }
+
+    // Automations & Presets
+    async function fetchPresets() {
+      try {
+        const res = await fetch('/api/presets');
+        const data = await res.json();
+        const grid = document.getElementById('presets-grid');
+        const current = data.current || 'original';
+
+        if (grid && data.presets) {
+          grid.innerHTML = Object.entries(data.presets).map(([k, p]) => `
+            <button onclick="selectPreset('${k}')" class="p-3 rounded-xl border-2 text-left trans-all ${k === current ? 'border-emerald-500 bg-emerald-50/50' : 'border-slate-200 hover:border-slate-300'}">
+              <span class="text-xs font-bold text-slate-900 block">${p.label}</span>
+              <span class="text-[10px] text-slate-500 block mt-0.5">${p.imageQuality}% Q • ${p.videoFps} FPS</span>
+            </button>
+          `).join('');
+        }
+      } catch {}
+    }
+
+    async function selectPreset(preset) {
+      try {
+        await fetch('/api/presets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ preset }) });
+        showToast(`Preset alterado para ${preset}!`);
+        fetchPresets();
+      } catch {
+        showToast('Erro ao salvar preset', 'error');
+      }
+    }
+
+    async function togglePartyMode(partyMode) {
+      try {
+        await fetch('/api/automation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ partyMode }) });
+        showToast(partyMode ? 'Party Mode ativado! 🎉' : 'Party Mode desativado.');
+        fetchStatus();
+      } catch {
+        showToast('Erro ao alternar Party Mode', 'error');
+      }
+    }
+
+    async function updateAutoOff(val) {
+      const minutes = Number(val) || 0;
+      try {
+        await fetch('/api/automation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ autoOffMinutes: minutes }) });
+        showToast(minutes > 0 ? `Auto-Off configurado para ${minutes} minutos!` : 'Auto-Off desativado.');
+        fetchStatus();
+      } catch {
+        showToast('Erro ao salvar Auto-Off', 'error');
+      }
+    }
+
+    async function updateSchedule() {
+      const scheduleEnabled = Boolean(document.getElementById('auto-schedule-chk')?.checked);
+      const scheduleStart = document.getElementById('auto-schedule-start')?.value || '08:00';
+      const scheduleEnd = document.getElementById('auto-schedule-end')?.value || '22:00';
+
+      try {
+        await fetch('/api/automation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scheduleEnabled, scheduleStart, scheduleEnd })
+        });
+        showToast('Agendamento salvo com sucesso!');
+        fetchStatus();
+      } catch {
+        showToast('Erro ao salvar agendamento', 'error');
+      }
+    }
+
+    // Access Control
+    async function fetchWhitelist() {
+      try {
+        const res = await fetch('/api/whitelist');
+        const data = await res.json();
+        const tbody = document.getElementById('whitelist-table-body');
+        const contacts = data.contacts || [];
+
+        const navCount = document.getElementById('nav-whitelist-count');
+        if (navCount) navCount.innerText = contacts.length;
+
+        if (tbody) {
+          if (contacts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="py-6 text-center text-slate-400">Nenhum contato na lista permitida.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = contacts.map(c => `
+            <tr>
+              <td class="py-2.5 px-4 font-semibold text-slate-900">${c.name || 'Sem nome'}</td>
+              <td class="py-2.5 px-4 font-mono text-slate-600">${c.phone}</td>
+              <td class="py-2.5 px-4 font-bold text-emerald-700">${c.totalConverted || 0}</td>
+              <td class="py-2.5 px-4 text-right">
+                <button onclick="removeContact('${c.id}')" class="text-rose-600 hover:text-rose-800 font-bold trans-all cursor-pointer">Remover</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch {}
+    }
+
+    async function selectAccessMode(mode) {
+      try {
+        const res = await fetch('/api/access-mode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mode }) });
+        if (res.ok) {
+          currentAccessMode = mode;
+          ['self', 'whitelist', 'all'].forEach(m => {
+            const card = document.getElementById(`access-card-${m}`);
+            if (card) {
+              card.className = m === mode ? 'p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50/50 text-left trans-all' : 'p-4 rounded-xl border-2 border-slate-200 hover:border-slate-300 text-left trans-all';
+            }
+          });
+          showToast('Modo de acesso atualizado!');
+        }
+      } catch {
+        showToast('Erro ao alterar modo de acesso', 'error');
+      }
+    }
+
+    async function addContactToWhitelist() {
+      const nameInput = document.getElementById('whitelist-input-name');
+      const phoneInput = document.getElementById('whitelist-input-phone');
+      const name = (nameInput?.value || '').trim();
+      const phone = (phoneInput?.value || '').trim();
+
+      if (!phone) return showToast('Digite o número de telefone', 'error');
+
+      try {
+        const res = await fetch('/api/whitelist/add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, phone }) });
+        if (res.ok) {
+          if (nameInput) nameInput.value = '';
+          if (phoneInput) phoneInput.value = '';
+          showToast('Contato adicionado!');
+          fetchWhitelist();
+        }
+      } catch {
+        showToast('Erro ao adicionar contato', 'error');
       }
     }
 
     async function removeContact(id) {
-      if (!confirm('Deseja remover este contato da lista permitida?')) return;
       try {
-        const res = await fetch('/api/whitelist/remove', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id })
-        });
-        if (res.ok) {
-          showToast('Contato removido da lista');
-          fetchWhitelist();
-        }
-      } catch (e) {
-        showToast('Erro ao remover contato', 'error');
+        await fetch('/api/whitelist/remove', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+        showToast('Contato removido');
+        fetchWhitelist();
+      } catch {
+        showToast('Erro ao remover', 'error');
       }
     }
 
-    function openAddModal() {
-      document.getElementById('add-person-modal').classList.remove('hidden');
-      document.getElementById('modal-person-name').focus();
+    // Activity Feed Polling
+    async function fetchActivity() {
+      try {
+        const res = await fetch('/api/activity');
+        const data = await res.json();
+        const tbody = document.getElementById('activity-table-body');
+        const list = data.activities || [];
+
+        if (tbody) {
+          if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-400">Nenhum evento registrado ainda.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = list.map(a => `
+            <tr>
+              <td class="py-2.5 px-4 text-slate-400">${a.timestamp || '-'}</td>
+              <td class="py-2.5 px-4 font-bold text-slate-800">${a.senderPhone}</td>
+              <td class="py-2.5 px-4">${a.mediaType}</td>
+              <td class="py-2.5 px-4"><span class="px-2 py-0.5 rounded font-bold ${a.status === 'Processed' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${a.status}</span></td>
+              <td class="py-2.5 px-4 text-slate-500">${a.processingTimeMs ? `${a.processingTimeMs}ms` : '-'}</td>
+              <td class="py-2.5 px-4 text-slate-400">${a.failureReason || a.commandUsed || '-'}</td>
+            </tr>
+          `).join('');
+        }
+      } catch {}
     }
 
-    function closeAddModal() {
-      document.getElementById('add-person-modal').classList.add('hidden');
-      document.getElementById('modal-person-name').value = '';
-      document.getElementById('modal-person-phone').value = '';
+    async function clearActivityFeed() {
+      try {
+        await fetch('/api/activity/clear', { method: 'POST' });
+        showToast('Feed de atividade limpo');
+        fetchActivity();
+      } catch {}
     }
 
-    async function submitAddPerson(e) {
-      e.preventDefault();
-      const name = document.getElementById('modal-person-name').value.trim();
-      const phone = document.getElementById('modal-person-phone').value.trim();
-      if (!name || !phone) return;
+    // System Monitor & Developer Mode
+    async function fetchSystemTelemetry() {
+      try {
+        const res = await fetch('/api/system');
+        const data = (await res.json()).telemetry;
+
+        const pRam = document.getElementById('sys-ram-process');
+        const sRam = document.getElementById('sys-ram-system');
+        const actSess = document.getElementById('sys-active-sessions');
+        const uptimeEl = document.getElementById('sys-uptime');
+
+        if (pRam) pRam.innerText = `${data.memory?.processRssMb || 0} MB`;
+        if (sRam) sRam.innerText = `${data.memory?.systemTotalMb - data.memory?.systemFreeMb} / ${data.memory?.systemTotalMb} MB (${data.memory?.systemUsedPercent}%)`;
+        if (actSess) actSess.innerText = data.activeSessions || 0;
+
+        const h = Math.floor((data.uptimeSeconds || 0) / 3600);
+        const m = Math.floor(((data.uptimeSeconds || 0) % 3600) / 60);
+        if (uptimeEl) uptimeEl.innerText = `${h}h ${m}m`;
+
+        fetchDebugLogs();
+      } catch {}
+    }
+
+    async function toggleDevMode(enabled) {
+      try {
+        await fetch('/api/bot/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ developerMode: enabled }) });
+        const container = document.getElementById('dev-logs-container');
+        if (container) container.classList.toggle('hidden', !enabled);
+        if (enabled) fetchDebugLogs();
+      } catch {}
+    }
+
+    async function fetchDebugLogs() {
+      const container = document.getElementById('dev-logs-container');
+      if (!container || container.classList.contains('hidden')) return;
 
       try {
-        const res = await fetch('/api/whitelist/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, phone })
-        });
-        if (res.ok) {
-          closeAddModal();
-          showToast(`Contato "${name}" adicionado à whitelist!`);
-          fetchWhitelist();
-        } else {
-          showToast('Erro ao adicionar contato', 'error');
+        const res = await fetch('/api/system/debug-logs');
+        const data = await res.json();
+        const logs = data.logs || [];
+
+        if (logs.length === 0) {
+          container.innerHTML = '<span class="text-slate-500">Nenhum log registrado ainda.</span>';
+          return;
         }
-      } catch (e) {
-        showToast('Erro ao conectar ao servidor', 'error');
-      }
+
+        container.innerHTML = logs.map(l => `
+          <div>
+            <span class="text-slate-500">[${new Date(l.timestamp).toLocaleTimeString()}]</span>
+            <span class="text-emerald-400 font-bold uppercase">[${l.stage}]</span>
+            <span>${l.message}</span>
+            ${l.details ? `<span class="text-slate-400 block pl-4">${JSON.stringify(l.details)}</span>` : ''}
+          </div>
+        `).join('');
+      } catch {}
     }
 
-    async function savePackSettings() {
-      const packName = document.getElementById('settings-pack-name').value.trim();
-      const packAuthor = document.getElementById('settings-pack-author').value.trim();
+    // Save Exif Settings
+    async function saveExifSettings() {
+      const packName = document.getElementById('settings-pack-name')?.value;
+      const authorName = document.getElementById('settings-author-name')?.value;
       try {
-        const res = await fetch('/api/bot/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ packName, packAuthor })
-        });
-        if (res.ok) {
-          showToast('Metadados salvos com sucesso!');
-        }
-      } catch (e) {
+        await fetch('/api/bot/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ packName, authorName }) });
+        showToast('Metadados salvos!');
+      } catch {
         showToast('Erro ao salvar metadados', 'error');
       }
     }
 
-    async function clearActivities() {
-      if (!confirm('Deseja limpar o histórico de atividades recentes?')) return;
-      try {
-        const res = await fetch('/api/recent/clear', { method: 'POST' });
-        if (res.ok) {
-          showToast('Histórico de atividades limpo!');
-          fetchRecent();
-        }
-      } catch (e) {
-        showToast('Erro ao limpar histórico', 'error');
-      }
-    }
-
-    function refreshData() {
-      fetchStatus();
-      fetchWhitelist();
-      fetchRecent();
-      showToast('Dados atualizados!');
-    }
-
-    // Initial Load & Polling Loop (every 3 seconds)
-    document.addEventListener('DOMContentLoaded', () => {
+    // Initialize App
+    window.addEventListener('DOMContentLoaded', () => {
       initIcons();
-      refreshData();
+      fetchStatus();
+      fetchPresets();
+      fetchWhitelist();
+      fetchActivity();
+
+      // Periodic Polling
+      setInterval(fetchStatus, 3000);
       setInterval(() => {
-        fetchStatus();
-        fetchWhitelist();
-        fetchRecent();
-      }, 3000);
+        if (currentView === 'activity') fetchActivity();
+        if (currentView === 'system') fetchSystemTelemetry();
+      }, 4000);
     });
   </script>
 </body>

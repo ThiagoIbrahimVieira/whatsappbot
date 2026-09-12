@@ -44,7 +44,9 @@ export class AccessControlManager {
       if (fs.existsSync(WHITELIST_FILE)) {
         const raw = fs.readFileSync(WHITELIST_FILE, 'utf-8');
         const data = JSON.parse(raw);
-        if (data.accessMode) this.accessMode = data.accessMode;
+        if (config.NODE_ENV !== 'test' && process.env.NODE_ENV !== 'test' && data.accessMode) {
+          this.accessMode = data.accessMode;
+        }
         if (Array.isArray(data.contacts)) this.contacts = data.contacts;
         logger.info(
           { count: this.contacts.length, mode: this.accessMode },
@@ -57,6 +59,7 @@ export class AccessControlManager {
   }
 
   private saveToDisk(): void {
+    if (config.NODE_ENV === 'test' || process.env.NODE_ENV === 'test') return;
     try {
       if (!fs.existsSync(DATA_DIR)) {
         fs.mkdirSync(DATA_DIR, { recursive: true });

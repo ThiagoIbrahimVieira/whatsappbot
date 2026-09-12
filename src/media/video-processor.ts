@@ -24,19 +24,26 @@ export class VideoProcessor {
       const probe = await probeMediaWithFFmpeg(inputPath);
       const configuredMax =
         options.maxDurationSeconds || config.MAX_VIDEO_DURATION_SECONDS;
-      const maxDuration = Math.min(
+
+      // 2. Determina a duração do corte (VIDEO_TRIM_MODE=first) garantindo <= 10 segundos
+      let maxDuration = Math.min(
         configuredMax,
         CONSTANTS.MAX_ANIMATED_DURATION_SECONDS
       );
 
-      // 2. Determina a duração do corte (VIDEO_TRIM_MODE=first) garantindo <= 10 segundos
+      if (options.trimSeconds && options.trimSeconds > 0) {
+        maxDuration = Math.min(options.trimSeconds, CONSTANTS.MAX_ANIMATED_DURATION_SECONDS);
+      }
+
       const durationToUse = Math.min(
         probe.durationSeconds > 0 ? probe.durationSeconds : maxDuration,
         maxDuration
       );
 
       // 3. Configurações de compressão e FPS adaptativos para garantir <= 500 KB
-      const defaultFps = options.fps || CONSTANTS.DEFAULT_ANIMATED_FPS;
+      const defaultFps = options.fps && options.fps >= 1 && options.fps <= 30
+        ? Math.round(options.fps)
+        : CONSTANTS.DEFAULT_ANIMATED_FPS;
       const candidateFps = [defaultFps, 10, 8];
       const fpsOptions = Array.from(new Set(candidateFps)).filter((f) => f <= defaultFps);
 
@@ -46,6 +53,12 @@ export class VideoProcessor {
         (q) => q <= defaultQuality
       );
 
+      // Velocidade do vídeo (speed / slow): setpts=PTS/speed
+      let speedFactor = 1.0;
+      if (options.speed && options.speed >= 0.25 && options.speed <= 4.0) {
+        speedFactor = options.speed;
+      }
+
       let bestBuffer: Buffer | null = null;
 
       for (const fps of fpsOptions) {
@@ -54,12 +67,21 @@ export class VideoProcessor {
 
           // Filtro FFmpeg: converte para format=rgba ANTES do pad para que color=black@0
           // gere pixels verdadeiramente transparentes (alfa = 0) no WebP final
-          const filterComplex = [
+          const filterList = [
             `fps=${fps}`,
+          ];
+
+          if (speedFactor !== 1.0) {
+            filterList.push(`setpts=PTS/${speedFactor}`);
+          }
+
+          filterList.push(
             `scale=512:512:force_original_aspect_ratio=decrease`,
             `format=rgba`,
-            `pad=512:512:(ow-iw)/2:(oh-ih)/2:color=black@0`,
-          ].join(',');
+            `pad=512:512:(512-iw)/2:(512-ih)/2:color=black@0`
+          );
+
+          const filterComplex = filterList.join(',');
 
           const args = [
             '-y',
@@ -153,17 +175,41 @@ export class VideoProcessor {
   }
 
   /**
-   * Extrai o primeiro frame do vídeo como imagem estática (usado pelo comando /static).
+   * Extrai um frame do vídeo como imagem estática (usado pelo comando /static).
+   * Suporta:
+   * - sem parâmetro: frame inicial (0.1s)
+   * - timestamp numérico: frame no segundo informado (ex: 4)
+   * - 'middle': frame central da duração total do vídeo
    */
   public async extractStaticFrame(
     inputPath: string,
-    outputDir: string
+    outputDir: string,
+    timestamp?: number | 'middle'
   ): Promise<string> {
+    let seekTime = '00:00:00.100';
+
+    if (timestamp !== undefined) {
+      try {
+        const probe = await probeMediaWithFFmpeg(inputPath);
+        const duration = probe.durationSeconds || 1.0;
+
+        if (timestamp === 'middle') {
+          const middleSec = Math.max(0.1, duration / 2);
+          seekTime = middleSec.toFixed(3);
+        } else if (typeof timestamp === 'number' && !isNaN(timestamp)) {
+          const clamped = Math.max(0, Math.min(timestamp, Math.max(0.1, duration - 0.1)));
+          seekTime = clamped.toFixed(3);
+        }
+      } catch {
+        // Fallback seguro para 0.1s caso o probe falhe
+      }
+    }
+
     const framePath = path.join(outputDir, 'extracted_frame.png');
     const args = [
       '-y',
       '-ss',
-      '00:00:00.100',
+      seekTime,
       '-i',
       inputPath,
       '-vframes',

@@ -23,7 +23,7 @@ export class StickerProcessor {
       }
 
       // Extrai um frame do vídeo/GIF e passa para o processador de imagem estática
-      const framePath = await videoProcessor.extractStaticFrame(inputPath, outputDir);
+      const framePath = await videoProcessor.extractStaticFrame(inputPath, outputDir, options.staticTimestamp);
       const frameBuffer = await fs.readFile(framePath);
       return await imageProcessor.processImage(frameBuffer, outputDir, options);
     }

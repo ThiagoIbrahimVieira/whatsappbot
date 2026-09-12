@@ -5,12 +5,18 @@ import { stickerProcessor } from '../../src/media/sticker-processor.js';
 import { stickerSender } from '../../src/whatsapp/sticker-sender.js';
 import { recentMessages } from '../../src/utils/cache.js';
 import { config } from '../../src/config/config.js';
+import { sessionManager } from '../../src/control/session-manager.js';
+import { botState } from '../../src/control/bot-state.js';
+import { accessControl } from '../../src/control/access-control.js';
 
 describe('Message Router Business Rules', () => {
   let mockSock: any;
 
   beforeEach(() => {
     recentMessages.clear();
+    sessionManager.clear();
+    botState.setProcessingMode('automatic');
+    accessControl.setAccessMode('all');
     mockSock = {
       sendMessage: vi.fn(),
       updateMediaMessage: vi.fn(),

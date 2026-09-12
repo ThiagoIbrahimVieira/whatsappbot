@@ -5,8 +5,12 @@ export declare class VideoProcessor {
      */
     processVideo(inputPath: string, outputDir: string, options?: ProcessingOptions): Promise<ProcessingResult>;
     /**
-     * Extrai o primeiro frame do vídeo como imagem estática (usado pelo comando /static).
+     * Extrai um frame do vídeo como imagem estática (usado pelo comando /static).
+     * Suporta:
+     * - sem parâmetro: frame inicial (0.1s)
+     * - timestamp numérico: frame no segundo informado (ex: 4)
+     * - 'middle': frame central da duração total do vídeo
      */
-    extractStaticFrame(inputPath: string, outputDir: string): Promise<string>;
+    extractStaticFrame(inputPath: string, outputDir: string, timestamp?: number | 'middle'): Promise<string>;
 }
 export declare const videoProcessor: VideoProcessor;
