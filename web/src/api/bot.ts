@@ -35,4 +35,17 @@ export const botApi = {
       body: JSON.stringify(settings),
     });
   },
+
+  resetAuth: async (): Promise<{ success: boolean; message: string }> => {
+    return request<{ success: boolean; message: string }>('/bot/reset-auth', {
+      method: 'POST',
+    });
+  },
+
+  requestPairing: async (phoneNumber: string): Promise<{ success: boolean; pairingCode: string }> => {
+    return request<{ success: boolean; pairingCode: string }>('/bot/request-pairing', {
+      method: 'POST',
+      body: JSON.stringify({ phoneNumber }),
+    });
+  },
 };
