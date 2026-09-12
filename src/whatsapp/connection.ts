@@ -144,8 +144,8 @@ export class WhatsAppConnection {
 
     // Escuta novas mensagens recebidas
     this.sock.ev.on('messages.upsert', async (upsert) => {
-      // Reage apenas a mensagens novas de notificação em tempo real
-      if (upsert.type !== 'notify') return;
+      // Reage tanto a mensagens de terceiros ('notify') quanto a mensagens enviadas do próprio aparelho ('append')
+      if (upsert.type !== 'notify' && upsert.type !== 'append') return;
 
       for (const msg of upsert.messages) {
         try {

@@ -10,7 +10,7 @@ describe('Config Schema Validation (Zod)', () => {
     expect(parsed.AUTO_VIDEO).toBe(true);
     expect(parsed.AUTO_GIF).toBe(true);
     expect(parsed.IGNORE_GROUPS).toBe(true);
-    expect(parsed.IGNORE_OWN_MESSAGES).toBe(true);
+    expect(parsed.IGNORE_OWN_MESSAGES).toBe(false);
     expect(parsed.COMMANDS_ENABLED).toBe(true);
     expect(parsed.MAX_IMAGE_SIZE_MB).toBe(10);
     expect(parsed.MAX_VIDEO_SIZE_MB).toBe(20);

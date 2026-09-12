@@ -48,8 +48,13 @@ export class MessageRouter {
         }
         // =========================================================================
         // REGRA 3: SE FOR MENSAGEM DA PRÓPRIA CONTA, IGNORAR (PREVENÇÃO DE LOOP)
+        // EXCETO SE O USUÁRIO ESTIVER CONVERSANDO CONSIGO MESMO (CHAT "VOCÊ" / MENSAGENS SALVAS)
+        // OU SE IGNORE_OWN_MESSAGES ESTIVER DESATIVADO
         // =========================================================================
-        if (key.fromMe && config.IGNORE_OWN_MESSAGES) {
+        const myPhone = sock.user?.id?.split(':')[0]?.split('@')[0] || config.PAIRING_NUMBER;
+        const chatPhone = chatId.split('@')[0];
+        const isSelfChat = Boolean(myPhone && chatPhone && myPhone === chatPhone);
+        if (key.fromMe && config.IGNORE_OWN_MESSAGES && !isSelfChat) {
             logger.debug({ event: 'message_ignored_own', messageId }, 'Mensagem enviada pela própria conta ignorada para evitar loop');
             return;
         }

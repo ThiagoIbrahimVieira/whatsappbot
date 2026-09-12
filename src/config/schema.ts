@@ -32,7 +32,7 @@ export const envSchema = z.object({
   IGNORE_GROUPS: booleanString(true).refine((val) => val === true, {
     message: 'IGNORE_GROUPS deve ser sempre true na V1 por razões de segurança e arquitetura',
   }),
-  IGNORE_OWN_MESSAGES: booleanString(true),
+  IGNORE_OWN_MESSAGES: booleanString(false),
 
   // Comandos manuais
   COMMANDS_ENABLED: booleanString(true),
