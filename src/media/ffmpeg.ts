@@ -49,9 +49,11 @@ export async function getFFmpegPath(): Promise<string> {
     // Não encontrado no PATH do sistema, tenta o fallback
   }
 
-  // 3. Fallback: ffmpeg-static instalado como dependência
+  // 3. Fallback opcional: ffmpeg-static caso esteja disponível no ambiente
   try {
-    const ffmpegStatic = await import('ffmpeg-static');
+    const pkgName = 'ffmpeg-static';
+    // @ts-ignore
+    const ffmpegStatic = await import(pkgName);
     const staticPath = ffmpegStatic.default || (ffmpegStatic as any);
     if (staticPath && typeof staticPath === 'string') {
       await fs.access(staticPath);
