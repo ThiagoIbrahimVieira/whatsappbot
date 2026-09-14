@@ -26,6 +26,11 @@ export interface BotSettings {
   scheduleStart: string; // 'HH:MM'
   scheduleEnd: string;   // 'HH:MM'
   developerMode: boolean;
+  // Monetização & VIP
+  freemiumEnabled: boolean;
+  dailyFreeLimit: number;
+  vipPriceText: string;
+  pixKey: string;
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -50,6 +55,10 @@ const DEFAULT_SETTINGS: BotSettings = {
   scheduleStart: '08:00',
   scheduleEnd: '22:00',
   developerMode: false,
+  freemiumEnabled: true,
+  dailyFreeLimit: 5,
+  vipPriceText: 'R$ 5,00/mês',
+  pixKey: '41496413-db85-4757-8279-c323c8f575e5',
 };
 
 class BotStateManager {
@@ -66,6 +75,9 @@ class BotStateManager {
     }
     const diskData = safeReadJsonSync<Partial<BotSettings>>(SETTINGS_FILE, {});
     this.settings = { ...DEFAULT_SETTINGS, ...diskData };
+    // Garante que o modo interativo seja sempre o padrão ativo ao iniciar
+    this.settings.processingMode = 'interactive';
+    this.saveToDisk();
     logger.info({ settings: this.settings }, 'Configurações do bot carregadas do disco');
   }
 

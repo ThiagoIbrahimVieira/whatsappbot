@@ -11,11 +11,12 @@ termux-wake-lock
 sleep 10
 
 # 3. Localiza o diretório do projeto
-BOT_DIR="$HOME/whatsapp-auto-sticker"
-
+BOT_DIR="$HOME/whatsappbot"
 if [ ! -d "$BOT_DIR" ]; then
-  # Tenta localizar caso a pasta tenha outro nome comum
-  BOT_DIR=$(find "$HOME" -maxdepth 2 -name "whatsapp-auto-sticker" -type d | head -n 1)
+  BOT_DIR="$HOME/whatsapp-auto-sticker"
+fi
+if [ ! -d "$BOT_DIR" ]; then
+  BOT_DIR=$(find "$HOME" -maxdepth 2 -name "whatsappbot" -o -name "whatsapp-auto-sticker" -type d | head -n 1)
 fi
 
 if [ -z "$BOT_DIR" ] || [ ! -d "$BOT_DIR" ]; then
@@ -25,15 +26,7 @@ fi
 
 cd "$BOT_DIR" || exit 1
 
-# 4. Verifica se já está em execução para evitar duplicidade
-if pgrep -f "node.*dist/index.js" > /dev/null; then
-  echo "⚠️ O bot já está em execução. Nenhuma ação necessária." >> "$HOME/bot-boot.log"
-  exit 0
-fi
+# 4. Inicia o processo usando start-bot.sh
+bash "$BOT_DIR/scripts/android/start-bot.sh" >> "$HOME/bot-boot.log" 2>&1
 
-# 5. Inicia o processo do bot
-# NOTA DE ARQUITETURA: Iniciar o processo NÃO força botActive = true.
-# O estado de ativação configurado em data/bot-settings.json é estritamente preservado.
-nohup node dist/index.js > "$HOME/bot.log" 2>&1 &
-
-echo "✅ [Termux:Boot] WhatsApp Auto Sticker iniciado com PID $! em $(date)" >> "$HOME/bot-boot.log"
+echo "✅ [Termux:Boot] WhatsApp Auto Sticker disparado em $(date)" >> "$HOME/bot-boot.log"

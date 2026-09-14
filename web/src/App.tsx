@@ -16,6 +16,7 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { MobileDrawer } from './components/MobileDrawer';
 import { DashboardView } from './components/DashboardView';
 import { ActivityView } from './components/ActivityView';
+import { RankingView } from './components/RankingView';
 import { AccessView } from './components/AccessView';
 import { SettingsView } from './components/SettingsView';
 import { AddPersonModal } from './components/AddPersonModal';
@@ -51,8 +52,12 @@ const DEFAULT_SETTINGS: QuickSettings = {
   autoCropSquare: true,
   keepQuality: true,
   replyWithAuthor: true,
-  packName: 'Auto Sticker Bot',
-  authorName: 'Thiago Ibrahim',
+  packName: '𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪',
+  authorName: 'Instagram: @𝚝.𝚒𝚋𝚛𝚑𝚡_',
+  freemiumEnabled: true,
+  dailyFreeLimit: 5,
+  vipPriceText: 'R$ 5,00/mês',
+  pixKey: '41496413-db85-4757-8279-c323c8f575e5',
 };
 
 export default function App() {
@@ -245,6 +250,10 @@ export default function App() {
               onNavigate={setCurrentView}
               onOpenQrModal={() => setIsQrModalOpen(true)}
             />
+          )}
+
+          {currentView === 'ranking' && (
+            <RankingView onShowToast={showToast} />
           )}
 
           {currentView === 'activity' && (

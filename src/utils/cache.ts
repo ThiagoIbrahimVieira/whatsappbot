@@ -76,3 +76,29 @@ export class RecentMessagesCache {
 
 // Instância singleton do cache de mensagens
 export const recentMessages = new RecentMessagesCache();
+
+/**
+ * Armazena o conteúdo bruto das mensagens (para decriptação de enquetes e contextInfo)
+ */
+export class MessageContentStore {
+  private store = new Map<string, any>();
+  private readonly maxItems: number = 2000;
+
+  public get(id: string): any {
+    return this.store.get(id);
+  }
+
+  public set(id: string, message: any): void {
+    if (this.store.size >= this.maxItems) {
+      const oldest = this.store.keys().next().value;
+      if (oldest) this.store.delete(oldest);
+    }
+    this.store.set(id, message);
+  }
+
+  public clear(): void {
+    this.store.clear();
+  }
+}
+
+export const messageContentStore = new MessageContentStore();

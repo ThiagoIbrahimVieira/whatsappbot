@@ -25,6 +25,7 @@ interface ActivityViewProps {
 
 export const ActivityView: React.FC<ActivityViewProps> = ({
   activities,
+  onOpenSimulateModal,
   onClearActivities,
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<'All' | 'Processed' | 'Ignored' | 'Failed'>('All');

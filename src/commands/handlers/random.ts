@@ -14,6 +14,9 @@ export const handleRandom: CommandHandler = async (ctx) => {
     return;
   }
 
-  // Notifica no chat com sticker
-  await ctx.reply('🎲 Enviando sticker aleatório da biblioteca...');
+  if (ctx.sendSticker) {
+    await ctx.sendSticker(buffer, item.isAnimated);
+  } else {
+    await ctx.reply('❌ Falha ao enviar sticker aleatório.');
+  }
 };

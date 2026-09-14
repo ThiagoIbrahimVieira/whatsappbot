@@ -14,6 +14,11 @@ import { handleRotate, handleFlip, handleMirror, handleCrop } from './handlers/t
 import { handleTrim, handleFps, handleSpeed, handleSlow } from './handlers/video-tools.js';
 import { handleRandom } from './handlers/random.js';
 import { handlePack } from './handlers/pack.js';
+import { handleMode } from './handlers/mode.js';
+import { handleRanking } from './handlers/ranking.js';
+import { handleProfile } from './handlers/profile.js';
+import { handleVip } from './handlers/vip.js';
+import { handleApprove } from './handlers/approve.js';
 import { logger } from '../utils/logger.js';
 
 const commandHandlers: Record<string, CommandHandler> = {
@@ -39,6 +44,32 @@ const commandHandlers: Record<string, CommandHandler> = {
   slow: handleSlow,
   random: handleRandom,
   pack: handlePack,
+  meupack: handlePack,
+  meuspacks: handlePack,
+  packs: handlePack,
+  pacote: handlePack,
+  pacotes: handlePack,
+  mode: handleMode,
+  modo: handleMode,
+  ranking: handleRanking,
+  top: handleRanking,
+  rank: handleRanking,
+  perfil: handleProfile,
+  profile: handleProfile,
+  me: handleProfile,
+  stats: handleProfile,
+  vip: handleVip,
+  pix: handleVip,
+  assinar: handleVip,
+  plano: handleVip,
+  planos: handleVip,
+  beneficios: handleVip,
+  vantagens: handleVip,
+  cafe: handleVip,
+  doar: handleVip,
+  doacao: handleVip,
+  aprovar: handleApprove,
+  liberar: handleApprove,
 };
 
 export class CommandRouter {

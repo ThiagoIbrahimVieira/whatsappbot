@@ -10,6 +10,7 @@ import { messageRouter } from './message-router.js';
 import { logger } from '../utils/logger.js';
 import { config } from '../config/config.js';
 import { generateQrArtifacts, getQrSvg } from './qr-generator.js';
+import { messageContentStore } from '../utils/cache.js';
 
 export interface WhatsAppConnectionState {
   socket: WASocket | null;
@@ -80,6 +81,9 @@ export class WhatsAppConnection {
       markOnlineOnConnect: false,
       generateHighQualityLinkPreview: false,
       syncFullHistory: false, // Não processa mensagens antigas do histórico
+      getMessage: async (key) => {
+        return messageContentStore.get(key.id || '');
+      },
     });
 
     // Se o número para pareamento direto foi informado e o aparelho ainda não foi registrado
@@ -171,6 +175,28 @@ export class WhatsAppConnection {
           `Conexão com WhatsApp encerrada (código: ${statusCode || 'desconhecido'})`
         );
 
+        const errorMessage = lastDisconnect?.error?.message || '';
+        const errorData = (lastDisconnect?.error as any)?.data;
+        const isConflict =
+          statusCode === DisconnectReason.connectionReplaced ||
+          statusCode === 440 ||
+          errorMessage.includes('conflict') ||
+          errorMessage.includes('replaced') ||
+          errorData?.tag === 'conflict';
+
+        if (isConflict) {
+          logger.warn(
+            '⚠️ Conexão substituída por outra instância (Stream Errored conflict: replaced). Reconexão automática abortada para evitar loop.'
+          );
+          console.log(
+            '\n⚠️ ATENÇÃO: O WhatsApp desconectou porque outra janela ou processo do bot acabou de conectar com a mesma conta!'
+          );
+          console.log(
+            'Para resolver e deixar apenas UM bot rodando, feche as outras janelas do Termux ou rode: ./scripts/android/stop-bot.sh\n'
+          );
+          return;
+        }
+
         if (statusCode === DisconnectReason.loggedOut) {
           logger.warn(
             '⚠️ A sessão anterior foi desvinculada no celular (código 401). Limpando pasta auth/ automaticamente para iniciar um novo pareamento limpo...'
@@ -201,11 +227,27 @@ export class WhatsAppConnection {
       if (upsert.type !== 'notify' && upsert.type !== 'append') return;
 
       for (const msg of upsert.messages) {
+        if (msg.key?.id && msg.message) {
+          messageContentStore.set(msg.key.id, msg.message);
+        }
         console.log(`📩 Nova mensagem detectada! Chat: ${msg.key?.remoteJid}, De mim: ${msg.key?.fromMe}`);
         try {
           await messageRouter.handleMessage(this.sock!, msg);
         } catch (err) {
           logger.error({ err }, 'Erro não capturado no processamento de mensagem');
+        }
+      }
+    });
+
+    // Escuta atualizações de mensagens (especialmente votos em enquetes/botões interativos)
+    this.sock.ev.on('messages.update', async (updates) => {
+      for (const update of updates) {
+        if (update.update?.pollUpdates) {
+          try {
+            await messageRouter.handlePollUpdate(this.sock!, update);
+          } catch (err) {
+            logger.error({ err }, 'Erro ao processar voto de enquete interativa');
+          }
         }
       }
     });

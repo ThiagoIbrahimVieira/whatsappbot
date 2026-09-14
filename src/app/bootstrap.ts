@@ -26,7 +26,7 @@ function getLocalIpAddresses(): string[] {
  */
 export async function bootstrap(): Promise<void> {
   console.log('\n=============================================================');
-  console.log('🚀 INICIANDO BOT — 𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪 | @𝚝𝚑𝚒𝚊𝚐𝚘_𝚙𝚕𝚊𝚢𝚎𝚛𝟾𝟿𝟶');
+  console.log('🚀 INICIANDO BOT — 𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪 | Instagram: @𝚝.𝚒𝚋𝚛𝚑𝚡_');
   console.log('=============================================================\n');
 
   logger.info({ event: 'app_started', env: config.NODE_ENV }, 'Iniciando bot 𝔗𝔥𝔦𝔞𝔤𝔬 ℑ𝔟𝔯𝔞𝔥𝔦𝔪...');
@@ -60,7 +60,15 @@ export async function bootstrap(): Promise<void> {
       console.log(`   👉 No PC / outro aparelho:         http://<IP_DO_CELULAR>:${port}`);
     }
     console.log('-------------------------------------------------------------\n');
-  } catch (err) {
+  } catch (err: any) {
+    if (err?.code === 'EADDRINUSE') {
+      console.log('\n❌ ERRO FATAL: O BOT JÁ ESTÁ RODANDO EM OUTRA JANELA/PROCESSO!');
+      console.log('   (A porta 3000 já está em uso por outra instância do bot)');
+      console.log('   Para evitar conflito de conexão no WhatsApp, esta duplicata foi encerrada.');
+      console.log('   Se quiser reiniciar tudo do zero, rode: killall node\n');
+      logger.fatal({ err }, 'Segunda instância abortada para evitar conflito no WhatsApp (EADDRINUSE)');
+      process.exit(1);
+    }
     logger.error({ err }, 'Não foi possível iniciar o servidor HTTP da Web GUI');
   }
 

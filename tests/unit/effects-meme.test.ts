@@ -19,15 +19,19 @@ describe('Meme and Image Effects Processors', () => {
   }
 
   it('deve separar corretamente o texto do meme com pipe | (topo e rodapé)', () => {
-    const parsed = memeProcessor.parseMemeText('Texto Superior | Texto Inferior');
+    const parsed = memeProcessor.parseMemeText('Texto Superior | Texto Inferior', 'classic');
     expect(parsed.top).toBe('TEXTO SUPERIOR');
     expect(parsed.bottom).toBe('TEXTO INFERIOR');
   });
 
-  it('deve colocar texto único no rodapé por padrão no estilo clássico', () => {
-    const parsed = memeProcessor.parseMemeText('Apenas uma legenda');
-    expect(parsed.top).toBe('');
-    expect(parsed.bottom).toBe('APENAS UMA LEGENDA');
+  it('deve colocar texto único no rodapé no estilo clássico e no topo no estilo moderno', () => {
+    const classic = memeProcessor.parseMemeText('Apenas uma legenda', 'classic');
+    expect(classic.top).toBe('');
+    expect(classic.bottom).toBe('APENAS UMA LEGENDA');
+
+    const modern = memeProcessor.parseMemeText('Apenas uma legenda', 'modern');
+    expect(modern.top).toBe('Apenas uma legenda');
+    expect(modern.bottom).toBe('');
   });
 
   it('deve gerar SVG de meme com texto branco e contorno preto grosso', () => {
@@ -41,14 +45,18 @@ describe('Meme and Image Effects Processors', () => {
     expect(svgString).toContain('stroke: #000000');
   });
 
-  it('deve aplicar meme sobre uma imagem com sucesso', async () => {
+  it('deve aplicar meme sobre uma imagem com sucesso (moderno e clássico)', async () => {
     const baseImg = await createTestImage();
-    const memeImg = await memeProcessor.applyMeme(baseImg, 'QUANDO FUNCIONA | DE PRIMEIRA');
+    const classicImg = await memeProcessor.applyMeme(baseImg, 'QUANDO FUNCIONA | DE PRIMEIRA', { style: 'classic' });
+    const metaClassic = await sharp(classicImg).metadata();
+    expect(metaClassic.width).toBe(400);
+    expect(metaClassic.height).toBe(400);
 
-    const meta = await sharp(memeImg).metadata();
-    expect(meta.width).toBe(400);
-    expect(meta.height).toBe(400);
-    expect(memeImg.length).toBeGreaterThan(0);
+    const modernCard = await memeProcessor.applyMeme(baseImg, 'QUANDO FUNCIONA | DE PRIMEIRA');
+    const metaModern = await sharp(modernCard).metadata();
+    expect(metaModern.width).toBe(512);
+    expect(metaModern.height).toBe(512);
+    expect(modernCard.length).toBeGreaterThan(0);
   });
 
   it('deve rotacionar imagem em 90 graus', async () => {
@@ -104,5 +112,11 @@ describe('Meme and Image Effects Processors', () => {
     const meta = await sharp(shadowed).metadata();
     expect(meta.hasAlpha).toBe(true);
     expect(shadowed.length).toBeGreaterThan(0);
+  });
+
+  it('deve quebrar linhas de texto longo corretamente no wrapText', () => {
+    const lines = memeProcessor.wrapText('ESTE É UM TEXTO MUITO LONGO QUE DEVE SER DIVIDIDO EM LINHAS', 20);
+    expect(lines.length).toBeGreaterThan(1);
+    expect(lines.every((l) => l.length <= 25)).toBe(true);
   });
 });

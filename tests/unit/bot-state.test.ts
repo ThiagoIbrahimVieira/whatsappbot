@@ -32,4 +32,19 @@ describe('Bot State Manager Unit Tests', () => {
       autoVideo: true,
     });
   });
+
+  it('deve atualizar e recuperar configurações de freemium e Pix', () => {
+    botState.updateSettings({
+      freemiumEnabled: true,
+      dailyFreeLimit: 5,
+      vipPriceText: 'R$ 5,00/mês',
+      pixKey: '11919498217',
+    });
+
+    const settings = botState.getSettings();
+    expect(settings.freemiumEnabled).toBe(true);
+    expect(settings.dailyFreeLimit).toBe(5);
+    expect(settings.vipPriceText).toBe('R$ 5,00/mês');
+    expect(settings.pixKey).toBe('11919498217');
+  });
 });

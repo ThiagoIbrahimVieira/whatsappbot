@@ -1,4 +1,15 @@
-export type NavView = 'dashboard' | 'activity' | 'access' | 'settings';
+export type NavView = 'dashboard' | 'activity' | 'access' | 'ranking' | 'settings';
+
+export interface UserRankEntry {
+  rank: number;
+  name: string;
+  handle: string;
+  phone: string;
+  maskedPhone: string;
+  count: number;
+  levelTitle: string;
+  levelBadge: string;
+}
 
 export type BotStatus = 'active' | 'paused' | 'disconnected';
 
@@ -40,6 +51,10 @@ export interface QuickSettings {
   replyWithAuthor: boolean;
   packName: string;
   authorName: string;
+  freemiumEnabled?: boolean;
+  dailyFreeLimit?: number;
+  vipPriceText?: string;
+  pixKey?: string;
 }
 
 export interface SystemInfo {

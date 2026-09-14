@@ -1,10 +1,19 @@
-import sharp from 'sharp';
+import { getSharp } from './image-processor.js';
 
 export class EffectsProcessor {
+  private async getSharpInstance(): Promise<any> {
+    const s = await getSharp();
+    if (!s) {
+      throw new Error('Sharp não está disponível neste ambiente.');
+    }
+    return s;
+  }
+
   /**
    * Rotação da imagem em 90, 180 ou 270 graus.
    */
   public async rotate(imageBuffer: Buffer, degrees: number): Promise<Buffer> {
+    const sharp = await this.getSharpInstance();
     const validDegrees = [90, 180, 270];
     const targetDeg = validDegrees.includes(degrees) ? degrees : 90;
 
@@ -17,6 +26,7 @@ export class EffectsProcessor {
    * Espelhamento vertical (flip).
    */
   public async flip(imageBuffer: Buffer): Promise<Buffer> {
+    const sharp = await this.getSharpInstance();
     return await sharp(imageBuffer)
       .flip()
       .toBuffer();
@@ -26,6 +36,7 @@ export class EffectsProcessor {
    * Espelhamento horizontal (mirror / flop).
    */
   public async mirror(imageBuffer: Buffer): Promise<Buffer> {
+    const sharp = await this.getSharpInstance();
     return await sharp(imageBuffer)
       .flop()
       .toBuffer();
@@ -38,6 +49,7 @@ export class EffectsProcessor {
     imageBuffer: Buffer,
     mode: 'square' | 'portrait' | 'auto' = 'square'
   ): Promise<Buffer> {
+    const sharp = await this.getSharpInstance();
     const meta = await sharp(imageBuffer).metadata();
     const w = meta.width || 512;
     const h = meta.height || 512;
@@ -88,13 +100,25 @@ export class EffectsProcessor {
     color = '#FFFFFF',
     thickness = 6
   ): Promise<Buffer> {
-    const img = sharp(imageBuffer).ensureAlpha();
-    const meta = await img.metadata();
+    const sharp = await this.getSharpInstance();
+    const padding = thickness + 4;
+
+    const imgWithPadding = sharp(imageBuffer)
+      .ensureAlpha()
+      .extend({
+        top: padding,
+        bottom: padding,
+        left: padding,
+        right: padding,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      });
+
+    const meta = await imgWithPadding.metadata();
     const w = meta.width || 512;
     const h = meta.height || 512;
 
     // Extrai o canal alpha como máscara
-    const alphaChannel = await img.clone().extractChannel('alpha').toBuffer();
+    const alphaChannel = await imgWithPadding.clone().extractChannel('alpha').toBuffer();
 
     // Dilata a máscara desfocando e aplicando threshold alto
     const dilatedMask = await sharp(alphaChannel)
@@ -122,7 +146,7 @@ export class EffectsProcessor {
 
     // Compõe a imagem original em cima do fundo com contorno
     return await sharp(outlineBackground)
-      .composite([{ input: await img.png().toBuffer(), top: 0, left: 0 }])
+      .composite([{ input: await imgWithPadding.png().toBuffer(), top: 0, left: 0 }])
       .toBuffer();
   }
 
@@ -133,6 +157,7 @@ export class EffectsProcessor {
     imageBuffer: Buffer,
     type: 'soft' | 'hard' = 'soft'
   ): Promise<Buffer> {
+    const sharp = await this.getSharpInstance();
     const img = sharp(imageBuffer).ensureAlpha();
     const meta = await img.metadata();
     const w = meta.width || 512;

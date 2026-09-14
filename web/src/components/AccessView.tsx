@@ -148,7 +148,7 @@ export const AccessView: React.FC<AccessViewProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-600 mt-0.5">
-              Contacts granted permission to create stickers when Whitelist mode is active.
+              Contacts granted permanent VIP permission (unlimited stickers, bypassing daily limits).
             </p>
           </div>
 
@@ -182,7 +182,7 @@ export const AccessView: React.FC<AccessViewProps> = ({
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2.5 text-xs text-slate-600">
             <AlertCircle className="w-4 h-4 text-slate-500 shrink-0" />
             <span>
-              Note: Current mode is <strong>{accessMode.replace('_', ' ')}</strong>. Contacts in this list will be enforced when Whitelist is selected.
+              Note: Current mode is <strong>{accessMode.replace('_', ' ')}</strong>. Contacts in this list are also recognized as permanent VIPs under Freemium mode.
             </span>
           </div>
         )}
@@ -209,8 +209,11 @@ export const AccessView: React.FC<AccessViewProps> = ({
                     {contact.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="truncate">
-                    <div className="font-semibold text-xs text-slate-900">
-                      {contact.name}
+                    <div className="font-semibold text-xs text-slate-900 flex items-center gap-1.5">
+                      <span>{contact.name}</span>
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200/80">
+                        👑 VIP Ilimitado
+                      </span>
                     </div>
                     <div className="text-[11px] font-mono text-slate-600 flex items-center gap-2">
                       <span>{contact.phone}</span>

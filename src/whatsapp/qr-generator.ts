@@ -26,6 +26,87 @@ export interface QrOutputResult {
   htmlPath: string;
 }
 
+import zlib from 'node:zlib';
+
+function crc32(buf: Buffer): number {
+  let crc = 0xffffffff;
+  for (let i = 0; i < buf.length; i++) {
+    crc ^= buf[i];
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function createChunk(type: string, data: Buffer): Buffer {
+  const typeBuf = Buffer.from(type, 'ascii');
+  const lenBuf = Buffer.alloc(4);
+  lenBuf.writeUInt32BE(data.length, 0);
+  const crcBuf = Buffer.alloc(4);
+  const crc = crc32(Buffer.concat([typeBuf, data]));
+  crcBuf.writeUInt32BE(crc, 0);
+  return Buffer.concat([lenBuf, typeBuf, data, crcBuf]);
+}
+
+/**
+ * Converte a matriz de módulos do QR Code em um Buffer PNG 100% nativo e válido.
+ * Não requer dependências nativas (nem sharp, nem canvas) - funciona perfeitamente no Termux / Android.
+ */
+export function matrixToPngBuffer(matrix: boolean[][], margin = 4, scale = 10): Buffer {
+  const count = matrix.length;
+  const width = (count + margin * 2) * scale;
+  const height = width;
+  const rowBytes = 1 + width;
+  const raw = Buffer.alloc(rowBytes * height, 255); // 255 = branco
+
+  for (let y = 0; y < height; y++) {
+    raw[y * rowBytes] = 0; // PNG Filter None
+  }
+
+  for (let r = 0; r < count; r++) {
+    for (let c = 0; c < count; c++) {
+      if (matrix[r][c]) {
+        const startY = (r + margin) * scale;
+        const startX = (c + margin) * scale;
+        for (let py = 0; py < scale; py++) {
+          const rowOffset = (startY + py) * rowBytes + 1;
+          for (let px = 0; px < scale; px++) {
+            raw[rowOffset + startX + px] = 0; // 0 = preto
+          }
+        }
+      }
+    }
+  }
+
+  const signature = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]);
+  const ihdrData = Buffer.alloc(13);
+  ihdrData.writeUInt32BE(width, 0);
+  ihdrData.writeUInt32BE(height, 4);
+  ihdrData[8] = 8; // bit depth
+  ihdrData[9] = 0; // grayscale
+  ihdrData[10] = 0; // compression
+  ihdrData[11] = 0; // filter
+  ihdrData[12] = 0; // interlace
+
+  const ihdrChunk = createChunk('IHDR', ihdrData);
+  const idatData = zlib.deflateSync(raw, { level: 9 });
+  const idatChunk = createChunk('IDAT', idatData);
+  const iendChunk = createChunk('IEND', Buffer.alloc(0));
+
+  return Buffer.concat([signature, ihdrChunk, idatChunk, iendChunk]);
+}
+
+/**
+ * Gera um Buffer PNG de alta qualidade de qualquer string (ex: Pix BR Code).
+ */
+export function generateQrPngBuffer(qrString: string, scale = 10, margin = 4): Buffer {
+  const qr = new QRCode(-1, 0);
+  qr.addData(qrString);
+  qr.make();
+  return matrixToPngBuffer(qr.modules, margin, scale);
+}
+
 export function getQrSvg(qrString: string): string {
   const qr = new QRCode(-1, 0);
   qr.addData(qrString);
@@ -86,10 +167,13 @@ export async function generateQrArtifacts(qrString: string): Promise<QrOutputRes
   const pngPath = path.resolve(process.cwd(), 'qrcode.png');
   const htmlPath = path.resolve(process.cwd(), 'qrcode.html');
 
-  // 1. Gera arquivo PNG em alta resolução se sharp estiver disponível
+  // 1. Gera arquivo PNG em alta resolução (usa sharp se disponível, caso contrário gera PNG nativo via zlib)
   const sharp = await getSharp();
   if (sharp) {
     await sharp(Buffer.from(svg)).png().toFile(pngPath);
+  } else {
+    const pngBuf = matrixToPngBuffer(qr.modules, margin, scale);
+    await fs.writeFile(pngPath, pngBuf);
   }
 
   // 2. Gera página HTML moderna para visualização em qualquer navegador

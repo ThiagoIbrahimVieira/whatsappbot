@@ -5,7 +5,7 @@ import { safeReadJsonSync, atomicWriteFileSync } from '../../src/utils/atomic-wr
 import { libraryManager, maskPhoneNumber } from '../../src/storage/library-manager.js';
 import { packManager } from '../../src/storage/pack-manager.js';
 import { historyStore } from '../../src/storage/history-store.js';
-import { statisticsManager } from '../../src/control/statistics-manager.js';
+import { statisticsManager, formatHandle, computeUserLevel } from '../../src/control/statistics-manager.js';
 
 describe('Storage, Library, Packs & Statistics', () => {
   const testTmpFile = path.resolve(process.cwd(), 'tmp', 'test-atomic.json');
@@ -119,5 +119,44 @@ describe('Storage, Library, Packs & Statistics', () => {
     expect(analytics.images).toBeGreaterThanOrEqual(2);
     expect(analytics.videos).toBeGreaterThanOrEqual(1);
     expect(analytics.avgProcessingTimeMs).toBeGreaterThan(0);
+  });
+
+  it('deve formatar handles corretamente e calcular patentes de gamificação', () => {
+    expect(formatHandle('Thiago Ibrahim')).toBe('@thiago_ibrahim');
+    expect(formatHandle('Lucas Dev!')).toBe('@lucas_dev');
+    expect(formatHandle('Amigo')).toBe('@amigo');
+    expect(formatHandle('Desconhecido')).toBe('@amigo');
+
+    // Tiers
+    expect(computeUserLevel(5).levelTitle).toBe('Iniciante');
+    expect(computeUserLevel(5).levelBadge).toBe('🌱');
+
+    expect(computeUserLevel(25).levelTitle).toBe('Colecionador');
+    expect(computeUserLevel(25).levelBadge).toBe('📦');
+
+    expect(computeUserLevel(75).levelTitle).toBe('Viciado em Sticker');
+    expect(computeUserLevel(75).levelBadge).toBe('🎨');
+
+    expect(computeUserLevel(150).levelTitle).toBe('Fábrica de Memes');
+    expect(computeUserLevel(150).levelBadge).toBe('🏭');
+
+    expect(computeUserLevel(300).levelTitle).toBe('Mestre dos Stickers');
+    expect(computeUserLevel(300).levelBadge).toBe('⚡');
+
+    expect(computeUserLevel(600).levelTitle).toBe('Lenda do WhatsApp');
+    expect(computeUserLevel(600).levelBadge).toBe('👑');
+  });
+
+  it('deve retornar perfil completo do usuário com getUserStats', () => {
+    statisticsManager.clear();
+    for (let i = 0; i < 20; i++) {
+      statisticsManager.recordSuccess('5511999991111', 'Lucas Gamer', 'IMAGE', 40);
+    }
+    const profile = statisticsManager.getUserStats('5511999991111');
+    expect(profile.handle).toBe('@lucas_gamer');
+    expect(profile.totalStickers).toBe(20);
+    expect(profile.levelTitle).toBe('Colecionador');
+    expect(profile.rank).toBe(1);
+    expect(profile.nextLevelStickers).toBe(51);
   });
 });

@@ -25,7 +25,6 @@ git pull
 # 3. Atualiza dependências se necessário
 echo "📦 Verificando dependências npm..."
 npm install
-npm install @img/sharp-wasm32@0.33.5 || true
 
 # 4. Recompila TypeScript para JavaScript
 echo "⚙️ Recompilando o código (build)..."

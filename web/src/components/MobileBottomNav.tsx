@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Activity, ShieldCheck, Sliders } from 'lucide-react';
+import { LayoutDashboard, Trophy, Activity, ShieldCheck, Sliders } from 'lucide-react';
 import { NavView } from '../types';
 
 interface MobileBottomNavProps {
@@ -13,6 +13,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
 }) => {
   const tabs = [
     { id: 'dashboard' as NavView, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'ranking' as NavView, label: 'Ranking', icon: Trophy },
     { id: 'activity' as NavView, label: 'Activity', icon: Activity },
     { id: 'access' as NavView, label: 'Access', icon: ShieldCheck },
     { id: 'settings' as NavView, label: 'Settings', icon: Sliders },

@@ -54,6 +54,10 @@ export const Header: React.FC<HeaderProps> = ({
       title: 'System & Engine Settings',
       subtitle: 'Fine-tune Baileys, Sharp image pipeline, and trigger commands.',
     },
+    ranking: {
+      title: 'Ranking & Conquistas',
+      subtitle: 'Top criadores e recordes de figurinhas enviadas.',
+    },
   };
 
   const { title, subtitle } = viewTitles[currentView];

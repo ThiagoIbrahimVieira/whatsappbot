@@ -226,7 +226,104 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   value={quickSettings.authorName}
                   onChange={(e) => onUpdateSettings({ authorName: e.target.value })}
                   className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  placeholder="e.g. Created with TT"
+                  placeholder="e.g. Insta: @𝚝.𝚒𝚋𝚛𝚑𝚡_"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 4: MONETIZAÇÃO & PLANO VIP */}
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm">
+                  💎
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Monetização & Limite Grátis (Freemium)</h3>
+                  <p className="text-xs text-slate-600">Regras de cobrança, cota diária gratuita e recebimento via Pix</p>
+                </div>
+              </div>
+
+              <span
+                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                  quickSettings.freemiumEnabled !== false
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-slate-100 text-slate-600 border border-slate-200'
+                }`}
+              >
+                {quickSettings.freemiumEnabled !== false ? '● Ativo' : '○ Desativado'}
+              </span>
+            </div>
+
+            {/* Toggle Freemium */}
+            <div className="flex items-center justify-between py-1">
+              <div>
+                <span className="text-xs font-semibold text-slate-900 block">
+                  Ativar Cota Diária Gratuita
+                </span>
+                <span className="text-xs text-slate-500 block">
+                  Quando ativo, usuários fora da Whitelist recebem limite de figurinhas grátis por dia. Ao esgotar, recebem oferta do VIP no WhatsApp.
+                </span>
+              </div>
+
+              <button
+                onClick={() => {
+                  const newVal = quickSettings.freemiumEnabled === false ? true : false;
+                  onUpdateSettings({ freemiumEnabled: newVal });
+                  onShowToast(newVal ? 'Modo Freemium ativado' : 'Modo Freemium desativado');
+                }}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                  quickSettings.freemiumEnabled !== false ? 'bg-emerald-500' : 'bg-slate-300'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    quickSettings.freemiumEnabled !== false ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            {/* Config inputs */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                  Figurinhas Grátis / Dia
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={quickSettings.dailyFreeLimit ?? 5}
+                  onChange={(e) => onUpdateSettings({ dailyFreeLimit: Number(e.target.value) || 5 })}
+                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                  Valor da Assinatura VIP
+                </label>
+                <input
+                  type="text"
+                  value={quickSettings.vipPriceText ?? 'R$ 5,00/mês'}
+                  onChange={(e) => onUpdateSettings({ vipPriceText: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  placeholder="ex: R$ 5,00/mês"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                  Chave Pix para Recebimento
+                </label>
+                <input
+                  type="text"
+                  value={quickSettings.pixKey ?? '11919498217'}
+                  onChange={(e) => onUpdateSettings({ pixKey: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  placeholder="ex: seu celular ou CPF"
                 />
               </div>
             </div>

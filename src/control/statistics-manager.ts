@@ -26,9 +26,107 @@ export interface AnalyticsSummary {
 export interface UserRankEntry {
   rank: number;
   name: string;
+  handle: string;
   phone: string;
   maskedPhone: string;
   count: number;
+  levelTitle: string;
+  levelBadge: string;
+}
+
+export interface UserProfileStats {
+  phone: string;
+  name: string;
+  handle: string;
+  totalStickers: number;
+  images: number;
+  videos: number;
+  gifs: number;
+  rank: number;
+  levelTitle: string;
+  levelBadge: string;
+  currentLevelMin: number;
+  nextLevelStickers: number;
+  progressPercent: number;
+}
+
+export function formatHandle(name: string): string {
+  if (!name || name === 'Amigo' || name === 'Desconhecido') {
+    return '@amigo';
+  }
+  const clean = name.trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '_').toLowerCase();
+  return `@${clean || 'criador'}`;
+}
+
+export function computeUserLevel(count: number): {
+  levelTitle: string;
+  levelBadge: string;
+  currentLevelMin: number;
+  nextLevelStickers: number;
+  progressPercent: number;
+} {
+  if (count >= 501) {
+    return {
+      levelTitle: 'Lenda do WhatsApp',
+      levelBadge: '👑',
+      currentLevelMin: 501,
+      nextLevelStickers: 501,
+      progressPercent: 100,
+    };
+  }
+  if (count >= 251) {
+    const range = 501 - 251;
+    const progress = Math.min(100, Math.round(((count - 251) / range) * 100));
+    return {
+      levelTitle: 'Mestre dos Stickers',
+      levelBadge: '⚡',
+      currentLevelMin: 251,
+      nextLevelStickers: 501,
+      progressPercent: progress,
+    };
+  }
+  if (count >= 121) {
+    const range = 251 - 121;
+    const progress = Math.min(100, Math.round(((count - 121) / range) * 100));
+    return {
+      levelTitle: 'Fábrica de Memes',
+      levelBadge: '🏭',
+      currentLevelMin: 121,
+      nextLevelStickers: 251,
+      progressPercent: progress,
+    };
+  }
+  if (count >= 51) {
+    const range = 121 - 51;
+    const progress = Math.min(100, Math.round(((count - 51) / range) * 100));
+    return {
+      levelTitle: 'Viciado em Sticker',
+      levelBadge: '🎨',
+      currentLevelMin: 51,
+      nextLevelStickers: 121,
+      progressPercent: progress,
+    };
+  }
+  if (count >= 16) {
+    const range = 51 - 16;
+    const progress = Math.min(100, Math.round(((count - 16) / range) * 100));
+    return {
+      levelTitle: 'Colecionador',
+      levelBadge: '📦',
+      currentLevelMin: 16,
+      nextLevelStickers: 51,
+      progressPercent: progress,
+    };
+  }
+  const range = 16 - 1;
+  const progress = Math.min(100, Math.round(((count - 1) / range) * 100));
+  return {
+    levelTitle: 'Iniciante',
+    levelBadge: '🌱',
+    currentLevelMin: 1,
+    nextLevelStickers: 16,
+    progressPercent: Math.max(5, progress),
+  };
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -144,22 +242,68 @@ export class StatisticsManager {
     }
 
     const sorted = Array.from(userMap.entries())
-      .map(([phone, data]) => ({
-        name: data.name,
-        phone,
-        maskedPhone: maskPhoneNumber(phone),
-        count: data.count,
-      }))
+      .map(([phone, data]) => {
+        const level = computeUserLevel(data.count);
+        return {
+          name: data.name,
+          handle: formatHandle(data.name),
+          phone,
+          maskedPhone: maskPhoneNumber(phone),
+          count: data.count,
+          levelTitle: level.levelTitle,
+          levelBadge: level.levelBadge,
+        };
+      })
       .sort((a, b) => b.count - a.count)
       .slice(0, limit);
 
     return sorted.map((item, index) => ({
       rank: index + 1,
       name: item.name,
+      handle: item.handle,
       phone: item.phone,
       maskedPhone: item.maskedPhone,
       count: item.count,
+      levelTitle: item.levelTitle,
+      levelBadge: item.levelBadge,
     }));
+  }
+
+  public getUserStats(userPhone: string): UserProfileStats {
+    const cleanPhone = userPhone.replace(/\D/g, '');
+    const userRecords = this.records.filter((r) => r.userPhone === cleanPhone);
+
+    let images = 0;
+    let videos = 0;
+    let gifs = 0;
+    let userName = 'Amigo';
+
+    for (const rec of userRecords) {
+      if (rec.mediaType === 'IMAGE') images++;
+      else if (rec.mediaType === 'VIDEO') videos++;
+      else if (rec.mediaType === 'GIF') gifs++;
+      if (rec.userName && rec.userName !== 'Desconhecido' && userName === 'Amigo') {
+        userName = rec.userName;
+      }
+    }
+
+    const total = userRecords.length;
+    const allRanking = this.getRanking('allTime', 9999);
+    const userRankItem = allRanking.find((r) => r.phone === cleanPhone);
+    const rank = userRankItem ? userRankItem.rank : (total > 0 ? allRanking.length + 1 : 0);
+    const level = computeUserLevel(total);
+
+    return {
+      phone: cleanPhone,
+      name: userName,
+      handle: formatHandle(userName),
+      totalStickers: total,
+      images,
+      videos,
+      gifs,
+      rank,
+      ...level,
+    };
   }
 
   public clear(): void {

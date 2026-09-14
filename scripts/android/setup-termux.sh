@@ -37,7 +37,6 @@ echo "📂 Pasta do projeto: $PROJECT_DIR"
 echo ""
 echo "📥 Instalando bibliotecas do projeto (npm install)..."
 npm install
-npm install @img/sharp-wasm32@0.33.5 || true
 
 # 6. Compila o TypeScript para JavaScript
 echo ""

@@ -103,7 +103,7 @@ async function upload() {
 
   console.log('📦 Criando novo Git Commit...');
   const commitData = await apiRequest('/git/commits', 'POST', {
-    message: 'fix: auto limpeza de credenciais desconectadas e script reset-auth para novo codigo',
+    message: 'fix: entrega direta de todas as figurinhas do pack no chat, arquivo .wastickers e enquete unica debounced para lote de fotos',
     tree: treeData.sha,
     parents: [parentCommitSha],
   });

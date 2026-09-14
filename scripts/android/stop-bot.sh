@@ -23,8 +23,10 @@ if [ -f "$PID_FILE" ]; then
     rm -f "$PID_FILE"
 fi
 
-# Garante encerramento de qualquer instância residual de dist/index.js
-pkill -f "node.*dist/index.js" 2>/dev/null && STOPPED=true || true
+# Garante encerramento de qualquer instância residual de dist/index.js ou node
+pkill -9 -f "node.*dist/index.js" 2>/dev/null && STOPPED=true || true
+pkill -9 -f "node dist" 2>/dev/null && STOPPED=true || true
+killall -9 node 2>/dev/null && STOPPED=true || true
 
 if [ "$STOPPED" = true ]; then
     echo "✅ Bot desligado com sucesso. Memória RAM liberada!"

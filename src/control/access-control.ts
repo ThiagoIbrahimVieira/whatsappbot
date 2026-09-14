@@ -1,8 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { logger } from '../utils/logger.js';
-
 import { config } from '../config/config.js';
+import { botState } from './bot-state.js';
 
 export type BackendAccessMode = 'all' | 'whitelist' | 'self';
 
@@ -149,13 +149,30 @@ export class AccessControlManager {
     }
   }
 
+  public isVip(chatId: string, senderJid: string, isSelfChat: boolean): boolean {
+    if (isSelfChat) return true;
+    const cleanChat = this.cleanPhone(chatId.split('@')[0]);
+    const cleanSender = this.cleanPhone(senderJid.split('@')[0]);
+
+    return this.contacts.some((c) => {
+      const cPhone = this.cleanPhone(c.phone);
+      return (
+        cleanChat.endsWith(cPhone) ||
+        cPhone.endsWith(cleanChat) ||
+        cleanSender.endsWith(cPhone) ||
+        cPhone.endsWith(cleanSender)
+      );
+    });
+  }
+
   /**
    * Avalia se uma mensagem é permitida com base nas regras de acesso.
    */
   public isAllowed(
     chatId: string,
     senderJid: string,
-    isSelfChat: boolean
+    isSelfChat: boolean,
+    isCommand = false
   ): { allowed: boolean; reason?: string } {
     // 1. Thiago conversando com ele mesmo (ou self-chat) sempre tem permissão total
     if (isSelfChat) {
@@ -167,28 +184,22 @@ export class AccessControlManager {
       return { allowed: false, reason: 'Access set to Only Me' };
     }
 
-    // 3. Modo Liberados / Whitelist: apenas números presentes na lista
+    // 3. Se freemium estiver ativo, permite interação (a cota diária de stickers é validada no messageRouter)
+    const settings = botState.getSettings();
+    if (settings.freemiumEnabled || this.accessMode === 'all') {
+      return { allowed: true };
+    }
+
+    // 4. Modo Liberados / Whitelist estrito (sem freemium):
     if (this.accessMode === 'whitelist') {
-      const cleanChat = this.cleanPhone(chatId.split('@')[0]);
-      const cleanSender = this.cleanPhone(senderJid.split('@')[0]);
-
-      const found = this.contacts.some((c) => {
-        const cPhone = this.cleanPhone(c.phone);
-        return (
-          cleanChat.endsWith(cPhone) ||
-          cPhone.endsWith(cleanChat) ||
-          cleanSender.endsWith(cPhone) ||
-          cPhone.endsWith(cleanSender)
-        );
-      });
-
-      if (!found) {
+      const isVipUser = this.isVip(chatId, senderJid, isSelfChat);
+      if (!isVipUser) {
+        if (isCommand) return { allowed: true };
         return { allowed: false, reason: 'User not on Whitelist' };
       }
       return { allowed: true };
     }
 
-    // 4. Modo Público (all): todos têm permissão
     return { allowed: true };
   }
 }

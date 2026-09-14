@@ -44,6 +44,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onToggleSetting,
   onNavigate,
   onOpenQrModal,
+  onOpenSimulateModal,
 }) => {
   // Activity bar chart data (inspired by reference image composition)
   const hourlyData = [

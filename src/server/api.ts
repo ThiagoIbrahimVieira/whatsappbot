@@ -159,6 +159,10 @@ export async function handleApiRequest(
         replyWithAuthor: settings.replyWithAuthor,
         packName: settings.packName,
         authorName: settings.authorName,
+        freemiumEnabled: settings.freemiumEnabled,
+        dailyFreeLimit: settings.dailyFreeLimit,
+        vipPriceText: settings.vipPriceText,
+        pixKey: settings.pixKey,
       },
       allowedCount: contacts.length,
     };
@@ -218,6 +222,10 @@ export async function handleApiRequest(
     if (typeof body.packName === 'string') updates.packName = body.packName;
     if (typeof body.authorName === 'string') updates.authorName = body.authorName;
     if (typeof body.developerMode === 'boolean') updates.developerMode = body.developerMode;
+    if (typeof body.freemiumEnabled === 'boolean') updates.freemiumEnabled = body.freemiumEnabled;
+    if (typeof body.dailyFreeLimit === 'number') updates.dailyFreeLimit = body.dailyFreeLimit;
+    if (typeof body.vipPriceText === 'string') updates.vipPriceText = body.vipPriceText;
+    if (typeof body.pixKey === 'string') updates.pixKey = body.pixKey;
 
     const saved = botState.updateSettings(updates);
     sendJson(res, 200, { settings: saved });
@@ -321,6 +329,17 @@ export async function handleApiRequest(
     const limit = Number(queryParams.get('limit')) || 10;
     const ranking = statisticsManager.getRanking(period, limit);
     sendJson(res, 200, { ranking });
+    return true;
+  }
+
+  if (urlPath === '/api/user-profile' && req.method === 'GET') {
+    const phone = queryParams.get('phone') || '';
+    if (!phone) {
+      sendJson(res, 400, { error: 'Parâmetro phone é obrigatório' });
+      return true;
+    }
+    const profile = statisticsManager.getUserStats(phone);
+    sendJson(res, 200, { profile });
     return true;
   }
 

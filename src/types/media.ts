@@ -28,6 +28,7 @@ export interface ProcessingOptions {
   memeText?: string;
   topText?: string;
   bottomText?: string;
+  memeStyle?: 'modern' | 'classic';
   staticTimestamp?: number | 'middle';
   trimSeconds?: number;
   speed?: number;

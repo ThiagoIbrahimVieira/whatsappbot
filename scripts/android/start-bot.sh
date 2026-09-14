@@ -8,9 +8,21 @@ PID_FILE="$PROJECT_DIR/tmp/bot.pid"
 
 mkdir -p "$PROJECT_DIR/tmp"
 
-# Verifica se já está rodando
-if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
-    echo "⚠️  O bot já está em execução (PID: $(cat "$PID_FILE"))."
+# Verifica se já está rodando garantindo que o PID pertence a um processo node ativo
+if [ -f "$PID_FILE" ]; then
+    PID="$(cat "$PID_FILE" 2>/dev/null | tr -d ' \r\n')"
+    if [ -n "$PID" ] && kill -0 "$PID" 2>/dev/null && [ -f "/proc/$PID/cmdline" ] && grep -q "node" "/proc/$PID/cmdline" 2>/dev/null; then
+        echo "⚠️  O bot já está em execução (PID: $PID)."
+        exit 0
+    else
+        # PID órfão ou de outro processo do Android -> limpa arquivo antigo
+        rm -f "$PID_FILE"
+    fi
+fi
+
+if pgrep -f "node.*dist/index" 2>/dev/null > /dev/null; then
+    echo "⚠️  O bot já está em execução em segundo plano!"
+    echo "Para reiniciar, execute primeiro: ./scripts/android/stop-bot.sh"
     exit 0
 fi
 

@@ -5,6 +5,7 @@ import {
   Activity, 
   ShieldCheck, 
   Sliders, 
+  Trophy,
   Smartphone, 
   QrCode,
   Power
@@ -40,6 +41,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
 
   const navItems = [
     { id: 'dashboard' as NavView, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'ranking' as NavView, label: 'Ranking & Pódio', icon: Trophy },
     { id: 'activity' as NavView, label: 'Activity Logs', icon: Activity },
     { id: 'access' as NavView, label: 'Access Control', icon: ShieldCheck },
     { id: 'settings' as NavView, label: 'Settings & Engine', icon: Sliders },

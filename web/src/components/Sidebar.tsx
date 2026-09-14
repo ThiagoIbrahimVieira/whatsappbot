@@ -4,6 +4,7 @@ import {
   Activity, 
   ShieldCheck, 
   Sliders, 
+  Trophy,
   Smartphone,
   CheckCircle2,
   AlertCircle,
@@ -33,6 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navItems = [
     { id: 'dashboard' as NavView, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'ranking' as NavView, label: 'Ranking', icon: Trophy, badge: 'Top' },
     { id: 'activity' as NavView, label: 'Activity', icon: Activity, badge: 'Live' },
     { id: 'access' as NavView, label: 'Access', icon: ShieldCheck },
     { id: 'settings' as NavView, label: 'Settings', icon: Sliders },

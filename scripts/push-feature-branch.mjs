@@ -4,7 +4,7 @@ import path from 'node:path';
 const TOKEN = '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';
 const OWNER = 'ThiagoIbrahimVieira';
 const REPO = 'whatsappbot';
-const SOURCE_DIR = 'c:/Users/thiag/.gemini/antigravity-ide/scratch/whatsapp-auto-sticker';
+const SOURCE_DIR = path.resolve(process.cwd());
 const TARGET_BRANCH = 'feature/complete-bot-evolution';
 
 const headers = {
@@ -41,6 +41,7 @@ async function getAllFiles(dir, base = '') {
         entry.name === 'auth' ||
         entry.name === 'data' ||
         entry.name === 'tmp' ||
+        entry.name === 'dist' ||
         entry.name === '.system_generated'
       ) {
         continue;
@@ -99,13 +100,19 @@ async function upload() {
     tree: treeItems,
   });
 
-  // Pega o SHA atual da main como base
-  const refMain = await apiRequest('/git/refs/heads/main');
-  const parentCommitSha = refMain.object.sha;
+  // Pega o SHA atual da branch alvo ou da main como base
+  let parentCommitSha;
+  try {
+    const refTarget = await apiRequest(`/git/refs/heads/${TARGET_BRANCH}`);
+    parentCommitSha = refTarget.object.sha;
+  } catch {
+    const refMain = await apiRequest('/git/refs/heads/main');
+    parentCommitSha = refMain.object.sha;
+  }
 
   console.log('📦 Criando novo Git Commit...');
   const commitData = await apiRequest('/git/commits', 'POST', {
-    message: 'feat: evolucao completa do bot com modo interativo, memes, efeitos, packs e painel web',
+    message: 'feat(ux-fixes): correcoes de bugs, fluxo de cota reserve-commit-release, enquetes semanticas e validacao de comprovante',
     tree: treeData.sha,
     parents: [parentCommitSha],
   });

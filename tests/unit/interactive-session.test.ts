@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SessionManager } from '../../src/control/session-manager.js';
+import { SessionManager, sessionManager } from '../../src/control/session-manager.js';
 import { messageRouter } from '../../src/whatsapp/message-router.js';
 import { stickerSender } from '../../src/whatsapp/sticker-sender.js';
 import { botState } from '../../src/control/bot-state.js';
@@ -11,6 +11,7 @@ describe('Interactive Media Flow & Session Manager', () => {
 
   beforeEach(() => {
     sessionMgr = new SessionManager();
+    sessionManager.clear();
     recentMessages.clear();
     mockSock = {
       sendMessage: vi.fn(),
@@ -140,8 +141,113 @@ describe('Interactive Media Flow & Session Manager', () => {
     expect(stickerSender.sendText).toHaveBeenCalledTimes(1);
     const [calledSock, calledChat, textPrompt] = (stickerSender.sendText as any).mock.calls[0];
     expect(calledChat).toBe('5511988887777@s.whatsapp.net');
-    expect(textPrompt).toContain('Recebi sua mídia 👀');
-    expect(textPrompt).toContain('1. 🖼️ *Figurinha*');
-    expect(textPrompt).toContain('2. 🎭 *Meme*');
+    expect(textPrompt).toContain('Recebi sua mídia!');
+  });
+
+  it('deve agrupar lote de imagens em um único menu com a quantidade total', async () => {
+    const readyFn = vi.fn();
+    const mgr = new SessionManager();
+
+    // Simula 3 imagens chegando rapidamente no mesmo chat
+    await mgr.addMediaToBatch(
+      {
+        chatId: '5511999998888@s.whatsapp.net',
+        senderJid: '5511999998888@s.whatsapp.net',
+        sourceMessageId: 'batch-1',
+        mediaType: 'image',
+        mimetype: 'image/jpeg',
+        originalMedia: { id: 'batch-1' },
+        rawMessage: { key: { id: 'batch-1' } },
+      },
+      readyFn,
+      100
+    );
+
+    await mgr.addMediaToBatch(
+      {
+        chatId: '5511999998888@s.whatsapp.net',
+        senderJid: '5511999998888@s.whatsapp.net',
+        sourceMessageId: 'batch-2',
+        mediaType: 'image',
+        mimetype: 'image/jpeg',
+        originalMedia: { id: 'batch-2' },
+        rawMessage: { key: { id: 'batch-2' } },
+      },
+      readyFn,
+      100
+    );
+
+    await mgr.addMediaToBatch(
+      {
+        chatId: '5511999998888@s.whatsapp.net',
+        senderJid: '5511999998888@s.whatsapp.net',
+        sourceMessageId: 'batch-3',
+        mediaType: 'image',
+        mimetype: 'image/jpeg',
+        originalMedia: { id: 'batch-3' },
+        rawMessage: { key: { id: 'batch-3' } },
+      },
+      readyFn,
+      100
+    );
+
+    // Força a liberação do lote
+    await mgr.flushBatch('5511999998888@s.whatsapp.net');
+
+    expect(readyFn).toHaveBeenCalledTimes(1);
+    const [createdSession, count] = readyFn.mock.calls[0];
+    expect(count).toBe(3);
+    expect(createdSession.mediaList).toHaveLength(3);
+    expect(createdSession.mediaList[0].id).toBe('batch-1');
+    expect(createdSession.mediaList[1].id).toBe('batch-2');
+    expect(createdSession.mediaList[2].id).toBe('batch-3');
+  });
+
+  it('deve aplicar opção escolhida a todas as imagens do lote ao responder ao menu interativo', async () => {
+    botState.setProcessingMode('interactive');
+
+    const chatId = '5511977776666@s.whatsapp.net';
+
+    // Cria uma sessão com lote de 3 imagens
+    const session = sessionManager.createSession({
+      chatId,
+      senderJid: chatId,
+      sourceMessageId: 'msg-batch-head',
+      mediaType: 'image',
+      mimetype: 'image/jpeg',
+      mediaList: [
+        { id: 'img-1', chatId, mediaType: 'IMAGE', rawMessage: { key: { id: 'img-1' } } },
+        { id: 'img-2', chatId, mediaType: 'IMAGE', rawMessage: { key: { id: 'img-2' } } },
+        { id: 'img-3', chatId, mediaType: 'IMAGE', rawMessage: { key: { id: 'img-3' } } },
+      ],
+    });
+
+    const queueSpy = vi.spyOn(messageRouter as any, 'queueMediaProcessing').mockResolvedValue(undefined);
+
+    const replyMsg = {
+      key: {
+        id: 'reply-1',
+        remoteJid: chatId,
+        fromMe: false,
+      },
+      message: {
+        conversation: '1',
+      },
+    };
+
+    // Responde '1' para criar figurinhas
+    await messageRouter.handleMessage(mockSock, replyMsg);
+
+    expect(stickerSender.sendText).toHaveBeenCalledWith(
+      mockSock,
+      chatId,
+      '⏳ Criando 3 figurinhas...',
+      replyMsg
+    );
+    // Deve ter enfileirado as 3 imagens
+    expect(queueSpy).toHaveBeenCalledTimes(3);
+    expect(queueSpy.mock.calls[0][2].id).toBe('img-1');
+    expect(queueSpy.mock.calls[1][2].id).toBe('img-2');
+    expect(queueSpy.mock.calls[2][2].id).toBe('img-3');
   });
 });
