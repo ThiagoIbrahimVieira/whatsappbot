@@ -5,7 +5,7 @@ const TOKEN = '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';
 const OWNER = 'ThiagoIbrahimVieira';
 const REPO = 'whatsappbot';
 const SOURCE_DIR = path.resolve(process.cwd());
-const TARGET_BRANCH = 'feature/complete-bot-evolution';
+const TARGET_BRANCH = 'main';
 
 const headers = {
   Authorization: `Bearer ${TOKEN}`,
@@ -112,7 +112,7 @@ async function upload() {
 
   console.log('📦 Criando novo Git Commit...');
   const commitData = await apiRequest('/git/commits', 'POST', {
-    message: 'feat(ux-fixes): correcoes de bugs, fluxo de cota reserve-commit-release, enquetes semanticas e validacao de comprovante',
+    message: 'feat(ux): separacao estrita entre conteudo informativo em texto e interacao em enquete (/help, /pack, /vip, /modo)',
     tree: treeData.sha,
     parents: [parentCommitSha],
   });

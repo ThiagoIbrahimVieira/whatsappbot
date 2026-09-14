@@ -26,17 +26,17 @@ export const handleMode: CommandHandler = async (ctx) => {
   const currentLabel = current === 'automatic' ? '⚡ Automático (Sem menu)' : '📱 Interativo (Com menu)';
 
   await ctx.reply(
-    `⚙️ *Modo de Funcionamento Atual:*\n👉 ${currentLabel}\n\n*Como alternar:*\n• */modo auto* — Cria figurinhas na hora sem menu *(ideal para enviar várias de uma vez)*\n• */modo menu* — Exibe o menu de opções e efeitos ao receber mídia`
+    `⚙️ *Modo Atual:* ${currentLabel}\nComo você prefere que o bot responda às suas mídias?`
   );
 
   const sock = whatsappClient.getSocket();
   if (sock) {
     await sendInteractivePoll(sock, ctx.message.chatId, {
       type: 'mode',
-      title: '⚙️ Escolha o modo de funcionamento:',
+      title: '⚙️ Escolha o modo desejado:',
       options: [
-        { id: 'mode_auto', title: '⚡ Modo Automático (Direto)' },
-        { id: 'mode_interactive', title: '📱 Modo Interativo (Com Menu)' },
+        { id: 'mode_auto', title: '⚡ Automático (Criação Direta)' },
+        { id: 'mode_interactive', title: '📱 Interativo (Com Menu)' },
       ],
     });
   }

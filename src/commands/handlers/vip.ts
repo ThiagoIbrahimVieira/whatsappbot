@@ -73,32 +73,12 @@ export const handleVip: CommandHandler = async (ctx) => {
   // 1. Se já for VIP ou o próprio Thiago (e NÃO pediu explicitamente para ver planos ou gerar Pix)
   if (isVip && !isExplicitPixOrPlans) {
     const vipText = [
-      '👑 *VOCÊ É UM ASSINANTE VIP!* 👑',
-      '──────────────────────',
+      '👑 *Você é um Assinante VIP!*',
       'Status: 🟢 *Ativo (Acesso Ilimitado)*',
-      '',
-      '💎 *Seus Benefícios Exclusivos:*',
-      '• ✨ Criação ilimitada de figurinhas todos os dias',
-      '• 🎬 Vídeos e animações longas em alta fidelidade',
-      '• 🎨 Memes com card moderno e bordas personalizadas',
-      '• ⚡ Fila prioritária sem tempo de espera',
-      '',
-      '💡 *Dica:* Para testar o pagamento Pix, envie */pix pro* ou escolha abaixo:',
-      '',
-      'Obrigado pelo apoio! Crie figurinhas à vontade 🚀',
+      'Aproveite a criação ilimitada e sem filas! 🚀',
     ].join('\n');
 
     await ctx.reply(vipText);
-
-    await sendInteractivePoll(sock, chatId, {
-      type: 'vip',
-      title: '🧪 Simular Planos VIP (Toque na opção):',
-      options: [
-        { id: 'vip_pro', title: '🌸 VIP Pro (30 dias) - R$ 5,00' },
-        { id: 'vip_mestre', title: '👑 VIP Mestre (Permanente) - R$ 10,00' },
-        { id: 'vip_beneficios', title: '💎 Ver Benefícios' },
-      ],
-    });
     return;
   }
 
@@ -169,25 +149,21 @@ export const handleVip: CommandHandler = async (ctx) => {
     fullText.includes('beneficios')
   ) {
     const benefitsText = [
-      '🌟 *TODOS OS BENEFÍCIOS DO VIP:*',
-      '────────────────────────────',
-      '✅ *Sem Limite Diário:* Crie quantas figurinhas quiser 24h por dia.',
-      '✅ *Vídeos e GIFs:* Envie vídeos de até 10s e GIFs que viram figurinhas animadas fluidas.',
-      '✅ *Fotos em Alta Resolução:* Converte com preservação de nitidez e proporção quadrada.',
-      '✅ *Fila Prioritária:* Suas figurinhas são processadas na frente de outros usuários.',
-      '✅ *Memes e Efeitos:* Suporte a modo meme superior/inferior e molduras.',
-      '',
-      '💡 *Escolha seu plano abaixo tocando no botão:*',
+      '🌟 *Benefícios Exclusivos VIP:*',
+      '• Sem limite diário — crie 24h por dia',
+      '• Suporte a vídeos e GIFs animados fluidos',
+      '• Fila prioritária sem tempo de espera',
+      '• Criação de memes e efeitos especiais',
     ].join('\n');
 
     await ctx.reply(benefitsText);
 
     await sendInteractivePoll(sock, chatId, {
       type: 'vip',
-      title: '🌸 ESCOLHA SEU PLANO (Toque para ativar):',
-      values: [
-        '🌸 VIP Pro (30 dias) - R$ 5,00',
-        '👑 VIP Mestre (Permanente) - R$ 10,00',
+      title: '🌸 Escolha seu Plano VIP:',
+      options: [
+        { id: 'vip_pro', title: '🌸 VIP Pro (30 dias) - R$ 5,00' },
+        { id: 'vip_mestre', title: '👑 VIP Mestre (Permanente) - R$ 10,00' },
       ],
     });
     return;
@@ -204,66 +180,44 @@ export const handleVip: CommandHandler = async (ctx) => {
     fullText.includes('ativar vip')
   ) {
     const plansText = [
-      '🔓 *PLANOS VIP & APOIO AO PROJETO*',
-      '👑 *Desbloqueie o Bot sem limites.*',
-      '',
-      'Ative o VIP e aproveite uma experiência completa, com mais liberdade, velocidade, prioridade e recursos exclusivos. ❤️',
-      '',
-      '✨ *Vantagens do VIP:*',
-      '✅ Crie quantas figurinhas quiser sem limite diário',
-      '✅ Transforme fotos, vídeos e GIFs em figurinhas',
-      '✅ Prioridade máxima na conversão',
-      '✅ Metadados oficiais personalizados (@𝚝.𝚒𝚋𝚛𝚑𝚡_)',
-      '',
-      '────────────────────────────',
-      '🌸 *VIP Pro (30 dias) — R$ 5,00*',
-      '⭐ Crie à vontade durante 1 mês inteiro.',
-      '',
-      '👑 *VIP Mestre (Permanente) — R$ 10,00*',
-      '⭐ Acesso ilimitado PARA SEMPRE (sem renovações).',
-      '────────────────────────────',
-      '☕ *Apoie com um Café:* Use nossa chave Pix para doações espontâneas de qualquer valor!',
-      '',
-      '⏳ *Prazo de ativação:* de *5 a 10 horas* após o envio do comprovante para conferência manual.',
-      '',
-      '👇 *Toque em uma das opções abaixo para gerar o Pix:*',
+      '👑 *Planos VIP — Acesso Ilimitado*',
+      'Criação sem limite diário, fila prioritária e vídeos animados fluidos.',
+      'Qual plano você gostaria de assinar?',
     ].join('\n');
 
     await ctx.reply(plansText);
 
     await sendInteractivePoll(sock, chatId, {
       type: 'vip',
-      title: '🌸 ESCOLHA SEU PLANO VIP (Toque na opção):',
+      title: '💎 Escolha o plano desejado:',
       options: [
         { id: 'vip_pro', title: '🌸 VIP Pro (30 dias) - R$ 5,00' },
         { id: 'vip_mestre', title: '👑 VIP Mestre (Permanente) - R$ 10,00' },
-        { id: 'vip_beneficios', title: '💎 Ver Benefícios' },
+        { id: 'vip_beneficios', title: '🌟 Ver Todos os Benefícios' },
       ],
     });
     return;
   }
 
-  // 6. Fluxo Padrão: Aviso de Limite / Status (Print 1)
+  // 6. Fluxo Padrão: Aviso de Limite / Status
   const usedToday = dailyLimitStore.getDailyCount(senderPhone);
   const limit = settings.dailyFreeLimit || 5;
 
   const limitAlertText = [
-    '💖 *Continue criando agora*',
-    '⭐ *Quer fazer mais figurinhas hoje? Com VIP, você cria à vontade.*',
-    '',
-    '⌛ *Próximas grátis em:* Meia-noite (00:00)',
-    `📌 *Uso gratuito:* ${usedToday}/${limit} utilizado`,
+    '💖 *Limite diário gratuito atingido*',
+    `📌 *Uso:* ${usedToday}/${limit} figurinhas hoje | Renova à meia-noite`,
+    'Quer continuar criando agora sem limites?',
   ].join('\n');
 
   await ctx.reply(limitAlertText);
 
   await sendInteractivePoll(sock, chatId, {
     type: 'vip',
-    title: '⭐ Deseja assinar o VIP? Toque na opção:',
+    title: '⭐ Deseja assinar o VIP?',
     options: [
       { id: 'vip_pro', title: '🌸 VIP Pro (30 dias) - R$ 5,00' },
       { id: 'vip_mestre', title: '👑 VIP Mestre (Permanente) - R$ 10,00' },
-      { id: 'vip_beneficios', title: '💎 Conhecer Benefícios VIP' },
+      { id: 'vip_beneficios', title: '🌟 Ver Benefícios VIP' },
     ],
   });
 };

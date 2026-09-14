@@ -221,30 +221,18 @@ export const handlePack: CommandHandler = async (ctx) => {
   const defaultPack = packManager.getOrCreateDefaultPack(senderPhone);
   const userPacks = packManager.getUserPacks(senderPhone);
 
-  const menuText = [
-    '📦 *GERENCIADOR DE PACKS DE FIGURINHAS*',
-    '────────────────────────────',
-    `⭐ *Meu Pack Principal:* ${defaultPack.stickerIds.length} figurinha(s)`,
-    `📁 *Total de Coleções:* ${userPacks.length} pack(s)`,
-    '────────────────────────────',
-    '',
-    '🤖 *Comandos Rápidos:*',
-    '• */pack enviar* — Envia o pacote oficial no chat',
-    '• */pack criar* — Cria um novo álbum (só digitar o nome)',
-    '• */pack lista* — Lista seus packs',
-    '• */pack compartilhar* — Compartilha seu pack com amigos',
-    '• */pack baixar <nome>* — Baixa o pack de um amigo',
-    '• */pack limpar* — Esvazia seu pack atual',
-    '',
-    '👇 *Ou escolha diretamente na enquete interativa abaixo:*',
+  const contextText = [
+    '📦 *Seus Packs de Figurinhas*',
+    `⭐ *Meu Pack:* ${defaultPack.stickerIds.length} figurinha(s) | *Coleções:* ${userPacks.length}`,
+    'O que você deseja fazer?',
   ].join('\n');
 
-  await ctx.reply(menuText);
+  await ctx.reply(contextText);
 
   if (sock) {
     await sendInteractivePoll(sock, chatId, {
       type: 'pack',
-      title: '📦 O que deseja fazer com seu Pack? (Toque abaixo):',
+      title: '📦 O que você quer fazer com seus packs?',
       options: [
         { id: 'send_pack', title: '🚀 Enviar Meu Pack' },
         { id: 'new_pack', title: '➕ Criar Novo Pack' },

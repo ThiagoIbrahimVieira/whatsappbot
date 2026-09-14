@@ -643,8 +643,8 @@ export class MessageRouter {
         async (session, count) => {
           const isBatch = count > 1;
           const contextMsg = isBatch
-            ? `📸 *Recebi ${count} mídias! Como você quer transformar elas?*`
-            : '📸 *Recebi sua mídia! Como você quer transformar ela?*';
+            ? `📸 *Recebi suas ${count} mídias!*\nComo você quer transformá-las?`
+            : '📸 *Recebi sua mídia!*\nComo você quer transformá-la?';
 
           logger.info(
             { chatId, sessionId: session.id, count },
@@ -653,21 +653,21 @@ export class MessageRouter {
 
           await stickerSender.sendText(sock, chatId, contextMsg, session.rawMessage || rawMessage);
 
-          const pollTitle = isBatch ? `🎨 Opções para as ${count} mídias:` : '🎨 Escolha o estilo da figurinha:';
+          const pollTitle = isBatch ? `🎨 Opções para ${count} mídias:` : '🎨 Escolha o formato desejado:';
           const pollOptions: SemanticPollOption[] =
             session.mediaType === 'image'
               ? [
                   { id: 'media_normal', title: '🖼️ Figurinha Normal' },
-                  { id: 'media_meme', title: '🎭 Meme (Adicionar texto)' },
-                  { id: 'media_outline', title: '🔲 Borda Branca' },
-                  { id: 'media_shadow', title: '👤 Efeito Sombra' },
-                  { id: 'media_static', title: '📸 Imagem estática' },
+                  { id: 'media_meme', title: '😂 Meme (Adicionar texto)' },
+                  { id: 'media_outline', title: '⬜ Borda Branca' },
+                  { id: 'media_shadow', title: '💡 Efeito Sombra' },
+                  { id: 'media_static', title: '📷 Imagem estática' },
                   { id: 'cancel', title: '❌ Cancelar' },
                 ]
               : [
                   { id: 'media_animated', title: '🎞️ Figurinha animada' },
-                  { id: 'media_static', title: '📸 Imagem estática' },
-                  { id: 'media_meme', title: '🎭 Meme (Com texto)' },
+                  { id: 'media_static', title: '📷 Imagem estática' },
+                  { id: 'media_meme', title: '😂 Meme (Com texto)' },
                   { id: 'cancel', title: '❌ Cancelar' },
                 ];
 
@@ -853,7 +853,7 @@ export class MessageRouter {
       await stickerSender.sendText(
         sock,
         chatId,
-        '❓ Opção inválida. Toque em uma opção da enquete ou digite o número correspondente.',
+        '❓ Opção não reconhecida. Toque em uma das opções da enquete acima ou digite cancelar.',
         rawMessage
       );
       return true;
@@ -938,7 +938,7 @@ export class MessageRouter {
           ].join('\n');
 
           const fallbackAlertText =
-            limitAlertText + '\n\n👉 *Deseja assinar?* Digite */planos* ou envie *1* para ver os planos VIP.';
+            limitAlertText + '\n\n👉 *Deseja assinar?* Digite */planos* para ver os planos VIP.';
 
           await sendInteractiveMessage(sock, sourceMessage.chatId, {
             text: limitAlertText,
@@ -1633,6 +1633,9 @@ export class MessageRouter {
             args = [];
           } else if (actionId === 'help_mode' || selectedOptionText.toLowerCase().includes('modo')) {
             targetCmd = 'modo';
+            args = [];
+          } else if (actionId === 'help_ranking' || selectedOptionText.toLowerCase().includes('ranking') || selectedOptionText.toLowerCase().includes('top')) {
+            targetCmd = 'ranking';
             args = [];
           }
 
