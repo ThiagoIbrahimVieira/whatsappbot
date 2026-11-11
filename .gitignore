@@ -14,8 +14,7 @@ auth/
 # Dados em disco (whitelist de contatos e configurações do bot)
 data/
 
-# Build e artefatos gerados
-dist/
+# Artefatos temporários de QR Code
 qrcode.html
 qrcode.png
 
