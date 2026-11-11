@@ -485,6 +485,7 @@ export class MessageRouter {
       captionOrText: commandText,
       mediaType: detected.type,
       hasPendingPayment: Boolean(pendingPayment),
+      isRecentPendingPayment: Boolean(pendingPayment && receiptManager.isPendingPaymentRecent(chatId)),
       quotedText: extracted.quotedMessage?.text || extracted.quotedMessage?.caption,
       mimetype:
         rawMessage.message?.documentMessage?.mimetype ||
@@ -1277,6 +1278,11 @@ export class MessageRouter {
     const pollId = key.id;
     const pollRecord = activePolls.get(pollId);
     if (!pollRecord) return;
+
+    // Prevenção de duplicidade: descarta se esta atualização de voto já foi processada
+    const voteDedupKey = `poll-update-${pollId}-${JSON.stringify(update.update?.pollUpdates || {})}`;
+    if (recentMessages.has(voteDedupKey)) return;
+    recentMessages.add(voteDedupKey);
 
     const pollCreationMsg = messageContentStore.get(pollId);
     if (!pollCreationMsg) return;

@@ -107,6 +107,7 @@ export class ReceiptManager {
     captionOrText?: string;
     mediaType: string;
     hasPendingPayment: boolean;
+    isRecentPendingPayment?: boolean;
     quotedText?: string;
     mimetype?: string;
   }): boolean {
@@ -129,12 +130,7 @@ export class ReceiptManager {
       return false;
     }
 
-    // 1. Se o usuário gerou o Pix recentemente (janela de pagamento ativa) e enviou foto ou documento (PDF)
-    if (options.hasPendingPayment) {
-      return true;
-    }
-
-    // 2. Palavras-chave fortes de comprovante na legenda da foto/PDF
+    // 1. Palavras-chave fortes de comprovante na legenda da foto/PDF
     const receiptKeywords = [
       'comprovante',
       'comp',
@@ -162,7 +158,7 @@ export class ReceiptManager {
       return true;
     }
 
-    // 3. Se está citando a mensagem de Pix enviada pelo bot com anexo compatível
+    // 2. Se está citando a mensagem de Pix enviada pelo bot com anexo compatível
     const quoted = (options.quotedText || '').toLowerCase();
     if (
       quoted.includes('pix') ||
@@ -173,7 +169,35 @@ export class ReceiptManager {
       return true;
     }
 
+    // 3. Documento (PDF) enviado durante cobrança pendente é tratado como comprovante
+    if (options.hasPendingPayment && options.mediaType === 'DOCUMENT') {
+      return true;
+    }
+
+    // 4. Se o usuário enviou uma legenda de texto comum que NÃO é palavra-chave de pagamento,
+    // trata como mídia normal (ex: foto com meme ou conversa) e NÃO sequestra como comprovante
+    if (text.length > 0) {
+      return false;
+    }
+
+    // 5. Foto sem legenda enviada durante a janela recente de pagamento pendente
+    if (options.hasPendingPayment && options.mediaType === 'IMAGE') {
+      if (options.isRecentPendingPayment !== undefined) {
+        return options.isRecentPendingPayment;
+      }
+      return true;
+    }
+
     return false;
+  }
+
+  /**
+   * Verifica se o pagamento pendente foi gerado recentemente (padrão: 15 minutos).
+   */
+  public isPendingPaymentRecent(chatId: string, maxAgeMs = 15 * 60 * 1000): boolean {
+    const payment = this.getPendingPayment(chatId);
+    if (!payment) return false;
+    return Date.now() - payment.createdAt <= maxAgeMs;
   }
 
   /**

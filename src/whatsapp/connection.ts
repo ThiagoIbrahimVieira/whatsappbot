@@ -230,7 +230,10 @@ export class WhatsAppConnection {
         if (msg.key?.id && msg.message) {
           messageContentStore.set(msg.key.id, msg.message);
         }
-        console.log(`📩 Nova mensagem detectada! Chat: ${msg.key?.remoteJid}, De mim: ${msg.key?.fromMe}`);
+        logger.debug(
+          { chat: msg.key?.remoteJid, fromMe: msg.key?.fromMe },
+          'Nova mensagem detectada pelo socket'
+        );
         try {
           await messageRouter.handleMessage(this.sock!, msg);
         } catch (err) {

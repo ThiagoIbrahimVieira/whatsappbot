@@ -23,14 +23,14 @@ const MIME_TYPES: Record<string, string> = {
 export class WebServer {
   private server: http.Server | null = null;
   private port: number = 3000;
-  private host: string = '0.0.0.0';
+  private host: string = process.env.WEB_HOST || '127.0.0.1';
   private staticDir: string;
 
   constructor() {
     this.staticDir = path.resolve(process.cwd(), 'web', 'dist');
   }
 
-  public async start(port = 3000, host = '0.0.0.0'): Promise<number> {
+  public async start(port = 3000, host = process.env.WEB_HOST || '127.0.0.1'): Promise<number> {
     this.port = port;
     this.host = host;
 

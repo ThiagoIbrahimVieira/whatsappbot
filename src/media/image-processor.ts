@@ -13,7 +13,14 @@ import { memeProcessor } from './meme-processor.js';
 let sharpModule: any = undefined;
 
 function findSystemFont(): string | null {
-  const candidates = [
+  const isWin = process.platform === 'win32';
+  const windowsFonts = [
+    'C:/Windows/Fonts/arialbd.ttf',
+    'C:/Windows/Fonts/arial.ttf',
+    'C:/Windows/Fonts/impact.ttf',
+    'C:/Windows/Fonts/segoeui.ttf',
+  ];
+  const unixFonts = [
     '/system/fonts/Roboto-Bold.ttf',
     '/system/fonts/Roboto-Black.ttf',
     '/system/fonts/Roboto-Medium.ttf',
@@ -24,10 +31,9 @@ function findSystemFont(): string | null {
     '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
     '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
     '/usr/share/fonts/TTF/DejaVuSans-Bold.ttf',
-    'C:/Windows/Fonts/impact.ttf',
-    'C:/Windows/Fonts/arialbd.ttf',
-    'C:/Windows/Fonts/arial.ttf',
   ];
+
+  const candidates = isWin ? [...windowsFonts, ...unixFonts] : [...unixFonts, ...windowsFonts];
   for (const candidate of candidates) {
     try {
       if (fsSync.existsSync(candidate)) return candidate;
@@ -159,7 +165,7 @@ export class ImageProcessor {
         .webp({
           quality,
           lossless: false,
-          effort: 6,
+          effort: 4,
           smartSubsample: true,
           alphaQuality: Math.min(quality, 80),
           force: true,

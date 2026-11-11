@@ -80,4 +80,26 @@ describe('Receipt Validation & Payment Proof Rules', () => {
     receiptManager.markReceiptProcessed(receiptKey);
     expect(receiptManager.isAlreadyProcessedReceipt(receiptKey)).toBe(true);
   });
+
+  it('NÃO deve tratar foto normal com legenda comum como comprovante mesmo com cobrança pendente', () => {
+    const isReceipt = receiptManager.isReceiptMessage({
+      captionOrText: 'olha essa foto engraçada do cachorro',
+      mediaType: 'IMAGE',
+      hasPendingPayment: true,
+      isRecentPendingPayment: true,
+    });
+
+    expect(isReceipt).toBe(false);
+  });
+
+  it('NÃO deve sequestrar foto sem legenda se a cobrança pendente não for recente', () => {
+    const isReceipt = receiptManager.isReceiptMessage({
+      captionOrText: '',
+      mediaType: 'IMAGE',
+      hasPendingPayment: true,
+      isRecentPendingPayment: false,
+    });
+
+    expect(isReceipt).toBe(false);
+  });
 });

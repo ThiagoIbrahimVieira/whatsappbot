@@ -14,6 +14,11 @@ auth/
 # Dados em disco (whitelist de contatos e configurações do bot)
 data/
 
+# Build e artefatos gerados
+dist/
+qrcode.html
+qrcode.png
+
 
 # Arquivos temporários de processamento de mídia
 tmp/

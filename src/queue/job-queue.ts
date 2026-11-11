@@ -75,10 +75,18 @@ export class JobQueue extends EventEmitter {
 
     this.emit('jobStarted', job);
 
-    // Executa o worker
+    // Executa o worker com timeout de proteção contra travamento da fila (60s)
     (async () => {
+      let timeoutId: NodeJS.Timeout | undefined;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error(`Job ${job.id} excedeu o tempo limite de processamento (60s)`));
+        }, 60_000);
+      });
+
       try {
-        const result = await worker(job);
+        const result = await Promise.race([worker(job), timeoutPromise]);
+        clearTimeout(timeoutId);
         job.status = 'completed';
         job.completedAt = Date.now();
         this.completedCount++;
@@ -115,6 +123,7 @@ export class JobQueue extends EventEmitter {
         this.emit('jobFailed', job, err);
         reject(err);
       } finally {
+        if (timeoutId) clearTimeout(timeoutId);
         this.processNext();
       }
     })();

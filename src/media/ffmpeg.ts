@@ -102,12 +102,14 @@ export async function getFFmpegPath(): Promise<string> {
  */
 export async function runFFmpeg(args: string[]): Promise<{ stdout: string; stderr: string }> {
   const ffmpegPath = await getFFmpegPath();
+  const safeArgs = args.includes('-nostdin') ? args : ['-nostdin', ...args];
 
   try {
-    // Executa sem shell para máxima segurança contra command injection
-    return await execFileAsync(ffmpegPath, args, {
+    // Executa sem shell para máxima segurança contra command injection com timeout de 45s
+    return await execFileAsync(ffmpegPath, safeArgs, {
       windowsHide: true,
       maxBuffer: 10 * 1024 * 1024,
+      timeout: 45_000,
     });
   } catch (err: any) {
     const stderr = err?.stderr || '';
@@ -134,7 +136,10 @@ export async function probeMediaWithFFmpeg(inputPath: string): Promise<MediaProb
 
   try {
     // Usa o próprio ffmpeg com -i para extrair metadados via stderr sem dependências externas
-    await execFileAsync(ffmpegPath, ['-i', inputPath], { windowsHide: true });
+    await execFileAsync(ffmpegPath, ['-nostdin', '-hide_banner', '-i', inputPath], {
+      windowsHide: true,
+      timeout: 10_000,
+    });
   } catch (err: any) {
     const output = (err?.stderr || '') + (err?.stdout || '');
 

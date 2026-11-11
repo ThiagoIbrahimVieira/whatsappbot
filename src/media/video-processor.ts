@@ -102,8 +102,6 @@ export class VideoProcessor {
             'default',
             '-loop',
             '0', // Loop infinito
-            '-vsync',
-            '0',
             tempOutPath,
           ];
 

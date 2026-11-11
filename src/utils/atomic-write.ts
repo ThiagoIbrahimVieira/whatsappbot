@@ -16,7 +16,24 @@ export function atomicWriteFileSync(filePath: string, content: string): void {
 
   try {
     fs.writeFileSync(tempPath, content, 'utf-8');
-    fs.renameSync(tempPath, filePath);
+    try {
+      fs.renameSync(tempPath, filePath);
+    } catch (renameErr: any) {
+      // No Windows, renameSync pode falhar com EPERM/EBUSY se o arquivo de destino já existir ou estiver sob I/O
+      if (
+        renameErr?.code === 'EPERM' ||
+        renameErr?.code === 'EBUSY' ||
+        renameErr?.code === 'EEXIST' ||
+        process.platform === 'win32'
+      ) {
+        fs.copyFileSync(tempPath, filePath);
+        try {
+          fs.unlinkSync(tempPath);
+        } catch {}
+      } else {
+        throw renameErr;
+      }
+    }
   } catch (err) {
     logger.error({ err, filePath }, 'Falha na escrita atômica do arquivo');
     try {
