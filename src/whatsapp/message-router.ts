@@ -626,7 +626,7 @@ export class MessageRouter {
     // REGRA 7: PROCESSAMENTO DE MÍDIA (INTERATIVO VS AUTOMÁTICO)
     // =========================================================================
     if (currentSettings.processingMode === 'interactive') {
-      const debounceMs = process.env.NODE_ENV === 'test' ? 0 : 1500;
+      const debounceMs = process.env.NODE_ENV === 'test' ? 0 : 800;
 
       await sessionManager.addMediaToBatch(
         {

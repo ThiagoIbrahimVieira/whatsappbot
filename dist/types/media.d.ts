@@ -13,6 +13,7 @@ export interface ProcessingOptions {
     forceAnimated?: boolean;
     maxDurationSeconds?: number;
     quality?: number;
+    videoQuality?: number;
     fps?: number;
     memeText?: string;
     topText?: string;

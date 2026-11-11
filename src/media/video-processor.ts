@@ -40,18 +40,58 @@ export class VideoProcessor {
         maxDuration
       );
 
-      // 3. Configurações de compressão e FPS adaptativos para garantir <= 500 KB
-      const defaultFps = options.fps && options.fps >= 1 && options.fps <= 30
+      // 3. Configurações de compressão e FPS adaptativos para garantir <= 500 KB rapidamente
+      const requestedFps = options.fps && options.fps >= 1 && options.fps <= 30
         ? Math.round(options.fps)
-        : CONSTANTS.DEFAULT_ANIMATED_FPS;
-      const candidateFps = [defaultFps, 10, 8];
-      const fpsOptions = Array.from(new Set(candidateFps)).filter((f) => f <= defaultFps);
+        : undefined;
 
-      const defaultQuality = options.quality || 50;
-      const candidateQualities = [defaultQuality, 35, 20, 10];
-      const compressionQualities = Array.from(new Set(candidateQualities)).filter(
-        (q) => q <= defaultQuality
-      );
+      const requestedQuality =
+        options.videoQuality ||
+        (options.quality && options.quality <= 60 ? options.quality : undefined);
+
+      // Estratégia de passos calibrados pela duração (elimina loop cego de 12 combinações)
+      const attempts: Array<{ fps: number; quality: number }> = [];
+
+      if (requestedFps || requestedQuality) {
+        attempts.push({
+          fps: requestedFps || (durationToUse > 6 ? 8 : durationToUse > 3 ? 10 : CONSTANTS.DEFAULT_ANIMATED_FPS),
+          quality: requestedQuality || (durationToUse > 6 ? 35 : 45),
+        });
+      }
+
+      if (durationToUse > 6) {
+        // Vídeos longos (7s a 10s): grande volume de quadros
+        attempts.push(
+          { fps: 8, quality: 35 },
+          { fps: 8, quality: 20 },
+          { fps: 6, quality: 12 }
+        );
+      } else if (durationToUse > 3) {
+        // Vídeos médios (4s a 6s)
+        attempts.push(
+          { fps: 10, quality: 45 },
+          { fps: 8, quality: 30 },
+          { fps: 8, quality: 15 }
+        );
+      } else {
+        // Vídeos curtos (1s a 3s): cabe com folga em alta fidelidade
+        attempts.push(
+          { fps: 12, quality: 50 },
+          { fps: 10, quality: 35 },
+          { fps: 8, quality: 20 }
+        );
+      }
+
+      // Deduplica tentativas mantendo a ordem de prioridade
+      const uniqueAttempts: Array<{ fps: number; quality: number }> = [];
+      const seenAttempts = new Set<string>();
+      for (const att of attempts) {
+        const key = `${att.fps}_${att.quality}`;
+        if (!seenAttempts.has(key)) {
+          seenAttempts.add(key);
+          uniqueAttempts.push(att);
+        }
+      }
 
       // Velocidade do vídeo (speed / slow): setpts=PTS/speed
       let speedFactor = 1.0;
@@ -61,67 +101,64 @@ export class VideoProcessor {
 
       let bestBuffer: Buffer | null = null;
 
-      for (const fps of fpsOptions) {
-        for (const quality of compressionQualities) {
-          const tempOutPath = path.join(outputDir, `anim_${fps}_${quality}.webp`);
+      for (const attempt of uniqueAttempts) {
+        const { fps, quality } = attempt;
+        const tempOutPath = path.join(outputDir, `anim_${fps}_${quality}.webp`);
 
-          // Filtro FFmpeg: converte para format=rgba ANTES do pad para que color=black@0
-          // gere pixels verdadeiramente transparentes (alfa = 0) no WebP final
-          const filterList = [
-            `fps=${fps}`,
-          ];
+        // Filtro FFmpeg: converte para format=rgba ANTES do pad para que color=black@0
+        // gere pixels verdadeiramente transparentes (alfa = 0) no WebP final
+        const filterList = [
+          `fps=${fps}`,
+        ];
 
-          if (speedFactor !== 1.0) {
-            filterList.push(`setpts=PTS/${speedFactor}`);
-          }
-
-          filterList.push(
-            `scale=512:512:force_original_aspect_ratio=decrease`,
-            `format=rgba`,
-            `pad=512:512:(512-iw)/2:(512-ih)/2:color=black@0`
-          );
-
-          const filterComplex = filterList.join(',');
-
-          const args = [
-            '-y',
-            '-t',
-            String(durationToUse),
-            '-i',
-            inputPath,
-            '-vf',
-            filterComplex,
-            '-an', // Remove completamente qualquer faixa de áudio
-            '-c:v',
-            'libwebp',
-            '-lossless',
-            '0',
-            '-q:v',
-            String(quality),
-            '-preset',
-            'default',
-            '-loop',
-            '0', // Loop infinito
-            tempOutPath,
-          ];
-
-          await runFFmpeg(args);
-
-          const generatedBuffer = await fs.readFile(tempOutPath);
-          const bufferWithExif = await addExifToWebp(generatedBuffer);
-
-          // Se estiver dentro do limite oficial do WhatsApp (500 KB)
-          if (bufferWithExif.length <= CONSTANTS.ANIMATED_STICKER_MAX_BYTES) {
-            bestBuffer = bufferWithExif;
-            break;
-          }
-
-          bestBuffer = bufferWithExif;
+        if (speedFactor !== 1.0) {
+          filterList.push(`setpts=PTS/${speedFactor}`);
         }
 
-        if (bestBuffer && bestBuffer.length <= CONSTANTS.ANIMATED_STICKER_MAX_BYTES) {
+        filterList.push(
+          `scale=512:512:force_original_aspect_ratio=decrease`,
+          `format=rgba`,
+          `pad=512:512:(512-iw)/2:(512-ih)/2:color=black@0`
+        );
+
+        const filterComplex = filterList.join(',');
+
+        const args = [
+          '-y',
+          '-t',
+          String(durationToUse),
+          '-i',
+          inputPath,
+          '-vf',
+          filterComplex,
+          '-an', // Remove completamente qualquer faixa de áudio
+          '-c:v',
+          'libwebp',
+          '-lossless',
+          '0',
+          '-compression_level',
+          '2', // Codificação 3x a 5x mais rápida em CPU
+          '-q:v',
+          String(quality),
+          '-preset',
+          'default',
+          '-loop',
+          '0', // Loop infinito
+          tempOutPath,
+        ];
+
+        await runFFmpeg(args);
+
+        const generatedBuffer = await fs.readFile(tempOutPath);
+        const bufferWithExif = await addExifToWebp(generatedBuffer);
+
+        // Se estiver dentro do limite oficial do WhatsApp (500 KB)
+        if (bufferWithExif.length <= CONSTANTS.ANIMATED_STICKER_MAX_BYTES) {
+          bestBuffer = bufferWithExif;
           break;
         }
+
+        bestBuffer = bufferWithExif;
       }
 
       if (!bestBuffer) {

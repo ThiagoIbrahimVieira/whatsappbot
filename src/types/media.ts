@@ -23,6 +23,7 @@ export interface ProcessingOptions {
   forceAnimated?: boolean;
   maxDurationSeconds?: number;
   quality?: number;
+  videoQuality?: number;
   fps?: number;
   // Fases B, C, D, E:
   memeText?: string;

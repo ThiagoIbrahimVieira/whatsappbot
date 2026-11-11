@@ -154,7 +154,7 @@ export class ImageProcessor {
       });
 
     const startQuality = options.quality && options.quality < 80 ? options.quality : 80;
-    const candidateQualities = [startQuality, 75, 65, 50, 40, 30, 20, 10];
+    const candidateQualities = [startQuality, 65, 45, 20];
     const qualities = Array.from(new Set(candidateQualities)).filter((q) => q <= startQuality);
 
     let bestBuffer: Buffer | null = null;
@@ -237,7 +237,7 @@ export class ImageProcessor {
     }
 
     const startQuality = options.quality && options.quality < 80 ? options.quality : 80;
-    const candidateQualities = [startQuality, 75, 65, 50, 40, 30, 20, 10];
+    const candidateQualities = [startQuality, 65, 45, 20];
     const qualities = Array.from(new Set(candidateQualities)).filter((q) => q <= startQuality);
 
     let bestBuffer: Buffer | null = null;
@@ -348,6 +348,8 @@ export class ImageProcessor {
         'libwebp',
         '-lossless',
         '0',
+        '-compression_level',
+        '2',
         '-q:v',
         String(quality),
         '-vframes',

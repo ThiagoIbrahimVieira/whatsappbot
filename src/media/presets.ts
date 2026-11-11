@@ -68,6 +68,7 @@ export function applyPresetToOptions(
   return {
     ...baseOptions,
     quality: baseOptions.quality || preset.imageQuality,
+    videoQuality: baseOptions.videoQuality || preset.videoQuality,
     fps: baseOptions.fps || preset.videoFps,
     maxDurationSeconds: baseOptions.maxDurationSeconds || preset.maxDurationSeconds,
   };
