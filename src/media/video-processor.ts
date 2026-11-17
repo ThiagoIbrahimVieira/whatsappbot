@@ -125,10 +125,14 @@ export class VideoProcessor {
 
         const args = [
           '-y',
+          '-threads',
+          '2',
           '-t',
           String(durationToUse),
           '-i',
           inputPath,
+          '-map_metadata',
+          '-1',
           '-vf',
           filterComplex,
           '-an', // Remove completamente qualquer faixa de áudio
@@ -243,10 +247,14 @@ export class VideoProcessor {
     const framePath = path.join(outputDir, 'extracted_frame.png');
     const args = [
       '-y',
+      '-threads',
+      '2',
       '-ss',
       seekTime,
       '-i',
       inputPath,
+      '-map_metadata',
+      '-1',
       '-vframes',
       '1',
       framePath,

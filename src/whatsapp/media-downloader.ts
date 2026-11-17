@@ -46,15 +46,25 @@ export class MediaDownloader {
       // Valida tamanho do buffer baixado contra as configurações máximas
       validateMediaSize(mediaType, buffer.length);
 
-      // Determina extensão segura
-      const ext =
-        mediaType === 'IMAGE'
-          ? 'jpg'
-          : mediaType === 'VIDEO'
-            ? 'mp4'
-            : mediaType === 'GIF'
-              ? 'gif'
-              : 'bin';
+      // Determina extensão segura com base no mimetype ou no mediaType
+      const msgObj = rawMessageInfo?.message || rawMessageInfo;
+      const mediaContent =
+        msgObj?.imageMessage ||
+        msgObj?.videoMessage ||
+        msgObj?.documentMessage ||
+        msgObj?.stickerMessage;
+      const mime = String(mediaContent?.mimetype || '').toLowerCase();
+
+      let ext = 'bin';
+      if (mime.includes('png')) ext = 'png';
+      else if (mime.includes('webp')) ext = 'webp';
+      else if (mime.includes('gif')) ext = 'gif';
+      else if (mime.includes('jpeg') || mime.includes('jpg')) ext = 'jpg';
+      else if (mime.includes('mp4')) ext = 'mp4';
+      else if (mime.includes('webm')) ext = 'webm';
+      else if (mediaType === 'IMAGE') ext = 'jpg';
+      else if (mediaType === 'VIDEO') ext = 'mp4';
+      else if (mediaType === 'GIF') ext = 'gif';
 
       const safeFileName = `input_${Date.now()}.${ext}`;
       const filePath = path.join(jobDir, safeFileName);

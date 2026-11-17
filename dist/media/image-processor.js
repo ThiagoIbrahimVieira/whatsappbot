@@ -48,6 +48,11 @@ export async function getSharp() {
         const s = await import(pkg);
         const mod = s.default || s;
         if (typeof mod === 'function') {
+            try {
+                // Limita a concorrência interna da libvips/libuv para evitar contenção de CPU
+                mod.concurrency(2);
+            }
+            catch { }
             sharpModule = mod;
         }
         else {
@@ -125,6 +130,7 @@ export class ImageProcessor {
         }
         const basePipeline = sharp(inputBuffer)
             .rotate()
+            .toColorspace('srgb')
             .resize({
             width: CONSTANTS.STICKER_WIDTH,
             height: CONSTANTS.STICKER_HEIGHT,
@@ -289,8 +295,12 @@ export class ImageProcessor {
             const tempOut = path.join(outputDir, `ffmpeg_out_${quality}.webp`);
             const args = [
                 '-y',
+                '-threads',
+                '2',
                 '-i',
                 inputPath,
+                '-map_metadata',
+                '-1',
                 '-vf',
                 filterComplex,
                 '-c:v',
