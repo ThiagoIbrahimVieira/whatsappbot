@@ -2,6 +2,7 @@ import makeWASocket, {
   DisconnectReason,
   Browsers,
   type WASocket,
+  proto,
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import qrcode from 'qrcode-terminal';
@@ -84,6 +85,18 @@ export class WhatsAppConnection {
       markOnlineOnConnect: false,
       generateHighQualityLinkPreview: false,
       syncFullHistory: false, // Não processa mensagens antigas do histórico
+      shouldSyncHistoryMessage: (msg) => {
+        // Ignora sincronização de histórico de mensagens passadas (Full e Recent),
+        // eliminando o timer de espera de 20s-30s na inicialização do Baileys
+        const syncType = msg.syncType;
+        if (
+          syncType === proto.HistorySync.HistorySyncType.RECENT ||
+          syncType === proto.HistorySync.HistorySyncType.FULL
+        ) {
+          return false;
+        }
+        return true;
+      },
       shouldIgnoreJid: (jid) => {
         if (!jid) return false;
         // Descarta status/stories e canais/newsletters na raiz do socket
@@ -168,6 +181,22 @@ export class WhatsAppConnection {
           '✅ Conectado com sucesso ao WhatsApp com a sua própria conta!'
         );
         console.log('\n✅ Conexão ativa! Aguardando mídias em conversas privadas...\n');
+
+        // Despeja imediatamente qualquer buffer inicial do Baileys para entrega instantânea
+        // de mensagens e eliminação definitiva do aviso "Buffer timeout reached, auto-flushing"
+        try {
+          if (this.sock?.ev) {
+            (this.sock.ev as any).flush();
+          }
+        } catch {}
+
+        setTimeout(() => {
+          try {
+            if (this.sock?.ev) {
+              (this.sock.ev as any).flush();
+            }
+          } catch {}
+        }, 1000);
       }
 
       // 3. Conexão encerrada
