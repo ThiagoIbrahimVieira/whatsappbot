@@ -135,10 +135,23 @@ export class MessageRouter {
         const myPhone = (sock.user?.id || '').split(':')[0].split('@')[0] || config.PAIRING_NUMBER;
         const chatPhone = (chatId || '').split(':')[0].split('@')[0];
         const myLid = (sock.user?.lid || '').split(':')[0].split('@')[0];
-        const isSelfChat = Boolean(key.fromMe && ((myPhone && chatPhone && myPhone === chatPhone) ||
-            (myLid && chatId.includes(myLid)) ||
-            (config.PAIRING_NUMBER && chatId.includes(config.PAIRING_NUMBER)) ||
+        let isSelfChat = Boolean(key.fromMe && ((myPhone && chatPhone && myPhone === chatPhone) ||
+            (myLid && (chatId.includes(myLid) || chatPhone === myLid)) ||
+            (config.PAIRING_NUMBER && (chatId.includes(config.PAIRING_NUMBER) || chatPhone === config.PAIRING_NUMBER)) ||
             (sock.user?.id && chatId.includes(sock.user.id.split('@')[0]))));
+        // Se partiu da própria conta (fromMe) em chat @lid, checa mapeamento pelo SignalRepository
+        if (key.fromMe && !isSelfChat && chatId.endsWith('@lid')) {
+            try {
+                const mappedPn = await sock.signalRepository?.lidMapping?.getPNForLID?.(chatId);
+                if (mappedPn) {
+                    const pnPhone = mappedPn.split(':')[0].split('@')[0];
+                    if (pnPhone && myPhone && pnPhone === myPhone) {
+                        isSelfChat = true;
+                    }
+                }
+            }
+            catch { }
+        }
         const rawText = (rawMessage.message?.conversation ||
             rawMessage.message?.extendedTextMessage?.text ||
             rawMessage.message?.imageMessage?.caption ||

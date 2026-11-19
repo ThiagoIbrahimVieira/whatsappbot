@@ -2,6 +2,7 @@ import makeWASocket, {
   DisconnectReason,
   Browsers,
   type WASocket,
+  proto,
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import qrcode from 'qrcode-terminal';
@@ -83,8 +84,20 @@ export class WhatsAppConnection {
       printQRInTerminal: false,
       markOnlineOnConnect: false,
       generateHighQualityLinkPreview: false,
-      syncFullHistory: false, // Não processa mensagens antigas do histórico
-      shouldSyncHistoryMessage: () => false, // Desativa completamente a sincronização de histórico, eliminando espera e buffer timeout
+      syncFullHistory: false, // Não processa histórico antigo desnecessário
+      shouldSyncHistoryMessage: (msg) => {
+        // Ignora apenas o histórico massivo de mensagens passadas (Full e Recent),
+        // eliminando o delay de inicialização sem bloquear INITIAL_BOOTSTRAP.
+        // Isso permite ao Baileys processar mapeamentos de LID e chaves de sessão sem travar!
+        const syncType = msg.syncType;
+        if (
+          syncType === proto.HistorySync.HistorySyncType.RECENT ||
+          syncType === proto.HistorySync.HistorySyncType.FULL
+        ) {
+          return false;
+        }
+        return true;
+      },
       shouldIgnoreJid: (jid) => {
         if (!jid) return false;
         // Descarta status/stories e canais/newsletters na raiz do socket
