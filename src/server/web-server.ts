@@ -27,7 +27,27 @@ export class WebServer {
   private staticDir: string;
 
   constructor() {
-    this.staticDir = path.resolve(process.cwd(), 'web', 'dist');
+    this.staticDir = this.resolveStaticDir();
+  }
+
+  private resolveStaticDir(): string {
+    const candidates = [
+      path.resolve(process.cwd(), 'web', 'dist'),
+      path.resolve(process.cwd(), '..', 'web', 'dist'),
+    ];
+
+    try {
+      const currentDir = typeof __dirname !== 'undefined'
+        ? __dirname
+        : path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'));
+      candidates.push(
+        path.resolve(currentDir, '..', '..', 'web', 'dist'),
+        path.resolve(currentDir, '..', 'web', 'dist')
+      );
+    } catch {}
+
+    const found = candidates.find((dir) => fs.existsSync(path.join(dir, 'index.html')));
+    return found || candidates[0];
   }
 
   public async start(port = 3000, host = process.env.WEB_HOST || '127.0.0.1'): Promise<number> {

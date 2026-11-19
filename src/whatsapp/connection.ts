@@ -71,6 +71,9 @@ export class WhatsAppConnection {
 
     // Cria o socket com Baileys usando Pino logger em modo silent/warn para logs internos da lib
     const internalLogger = logger.child({ module: 'baileys' });
+    if (config.LOG_LEVEL !== 'debug') {
+      internalLogger.level = 'warn';
+    }
     const usePairingCode = Boolean(config.PAIRING_NUMBER && !state.creds.registered);
 
     this.sock = makeWASocket({
@@ -81,6 +84,15 @@ export class WhatsAppConnection {
       markOnlineOnConnect: false,
       generateHighQualityLinkPreview: false,
       syncFullHistory: false, // Não processa mensagens antigas do histórico
+      shouldIgnoreJid: (jid) => {
+        if (!jid) return false;
+        // Descarta status/stories e canais/newsletters na raiz do socket
+        if (jid.endsWith('@broadcast') || jid.endsWith('@newsletter')) return true;
+        // Se IGNORE_GROUPS estiver ativo (padrão true), descarta no nível do socket Baileys
+        // prevenindo erros de GroupCipher.decrypt, retentativas e travamento de buffer
+        if (config.IGNORE_GROUPS && (jid.endsWith('@g.us') || jid.includes('@g.us'))) return true;
+        return false;
+      },
       getMessage: async (key) => {
         return messageContentStore.get(key.id || '');
       },

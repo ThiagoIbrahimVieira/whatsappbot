@@ -4,6 +4,7 @@ export declare class WebServer {
     private host;
     private staticDir;
     constructor();
+    private resolveStaticDir;
     start(port?: number, host?: string): Promise<number>;
     stop(): Promise<void>;
     getPort(): number;
