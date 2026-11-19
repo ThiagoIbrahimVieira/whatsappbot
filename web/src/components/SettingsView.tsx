@@ -1,17 +1,10 @@
 import React from 'react';
-import { 
-  Bot, 
-  Sparkles, 
-  Cpu, 
-  Shield, 
-  Power, 
-  Save, 
-  Terminal, 
-  CheckCircle2, 
-  Info,
+import {
+  Sparkles,
+  Shield,
+  Power,
   Server,
-  Code2,
-  Image as ImageIcon
+  Image as ImageIcon,
 } from 'lucide-react';
 import { BotStatus, QuickSettings, SystemInfo } from '../types';
 
@@ -24,6 +17,24 @@ interface SettingsViewProps {
   onShowToast: (msg: string) => void;
 }
 
+/* ─── Reusable Pill Switch ─────────────────────────────────── */
+const Switch: React.FC<{ checked: boolean; onChange: () => void; label: string }> = ({
+  checked,
+  onChange,
+  label,
+}) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    aria-label={label}
+    onClick={onChange}
+    className={`pill-switch ${checked ? 'pill-switch-on' : 'pill-switch-off'}`}
+  >
+    <span className="pill-switch-thumb" />
+  </button>
+);
+
 export const SettingsView: React.FC<SettingsViewProps> = ({
   botStatus,
   onToggleBotStatus,
@@ -34,223 +45,241 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 }) => {
   const isBotActive = botStatus === 'active';
 
+  const cardStyle: React.CSSProperties = {
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border-hairline)',
+    boxShadow: 'var(--specular)',
+  };
+
+  const inputStyle: React.CSSProperties = {
+    background: 'rgba(255,255,255,0.05)',
+    border: '1px solid var(--border-hairline)',
+    color: 'var(--ink-primary)',
+  };
+
   return (
-    <div id="settings-view" className="space-y-6 max-w-7xl mx-auto pb-16">
+    <div id="settings-view" className="space-y-6 max-w-7xl mx-auto pb-20 animate-fade-in">
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 tracking-tight">Settings</h2>
-        <p className="text-xs text-slate-600 mt-0.5">
-          Configure bot automation rules, sticker metadata, and monitor system libraries.
+        <h2 className="text-xl font-bold tracking-tight" style={{ color: 'var(--ink-primary)' }}>
+          Configurações
+        </h2>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--ink-muted)' }}>
+          Configure regras de automação do bot, metadados de figurinhas e monitore as bibliotecas do sistema.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (8 cols): Bot & Automation Rules */}
         <div className="lg:col-span-8 space-y-6">
-          
+
           {/* SECTION 1: BOT STATUS */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="rounded-2xl p-5 space-y-4" style={cardStyle}>
+            <div
+              className="flex items-center justify-between pb-3"
+              style={{ borderBottom: '1px solid var(--border-hairline)' }}
+            >
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--ink-secondary)' }}
+                >
                   <Power className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Bot Execution State</h3>
-                  <p className="text-xs text-slate-600">Global kill switch for all inbound message listeners</p>
+                  <h3 className="text-sm font-bold" style={{ color: 'var(--ink-primary)' }}>
+                    Estado de Execução do Bot
+                  </h3>
+                  <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+                    Interruptor global para todos os ouvintes de mensagens recebidas
+                  </p>
                 </div>
               </div>
 
               <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                  isBotActive
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    : 'bg-amber-50 text-amber-700 border border-amber-200'
-                }`}
+                className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                style={{
+                  background: isBotActive ? 'var(--accent-emerald-dim)' : 'var(--accent-gold-dim)',
+                  color: isBotActive ? 'var(--accent-emerald)' : 'var(--accent-gold)',
+                  border: `1px solid ${isBotActive ? 'rgba(16,185,129,0.25)' : 'rgba(245,158,11,0.25)'}`,
+                }}
               >
-                {isBotActive ? '● Active' : '● Paused'}
+                {isBotActive ? '● Ativo' : '● Pausado'}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold text-slate-900 block">
-                  Master Switch
+                <span className="text-xs font-semibold block" style={{ color: 'var(--ink-primary)' }}>
+                  Interruptor Mestre
                 </span>
-                <span className="text-xs text-slate-600 block">
-                  When paused, the bot ignores all incoming media and commands without disconnecting from WhatsApp.
+                <span className="text-xs block mt-0.5" style={{ color: 'var(--ink-muted)' }}>
+                  Quando pausado, o bot ignora todas as mídias e comandos sem desconectar do WhatsApp.
                 </span>
               </div>
 
-              <button
-                onClick={() => {
+              <Switch
+                checked={isBotActive}
+                onChange={() => {
                   onToggleBotStatus();
-                  onShowToast(isBotActive ? 'Bot paused' : 'Bot activated');
+                  onShowToast(isBotActive ? 'Bot pausado' : 'Bot ativado');
                 }}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
-                  isBotActive ? 'bg-emerald-500' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                    isBotActive ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
+                label="Master Bot State"
+              />
             </div>
           </div>
 
           {/* SECTION 2: AUTOMATION & MEDIA RULES */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-              <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+          <div className="rounded-2xl p-5 space-y-4" style={cardStyle}>
+            <div
+              className="flex items-center gap-2.5 pb-3"
+              style={{ borderBottom: '1px solid var(--border-hairline)' }}
+            >
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: 'var(--accent-emerald-dim)', color: 'var(--accent-emerald)' }}
+              >
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Automation Media Pipeline</h3>
-                <p className="text-xs text-slate-600">Select formats automatically converted to WebP stickers</p>
+                <h3 className="text-sm font-bold" style={{ color: 'var(--ink-primary)' }}>
+                  Pipeline de Mídia Automatizado
+                </h3>
+                <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+                  Selecione os formatos que são convertidos automaticamente para stickers WebP
+                </p>
               </div>
             </div>
 
-            <div className="divide-y divide-slate-100 space-y-3">
-              {/* Images */}
-              <div className="pt-2 flex items-center justify-between gap-3">
-                <div>
-                  <span className="text-xs font-semibold text-slate-900 block">Images (JPEG, PNG, WebP)</span>
-                  <span className="text-xs text-slate-600 block">
-                    Converts photos directly into 512x512 WebP sticker format.
-                  </span>
+            <div className="space-y-4">
+              {[
+                {
+                  key: 'images' as const,
+                  title: 'Imagens (JPEG, PNG, WebP)',
+                  desc: 'Converte fotos diretamente para formato WebP 512×512 sem reencode duplo.',
+                },
+                {
+                  key: 'videos' as const,
+                  title: 'Vídeos (MP4, 3GP)',
+                  desc: 'Converte clipes de vídeo em stickers animados usando FFmpeg libwebp (máx. 10s).',
+                },
+                {
+                  key: 'gifs' as const,
+                  title: 'Animações GIF',
+                  desc: 'Extrai quadros e codifica loops em formato de sticker WebP animado.',
+                },
+                {
+                  key: 'commands' as const,
+                  title: 'Gatilhos de Comando',
+                  desc: 'Ouve prefixos na legenda como !s, !sticker e !crop.',
+                },
+              ].map(({ key, title, desc }) => (
+                <div key={key} className="flex items-center justify-between gap-3">
+                  <div>
+                    <span className="text-xs font-semibold block" style={{ color: 'var(--ink-primary)' }}>
+                      {title}
+                    </span>
+                    <span className="text-xs block mt-0.5" style={{ color: 'var(--ink-muted)' }}>
+                      {desc}
+                    </span>
+                  </div>
+                  <Switch
+                    checked={quickSettings[key] as boolean}
+                    onChange={() => {
+                      const next = !quickSettings[key];
+                      onUpdateSettings({ [key]: next });
+                      onShowToast(`${title.split(' ')[0]} ${next ? 'habilitado' : 'desabilitado'}`);
+                    }}
+                    label={title}
+                  />
                 </div>
-                <input
-                  type="checkbox"
-                  checked={quickSettings.images}
-                  onChange={(e) => {
-                    onUpdateSettings({ images: e.target.checked });
-                    onShowToast(`Image conversion ${e.target.checked ? 'enabled' : 'disabled'}`);
-                  }}
-                  className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
-                />
-              </div>
-
-              {/* Videos */}
-              <div className="pt-3 flex items-center justify-between gap-3">
-                <div>
-                  <span className="text-xs font-semibold text-slate-900 block">Videos (MP4, 3GP)</span>
-                  <span className="text-xs text-slate-600 block">
-                    Converts video clips into animated stickers using FFmpeg libwebp (max 10s).
-                  </span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={quickSettings.videos}
-                  onChange={(e) => {
-                    onUpdateSettings({ videos: e.target.checked });
-                    onShowToast(`Video conversion ${e.target.checked ? 'enabled' : 'disabled'}`);
-                  }}
-                  className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
-                />
-              </div>
-
-              {/* GIFs */}
-              <div className="pt-3 flex items-center justify-between gap-3">
-                <div>
-                  <span className="text-xs font-semibold text-slate-900 block">GIF Animations</span>
-                  <span className="text-xs text-slate-600 block">
-                    Extracts frames and encodes looping WebP sticker format.
-                  </span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={quickSettings.gifs}
-                  onChange={(e) => {
-                    onUpdateSettings({ gifs: e.target.checked });
-                    onShowToast(`GIF conversion ${e.target.checked ? 'enabled' : 'disabled'}`);
-                  }}
-                  className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
-                />
-              </div>
-
-              {/* Commands */}
-              <div className="pt-3 flex items-center justify-between gap-3">
-                <div>
-                  <span className="text-xs font-semibold text-slate-900 block">Command Triggers</span>
-                  <span className="text-xs text-slate-600 block">
-                    Listen to caption triggers like <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">!s</code>, <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">!sticker</code>, and <code className="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">!crop</code>.
-                  </span>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={quickSettings.commands}
-                  onChange={(e) => {
-                    onUpdateSettings({ commands: e.target.checked });
-                    onShowToast(`Command triggers ${e.target.checked ? 'enabled' : 'disabled'}`);
-                  }}
-                  className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
-                />
-              </div>
+              ))}
             </div>
           </div>
 
           {/* SECTION 3: STICKER METADATA */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
-            <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-              <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+          <div className="rounded-2xl p-5 space-y-4" style={cardStyle}>
+            <div
+              className="flex items-center gap-2.5 pb-3"
+              style={{ borderBottom: '1px solid var(--border-hairline)' }}
+            >
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--ink-secondary)' }}
+              >
                 <ImageIcon className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Sticker Metadata & Exif</h3>
-                <p className="text-xs text-slate-600">The author and pack name stamped into generated stickers</p>
+                <h3 className="text-sm font-bold" style={{ color: 'var(--ink-primary)' }}>
+                  Metadados e EXIF da Figurinha
+                </h3>
+                <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+                  Autor e nome do pacote gravados nos metadados WebP gerados
+                </p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
-                  Pack Name
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink-secondary)' }}>
+                  Nome do Pacote (Pack Name)
                 </label>
                 <input
                   type="text"
                   value={quickSettings.packName}
                   onChange={(e) => onUpdateSettings({ packName: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  placeholder="e.g. My Sticker Pack"
+                  className="w-full px-3 py-2 text-xs rounded-xl outline-none"
+                  style={inputStyle}
+                  placeholder="ex: Thiago Ibrahim"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
-                  Author / Publisher
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink-secondary)' }}>
+                  Autor / Publicador (Author Name)
                 </label>
                 <input
                   type="text"
                   value={quickSettings.authorName}
                   onChange={(e) => onUpdateSettings({ authorName: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  placeholder="e.g. Insta: @𝚝.𝚒𝚋𝚛𝚑𝚡_"
+                  className="w-full px-3 py-2 text-xs rounded-xl outline-none"
+                  style={inputStyle}
+                  placeholder="ex: @t.ibrhx_"
                 />
               </div>
             </div>
           </div>
 
           {/* SECTION 4: MONETIZAÇÃO & PLANO VIP */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="rounded-2xl p-5 space-y-4" style={cardStyle}>
+            <div
+              className="flex items-center justify-between pb-3"
+              style={{ borderBottom: '1px solid var(--border-hairline)' }}
+            >
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm">
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-sm"
+                  style={{ background: 'var(--accent-gold-dim)', color: 'var(--accent-gold)' }}
+                >
                   💎
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900">Monetização & Limite Grátis (Freemium)</h3>
-                  <p className="text-xs text-slate-600">Regras de cobrança, cota diária gratuita e recebimento via Pix</p>
+                  <h3 className="text-sm font-bold" style={{ color: 'var(--ink-primary)' }}>
+                    Monetização & Limite Grátis (Freemium)
+                  </h3>
+                  <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+                    Regras de cobrança, cota diária gratuita e recebimento via Pix
+                  </p>
                 </div>
               </div>
 
               <span
-                className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                  quickSettings.freemiumEnabled !== false
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    : 'bg-slate-100 text-slate-600 border border-slate-200'
-                }`}
+                className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                style={{
+                  background: quickSettings.freemiumEnabled !== false ? 'var(--accent-emerald-dim)' : 'rgba(255,255,255,0.06)',
+                  color: quickSettings.freemiumEnabled !== false ? 'var(--accent-emerald)' : 'var(--ink-disabled)',
+                  border: `1px solid ${quickSettings.freemiumEnabled !== false ? 'rgba(16,185,129,0.25)' : 'var(--border-hairline)'}`,
+                }}
               >
                 {quickSettings.freemiumEnabled !== false ? '● Ativo' : '○ Desativado'}
               </span>
@@ -259,36 +288,29 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             {/* Toggle Freemium */}
             <div className="flex items-center justify-between py-1">
               <div>
-                <span className="text-xs font-semibold text-slate-900 block">
+                <span className="text-xs font-semibold block" style={{ color: 'var(--ink-primary)' }}>
                   Ativar Cota Diária Gratuita
                 </span>
-                <span className="text-xs text-slate-500 block">
+                <span className="text-xs block mt-0.5" style={{ color: 'var(--ink-muted)' }}>
                   Quando ativo, usuários fora da Whitelist recebem limite de figurinhas grátis por dia. Ao esgotar, recebem oferta do VIP no WhatsApp.
                 </span>
               </div>
 
-              <button
-                onClick={() => {
-                  const newVal = quickSettings.freemiumEnabled === false ? true : false;
+              <Switch
+                checked={quickSettings.freemiumEnabled !== false}
+                onChange={() => {
+                  const newVal = quickSettings.freemiumEnabled === false;
                   onUpdateSettings({ freemiumEnabled: newVal });
                   onShowToast(newVal ? 'Modo Freemium ativado' : 'Modo Freemium desativado');
                 }}
-                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
-                  quickSettings.freemiumEnabled !== false ? 'bg-emerald-500' : 'bg-slate-300'
-                }`}
-              >
-                <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                    quickSettings.freemiumEnabled !== false ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </button>
+                label="Freemium Toggle"
+              />
             </div>
 
             {/* Config inputs */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink-secondary)' }}>
                   Figurinhas Grátis / Dia
                 </label>
                 <input
@@ -297,119 +319,112 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   max="100"
                   value={quickSettings.dailyFreeLimit ?? 5}
                   onChange={(e) => onUpdateSettings({ dailyFreeLimit: Number(e.target.value) || 5 })}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  className="w-full px-3 py-2 text-xs rounded-xl outline-none"
+                  style={inputStyle}
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink-secondary)' }}>
                   Valor da Assinatura VIP
                 </label>
                 <input
                   type="text"
                   value={quickSettings.vipPriceText ?? 'R$ 5,00/mês'}
                   onChange={(e) => onUpdateSettings({ vipPriceText: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                  className="w-full px-3 py-2 text-xs rounded-xl outline-none"
+                  style={inputStyle}
                   placeholder="ex: R$ 5,00/mês"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1.5">
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink-secondary)' }}>
                   Chave Pix para Recebimento
                 </label>
                 <input
                   type="text"
                   value={quickSettings.pixKey ?? '11919498217'}
                   onChange={(e) => onUpdateSettings({ pixKey: e.target.value })}
-                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
-                  placeholder="ex: seu celular ou CPF"
+                  className="w-full px-3 py-2 text-xs rounded-xl outline-none"
+                  style={inputStyle}
+                  placeholder="ex: celular ou CPF"
                 />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column (4 cols): System Information (Prompt Item 24) */}
+        {/* Right Column (4 cols): System Information */}
         <div className="lg:col-span-4 space-y-6">
-          {/* SYSTEM INFORMATION CARD (MANDATORY FROM PROMPT ITEM 24) */}
-          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <Server className="w-4 h-4 text-slate-600" />
+          <div className="rounded-2xl p-5 space-y-4" style={cardStyle}>
+            <div
+              className="flex items-center gap-2 pb-3"
+              style={{ borderBottom: '1px solid var(--border-hairline)' }}
+            >
+              <Server className="w-4 h-4" style={{ color: 'var(--accent-cyan)' }} />
               <div>
-                <h3 className="text-sm font-bold text-slate-900">System Information</h3>
-                <p className="text-[11px] text-slate-600">Underlying bot engine & runtime</p>
+                <h3 className="text-sm font-bold" style={{ color: 'var(--ink-primary)' }}>
+                  Informações do Sistema
+                </h3>
+                <p className="text-[11px]" style={{ color: 'var(--ink-muted)' }}>
+                  Motor de execução e ambiente
+                </p>
               </div>
             </div>
 
-            <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-600">WhatsApp Gateway</span>
-                <span className="font-semibold text-emerald-800 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  {systemInfo.whatsappStatus}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-600">Runtime</span>
-                <span className="font-mono font-medium text-slate-900">
-                  {systemInfo.runtime}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-600">Engine</span>
-                <span className="font-mono font-medium text-slate-900">
-                  {systemInfo.engine}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-600">Image Library</span>
-                <span className="font-mono font-medium text-slate-900">
-                  {systemInfo.imageLibrary}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-600">Video Library</span>
-                <span className="font-mono font-medium text-slate-900">
-                  {systemInfo.videoLibrary}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-600">Version</span>
-                <span className="font-mono font-semibold text-slate-900">
-                  {systemInfo.version}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-600">Memory Allocation</span>
-                <span className="font-mono text-slate-700">
-                  {systemInfo.memoryUsage}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between py-1">
-                <span className="text-slate-600">Heartbeat Ping</span>
-                <span className="font-mono text-slate-700">
-                  {systemInfo.lastPing}
-                </span>
-              </div>
+            <div className="space-y-3 text-xs">
+              {[
+                { label: 'Gateway WhatsApp', value: systemInfo.whatsappStatus, isStatus: true },
+                { label: 'Runtime',          value: systemInfo.runtime,        mono: true },
+                { label: 'Engine',           value: systemInfo.engine,         mono: true },
+                { label: 'Biblioteca Imagem', value: systemInfo.imageLibrary,   mono: true },
+                { label: 'Biblioteca Vídeo',  value: systemInfo.videoLibrary,   mono: true },
+                { label: 'Versão',           value: systemInfo.version,        mono: true },
+                { label: 'Memória Alocada',   value: systemInfo.memoryUsage,    mono: true },
+                { label: 'Último Ping',       value: systemInfo.lastPing,       mono: true },
+              ].map(({ label, value, mono, isStatus }) => (
+                <div
+                  key={label}
+                  className="flex items-center justify-between py-1"
+                  style={{ borderBottom: '1px solid var(--border-hairline)' }}
+                >
+                  <span style={{ color: 'var(--ink-muted)' }}>{label}</span>
+                  {isStatus ? (
+                    <span
+                      className="font-semibold flex items-center gap-1.5"
+                      style={{ color: value === 'Connected' ? 'var(--accent-emerald)' : 'var(--accent-rose)' }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'currentColor' }} />
+                      {value}
+                    </span>
+                  ) : (
+                    <span
+                      className={mono ? 'font-mono' : ''}
+                      style={{ color: 'var(--ink-secondary)' }}
+                    >
+                      {value}
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
           {/* Privacy & Safe Storage Note */}
-          <div className="bg-slate-50 rounded-2xl border border-slate-200/80 p-4 text-xs text-slate-600 space-y-2">
-            <div className="flex items-center gap-1.5 font-semibold text-slate-800">
-              <Shield className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Zero Retention Policy</span>
+          <div
+            className="rounded-2xl p-4 text-xs space-y-2"
+            style={{
+              background: 'rgba(255,255,255,0.02)',
+              border: '1px solid var(--border-hairline)',
+            }}
+          >
+            <div className="flex items-center gap-1.5 font-semibold" style={{ color: 'var(--accent-emerald)' }}>
+              <Shield className="w-3.5 h-3.5" />
+              <span>Política de Zero Retenção</span>
             </div>
-            <p className="text-[11px] leading-relaxed text-slate-600">
-              All incoming photos, videos, and converted stickers are processed strictly in RAM and ephemeral cache. Temporary files are wiped immediately after the sticker is dispatched back to WhatsApp.
+            <p className="text-[11px] leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+              Todas as fotos, vídeos e stickers convertidos são processados estritamente na memória RAM e em cache efêmero. Arquivos temporários são excluídos imediatamente após o envio de volta ao WhatsApp.
             </p>
           </div>
         </div>

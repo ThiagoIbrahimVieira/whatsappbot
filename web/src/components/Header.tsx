@@ -1,14 +1,5 @@
 import React from 'react';
-import { 
-  Power, 
-  Sparkles, 
-  Smartphone, 
-  QrCode, 
-  Radio, 
-  Menu,
-  ShieldCheck,
-  Zap
-} from 'lucide-react';
+import { Power, QrCode, Menu, Zap } from 'lucide-react';
 import { BotStatus, NavView } from '../types';
 
 interface HeaderProps {
@@ -29,138 +20,180 @@ export const Header: React.FC<HeaderProps> = ({
   currentView,
   botStatus,
   whatsappStatus,
-  phoneNumber,
   uptime,
   onToggleBotStatus,
   onOpenQrModal,
   onOpenMobileDrawer,
 }) => {
   const isBotActive = botStatus === 'active';
+  const isConnected = whatsappStatus === 'Connected';
 
   const viewTitles: Record<NavView, { title: string; subtitle: string }> = {
     dashboard: {
       title: 'WhatsApp Auto Sticker',
-      subtitle: 'Control your sticker automation and live conversion queue.',
+      subtitle: 'Automação de figurinhas e fila de conversão em tempo real.',
     },
     activity: {
-      title: 'Live Activity Stream',
-      subtitle: 'Real-time telemetry and sticker conversion logs.',
+      title: 'Stream de Atividade',
+      subtitle: 'Telemetria e logs de conversão em tempo real.',
     },
     access: {
-      title: 'Access Control',
-      subtitle: 'Choose who can use your sticker automation bot.',
+      title: 'Controle de Acesso',
+      subtitle: 'Defina quem pode usar o bot de figurinhas.',
     },
     settings: {
-      title: 'System & Engine Settings',
-      subtitle: 'Fine-tune Baileys, Sharp image pipeline, and trigger commands.',
+      title: 'Configurações do Sistema',
+      subtitle: 'Ajuste Baileys, pipeline Sharp e comandos de gatilho.',
     },
     ranking: {
-      title: 'Ranking & Conquistas',
-      subtitle: 'Top criadores e recordes de figurinhas enviadas.',
+      title: 'Ranking e Conquistas',
+      subtitle: 'Principais criadores e registros de figurinhas enviadas.',
     },
   };
 
   const { title, subtitle } = viewTitles[currentView];
 
   return (
-    <header 
+    <header
       id="app-main-header"
-      className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 py-3.5 transition-all"
+      className="sticky top-0 z-20 px-4 sm:px-6 py-3"
+      style={{
+        background: 'rgba(9, 9, 11, 0.85)',
+        borderBottom: '1px solid var(--border-hairline)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.03)',
+      }}
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        {/* Left Side: Brand on mobile or Title on desktop */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Mobile Hamburger toggle */}
-            <button
-              onClick={onOpenMobileDrawer}
-              className="md:hidden p-2 -ml-1 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100"
-              aria-label="Open menu"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
+      <div className="flex items-center justify-between gap-4">
+        {/* Left: hamburger + title */}
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Mobile hamburger */}
+          <button
+            onClick={onOpenMobileDrawer}
+            className="md:hidden p-2 -ml-1 rounded-lg transition-colors"
+            style={{ color: 'var(--ink-secondary)' }}
+            aria-label="Abrir menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
 
-            {/* Mobile Brand Mark */}
-            <div className="md:hidden flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center font-mono font-bold text-xs">
-                TT
-              </div>
-              <span className="font-bold text-sm text-slate-900">Auto Sticker</span>
-            </div>
-
-            {/* Desktop Title & Subtitle */}
-            <div className="hidden md:block">
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-lg font-bold text-slate-900 tracking-tight">
-                  {title}
-                </h1>
-
-                {/* WhatsApp Status Pill */}
-                <div 
-                  onClick={onOpenQrModal}
-                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/80 cursor-pointer hover:bg-emerald-100 transition-colors"
-                  title="Click to view WhatsApp session status"
-                >
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                  </span>
-                  <span>{whatsappStatus}</span>
-                  <span className="text-[11px] text-emerald-600/70">· {uptime}</span>
-                </div>
-              </div>
-              <p className="text-xs text-slate-600 mt-0.5">
-                {subtitle}
-              </p>
-            </div>
+          {/* Mobile brand */}
+          <div
+            className="md:hidden flex items-center justify-center w-7 h-7 rounded-lg font-mono font-bold text-xs"
+            style={{
+              background: 'rgba(16,185,129,0.12)',
+              border: '1px solid rgba(16,185,129,0.22)',
+              color: 'var(--accent-emerald)',
+            }}
+          >
+            TT
           </div>
 
-          {/* Mobile WhatsApp connected indicator badge */}
-          <div className="md:hidden flex items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Connected
-            </span>
+          {/* Desktop title area */}
+          <div className="hidden md:flex flex-col min-w-0">
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-base font-bold tracking-tight truncate" style={{ color: 'var(--ink-primary)' }}>
+                {title}
+              </h1>
+
+              {/* WhatsApp connection pill */}
+              <button
+                onClick={onOpenQrModal}
+                className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold transition-colors"
+                style={{
+                  background: isConnected ? 'rgba(16,185,129,0.10)' : 'rgba(244,63,94,0.10)',
+                  border: `1px solid ${isConnected ? 'rgba(16,185,129,0.22)' : 'rgba(244,63,94,0.22)'}`,
+                  color: isConnected ? 'var(--accent-emerald)' : 'var(--accent-rose)',
+                }}
+                title="Ver sessão do WhatsApp"
+              >
+                <span className="relative flex h-1.5 w-1.5">
+                  <span
+                    className="absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping"
+                    style={{ background: 'currentColor' }}
+                  />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: 'currentColor' }} />
+                </span>
+                <span>{isConnected ? 'Conectado' : 'Desconectado'}</span>
+                <span className="opacity-60">· {uptime}</span>
+              </button>
+            </div>
+
+            <p className="text-[11px] hidden sm:block mt-0.5 truncate" style={{ color: 'var(--ink-muted)' }}>
+              {subtitle}
+            </p>
           </div>
         </div>
 
-        {/* Right Side Controls: Master Switch */}
-        <div className="flex items-center justify-between md:justify-end gap-2.5 w-full md:w-auto">
-          {/* MASTER SWITCH: BOT ACTIVE [ON] / BOT PAUSED [OFF] */}
-          <div className="flex items-center gap-2">
-            <button
-              id="master-bot-switch"
-              onClick={onToggleBotStatus}
-              aria-label={isBotActive ? 'Pausar Bot' : 'Ativar Bot'}
-              className={`relative flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 shadow-xs active:scale-95 cursor-pointer ${
-                isBotActive
-                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white ring-2 ring-emerald-500/20'
-                  : 'bg-slate-200 hover:bg-slate-300 text-slate-700 ring-2 ring-slate-200/40'
-              }`}
+        {/* Right: Master Bot Switch */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Mobile connected pill */}
+          <span
+            className="md:hidden inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full"
+            style={{
+              background: isConnected ? 'rgba(16,185,129,0.10)' : 'rgba(244,63,94,0.10)',
+              border: `1px solid ${isConnected ? 'rgba(16,185,129,0.20)' : 'rgba(244,63,94,0.20)'}`,
+              color: isConnected ? 'var(--accent-emerald)' : 'var(--accent-rose)',
+            }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'currentColor' }} />
+            {isConnected ? 'ON' : 'OFF'}
+          </span>
+
+          {/* Master Switch button */}
+          <button
+            id="master-bot-switch"
+            onClick={onToggleBotStatus}
+            aria-label={isBotActive ? 'Pausar Bot' : 'Ativar Bot'}
+            className="relative flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer"
+            style={
+              isBotActive
+                ? {
+                    background: 'rgba(16,185,129,0.15)',
+                    border: '1px solid rgba(16,185,129,0.30)',
+                    color: 'var(--accent-emerald)',
+                    boxShadow: '0 0 20px rgba(16,185,129,0.12), inset 0 1px 0 rgba(255,255,255,0.08)',
+                  }
+                : {
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid var(--border-hairline)',
+                    color: 'var(--ink-secondary)',
+                  }
+            }
+          >
+            <Power
+              className="w-3.5 h-3.5"
+              style={{ filter: isBotActive ? 'drop-shadow(0 0 4px var(--accent-emerald))' : 'none' }}
+            />
+            <span className="uppercase tracking-wider font-extrabold hidden sm:inline">
+              {isBotActive ? 'BOT ATIVO' : 'BOT PAUSADO'}
+            </span>
+            <span
+              className="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase tracking-widest"
+              style={{
+                background: isBotActive ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)',
+                color: isBotActive ? 'var(--accent-emerald)' : 'var(--ink-disabled)',
+              }}
             >
-              <Power className={`w-4 h-4 transition-transform ${isBotActive ? 'rotate-0' : 'opacity-70'}`} />
-              <div className="flex items-center gap-1.5">
-                <span className="uppercase tracking-wider font-extrabold text-xs">
-                  {isBotActive ? 'BOT ATIVO' : 'BOT PAUSADO'}
-                </span>
-                <span 
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-widest ${
-                    isBotActive ? 'bg-white/20 text-white' : 'bg-slate-300/80 text-slate-700'
-                  }`}
-                >
-                  {isBotActive ? 'ON' : 'OFF'}
-                </span>
-              </div>
-            </button>
-          </div>
+              {isBotActive ? 'ON' : 'OFF'}
+            </span>
+          </button>
         </div>
       </div>
 
-      {/* Mobile Sub-Header: Title & Subtitle for Small screens */}
-      <div className="md:hidden mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
+      {/* Mobile sub-header */}
+      <div
+        className="md:hidden mt-2.5 pt-2.5 flex items-center justify-between"
+        style={{ borderTop: '1px solid var(--border-hairline)' }}
+      >
         <div>
-          <h2 className="text-sm font-bold text-slate-900">{title}</h2>
-          <p className="text-[11px] text-slate-500">{subtitle}</p>
+          <h2 className="text-sm font-bold" style={{ color: 'var(--ink-primary)' }}>
+            {title}
+          </h2>
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--ink-muted)' }}>
+            {subtitle}
+          </p>
         </div>
       </div>
     </header>

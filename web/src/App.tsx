@@ -210,7 +210,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex text-slate-900 font-sans">
+    <div className="min-h-screen flex font-sans" style={{ background: 'var(--bg-root)', color: 'var(--ink-primary)' }}>
       {/* 1. Desktop Sidebar */}
       <Sidebar
         currentView={currentView}
@@ -237,7 +237,7 @@ export default function App() {
         />
 
         {/* Dynamic View Body */}
-        <main className="flex-1 p-4 sm:p-8">
+        <main className="flex-1 p-4 sm:p-6 overflow-auto">
           {currentView === 'dashboard' && (
             <DashboardView
               metrics={metrics}

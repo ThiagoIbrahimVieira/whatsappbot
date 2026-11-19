@@ -22,21 +22,19 @@ export const AddPersonModal: React.FC<AddPersonModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError('Please enter a name');
+      setError('Por favor informe o nome do contato');
       return;
     }
     if (!phone.trim()) {
-      setError('Please enter a WhatsApp phone number');
+      setError('Por favor informe o número de WhatsApp');
       return;
     }
 
     const avatarColors = [
-      'bg-emerald-100 text-emerald-800',
-      'bg-blue-100 text-blue-800',
-      'bg-purple-100 text-purple-800',
-      'bg-amber-100 text-amber-800',
-      'bg-teal-100 text-teal-800',
-      'bg-rose-100 text-rose-800',
+      'bg-emerald-500/20 text-emerald-400',
+      'bg-cyan-500/20 text-cyan-400',
+      'bg-amber-500/20 text-amber-400',
+      'bg-purple-500/20 text-purple-400',
     ];
     const randomColor = avatarColors[Math.floor(Math.random() * avatarColors.length)];
 
@@ -54,29 +52,53 @@ export const AddPersonModal: React.FC<AddPersonModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
+      <div
+        className="fixed inset-0 transition-opacity"
+        style={{ background: 'rgba(0, 0, 0, 0.75)', backdropFilter: 'blur(8px)' }}
         onClick={onClose}
       />
 
       {/* Dialog Box */}
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150">
+      <div
+        className="relative w-full max-w-md rounded-2xl overflow-hidden z-10 shadow-2xl"
+        style={{
+          background: 'rgba(14, 17, 27, 0.95)',
+          border: '1px solid var(--border-hairline)',
+          backdropFilter: 'blur(24px) saturate(190%)',
+          boxShadow: 'var(--specular), 0 20px 40px rgba(0,0,0,0.6)',
+        }}
+      >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div
+          className="px-6 py-4 flex items-center justify-between"
+          style={{ borderBottom: '1px solid var(--border-hairline)' }}
+        >
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{
+                background: 'var(--accent-emerald-dim)',
+                color: 'var(--accent-emerald)',
+                border: '1px solid rgba(16,185,129,0.22)',
+              }}
+            >
               <UserPlus className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Add person</h3>
-              <p className="text-xs text-slate-600">Authorize WhatsApp contact to use the bot</p>
+              <h3 className="text-sm font-bold" style={{ color: 'var(--ink-primary)' }}>
+                Adicionar pessoa
+              </h3>
+              <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>
+                Autorize um contato de WhatsApp a usar o bot
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: 'var(--ink-muted)' }}
           >
             <X className="w-4 h-4" />
           </button>
@@ -85,17 +107,24 @@ export const AddPersonModal: React.FC<AddPersonModalProps> = ({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
-            <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700 text-xs font-medium border border-rose-200">
+            <div
+              className="p-2.5 rounded-xl text-xs font-medium"
+              style={{
+                background: 'rgba(244,63,94,0.12)',
+                border: '1px solid rgba(244,63,94,0.25)',
+                color: 'var(--accent-rose)',
+              }}
+            >
               {error}
             </div>
           )}
 
           <div>
-            <label className="text-xs font-semibold text-slate-700 block mb-1.5">
-              Contact Name
+            <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink-secondary)' }}>
+              Nome do Contato
             </label>
             <div className="relative">
-              <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--ink-disabled)' }} />
               <input
                 type="text"
                 value={name}
@@ -103,19 +132,24 @@ export const AddPersonModal: React.FC<AddPersonModalProps> = ({
                   setName(e.target.value);
                   if (error) setError('');
                 }}
-                placeholder="e.g. Lucas Oliveira"
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                placeholder="ex: Lucas Oliveira"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl outline-none"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid var(--border-hairline)',
+                  color: 'var(--ink-primary)',
+                }}
                 autoFocus
               />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-700 block mb-1.5">
-              WhatsApp Phone Number
+            <label className="text-xs font-semibold block mb-1.5" style={{ color: 'var(--ink-secondary)' }}>
+              Número de WhatsApp
             </label>
             <div className="relative">
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--ink-disabled)' }} />
               <input
                 type="text"
                 value={phone}
@@ -124,11 +158,16 @@ export const AddPersonModal: React.FC<AddPersonModalProps> = ({
                   if (error) setError('');
                 }}
                 placeholder="+55 11 9****-****"
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 font-mono focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl font-mono outline-none"
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid var(--border-hairline)',
+                  color: 'var(--ink-primary)',
+                }}
               />
             </div>
-            <p className="text-[11px] text-slate-600 mt-1">
-              Include country code (e.g., +55 for Brazil).
+            <p className="text-[11px] mt-1" style={{ color: 'var(--ink-disabled)' }}>
+              Inclua o DDI e DDD (ex: +55 para Brasil).
             </p>
           </div>
 
@@ -137,15 +176,26 @@ export const AddPersonModal: React.FC<AddPersonModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-semibold transition-colors"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border-hairline)',
+                color: 'var(--ink-secondary)',
+              }}
             >
-              Cancel
+              Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              style={{
+                background: 'rgba(16,185,129,0.18)',
+                border: '1px solid rgba(16,185,129,0.30)',
+                color: 'var(--accent-emerald)',
+                boxShadow: '0 0 16px rgba(16,185,129,0.15)',
+              }}
             >
-              Add person
+              Adicionar pessoa
             </button>
           </div>
         </form>

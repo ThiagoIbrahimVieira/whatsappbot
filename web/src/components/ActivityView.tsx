@@ -1,19 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  Search, 
-  Filter, 
-  FileImage, 
-  Video, 
-  Film, 
-  Sparkles, 
-  CheckCircle2, 
-  AlertCircle, 
-  Clock, 
+import {
+  Search,
+  Filter,
+  FileImage,
+  Video,
+  Film,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
   ShieldAlert,
-  ArrowUpDown,
-  Download,
   Trash2,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react';
 import { ActivityItem, ActivityStatus, MediaType } from '../types';
 
@@ -32,20 +30,18 @@ export const ActivityView: React.FC<ActivityViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
 
   const filterTabs = [
-    { id: 'All', label: 'All Events' },
-    { id: 'Processed', label: 'Processed' },
-    { id: 'Ignored', label: 'Ignored / Blocked' },
-    { id: 'Failed', label: 'Failed' },
+    { id: 'All', label: 'Todos os Eventos' },
+    { id: 'Processed', label: 'Processados' },
+    { id: 'Ignored', label: 'Ignorados / Bloqueados' },
+    { id: 'Failed', label: 'Falhos' },
   ] as const;
 
   const filteredActivities = useMemo(() => {
     return activities.filter((act) => {
-      // Status filter
       if (selectedFilter === 'Processed' && act.status !== 'Processed') return false;
       if (selectedFilter === 'Ignored' && act.status !== 'Unauthorized') return false;
       if (selectedFilter === 'Failed' && act.status !== 'Failed') return false;
 
-      // Query filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = act.senderName.toLowerCase().includes(q);
@@ -63,28 +59,52 @@ export const ActivityView: React.FC<ActivityViewProps> = ({
     switch (type) {
       case 'IMAGE':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium bg-blue-50 text-blue-700 border border-blue-200/60">
+          <span
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium"
+            style={{
+              background: 'var(--accent-blue-dim)',
+              color: 'var(--accent-blue)',
+              border: '1px solid rgba(96,165,250,0.22)',
+            }}
+          >
             <FileImage className="w-3 h-3" />
             IMAGE
           </span>
         );
       case 'VIDEO':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium bg-purple-50 text-purple-700 border border-purple-200/60">
+          <span
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium"
+            style={{
+              background: 'rgba(167,139,250,0.14)',
+              color: '#A78BFA',
+              border: '1px solid rgba(167,139,250,0.22)',
+            }}
+          >
             <Video className="w-3 h-3" />
             VIDEO
           </span>
         );
       case 'GIF':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium bg-amber-50 text-amber-700 border border-amber-200/60">
+          <span
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium"
+            style={{
+              background: 'var(--accent-gold-dim)',
+              color: 'var(--accent-gold)',
+              border: '1px solid rgba(245,158,11,0.22)',
+            }}
+          >
             <Film className="w-3 h-3" />
             GIF
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium bg-slate-100 text-slate-700">
+          <span
+            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-mono font-medium"
+            style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--ink-secondary)' }}
+          >
             {type}
           </span>
         );
@@ -95,59 +115,102 @@ export const ActivityView: React.FC<ActivityViewProps> = ({
     switch (status) {
       case 'Processed':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-            Processed
+          <span
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+            style={{
+              background: 'var(--accent-emerald-dim)',
+              color: 'var(--accent-emerald)',
+              border: '1px solid rgba(16,185,129,0.25)',
+            }}
+          >
+            <CheckCircle2 className="w-3 h-3" />
+            Processado
           </span>
         );
       case 'Unauthorized':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-            <ShieldAlert className="w-3 h-3 text-amber-500" />
-            Unauthorized
+          <span
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+            style={{
+              background: 'var(--accent-gold-dim)',
+              color: 'var(--accent-gold)',
+              border: '1px solid rgba(245,158,11,0.25)',
+            }}
+          >
+            <ShieldAlert className="w-3 h-3" />
+            Não autorizado
           </span>
         );
       case 'Failed':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-            <AlertCircle className="w-3 h-3 text-rose-500" />
-            Failed
+          <span
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+            style={{
+              background: 'var(--accent-rose-dim)',
+              color: 'var(--accent-rose)',
+              border: '1px solid rgba(244,63,94,0.25)',
+            }}
+          >
+            <AlertCircle className="w-3 h-3" />
+            Falhou
           </span>
         );
       case 'Queued':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-            <Clock className="w-3 h-3 text-slate-400" />
-            Queued
+          <span
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              color: 'var(--ink-secondary)',
+              border: '1px solid var(--border-hairline)',
+            }}
+          >
+            <Clock className="w-3 h-3" />
+            Na fila
           </span>
         );
     }
   };
 
+  const cardStyle: React.CSSProperties = {
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border-hairline)',
+    boxShadow: 'var(--specular)',
+  };
+
   return (
-    <div id="activity-view" className="space-y-6 max-w-7xl mx-auto pb-16">
+    <div id="activity-view" className="space-y-5 max-w-7xl mx-auto pb-20 animate-fade-in">
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Activity Log</h2>
-          <p className="text-xs text-slate-600 mt-0.5">
-            Real-time telemetry of incoming WhatsApp media and conversion events.
+          <h2 className="text-xl font-bold tracking-tight" style={{ color: 'var(--ink-primary)' }}>
+            Stream de Atividade
+          </h2>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--ink-muted)' }}>
+            Telemetria em tempo real de mídias recebidas e eventos de conversão no WhatsApp.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onOpenSimulateModal}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white shadow-xs transition-colors"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            Simulate Message
-          </button>
-        </div>
+        {onClearActivities && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onClearActivities}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors"
+              style={{
+                background: 'rgba(244,63,94,0.10)',
+                color: 'var(--accent-rose)',
+                border: '1px solid rgba(244,63,94,0.20)',
+              }}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Limpar logs
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Filter Tabs & Search Controls */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+      <div className="rounded-2xl p-4 space-y-3" style={cardStyle}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
@@ -157,11 +220,20 @@ export const ActivityView: React.FC<ActivityViewProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => setSelectedFilter(tab.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                  className="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all"
+                  style={
                     isActive
-                      ? 'bg-slate-900 text-white shadow-xs'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                  }`}
+                      ? {
+                          background: 'rgba(16,185,129,0.14)',
+                          border: '1px solid rgba(16,185,129,0.22)',
+                          color: 'var(--accent-emerald)',
+                        }
+                      : {
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid transparent',
+                          color: 'var(--ink-muted)',
+                        }
+                  }
                 >
                   {tab.label}
                 </button>
@@ -171,117 +243,160 @@ export const ActivityView: React.FC<ActivityViewProps> = ({
 
           {/* Search Input */}
           <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search
+              className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2"
+              style={{ color: 'var(--ink-disabled)' }}
+            />
             <input
               type="text"
-              placeholder="Search sender, phone, command..."
+              placeholder="Buscar por remetente, telefone, comando..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl outline-none transition-all"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border-hairline)',
+                color: 'var(--ink-primary)',
+              }}
             />
           </div>
         </div>
       </div>
 
-      {/* Main Events List (Clean Modern SaaS Table on Desktop, Cards on Mobile) */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      {/* Main Events List */}
+      <div className="rounded-2xl overflow-hidden" style={cardStyle}>
         {filteredActivities.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3"
+              style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--ink-disabled)' }}
+            >
               <Filter className="w-5 h-5" />
             </div>
-            <h3 className="text-sm font-semibold text-slate-800">No activity events found</h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              There are no messages matching the current filter criteria or search query.
+            <h3 className="text-sm font-semibold" style={{ color: 'var(--ink-secondary)' }}>
+              Nenhum evento de atividade encontrado
+            </h3>
+            <p className="text-xs mt-1 max-w-sm mx-auto" style={{ color: 'var(--ink-muted)' }}>
+              Não há mensagens que correspondam aos filtros atuais ou termos de busca.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div>
             {/* Desktop Table Header */}
-            <div className="hidden md:grid grid-cols-12 px-5 py-3 text-[11px] font-semibold text-slate-600 uppercase tracking-wider bg-slate-50/70">
-              <div className="col-span-2">Time</div>
-              <div className="col-span-4">Sender & Contact</div>
-              <div className="col-span-2">Media Format</div>
+            <div
+              className="hidden md:grid grid-cols-12 px-5 py-3 text-[10px] font-semibold uppercase tracking-wider"
+              style={{
+                background: 'rgba(255,255,255,0.02)',
+                color: 'var(--ink-disabled)',
+                borderBottom: '1px solid var(--border-hairline)',
+              }}
+            >
+              <div className="col-span-2">Horário</div>
+              <div className="col-span-4">Remetente & Contato</div>
+              <div className="col-span-2">Formato</div>
               <div className="col-span-2">Status</div>
-              <div className="col-span-2 text-right">Telemetry</div>
+              <div className="col-span-2 text-right">Telemetria</div>
             </div>
 
             {/* List Rows */}
-            {filteredActivities.map((act) => (
-              <div
-                key={act.id}
-                className="p-4 md:px-5 md:py-3.5 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-0 items-start md:items-center hover:bg-slate-50/70 transition-colors"
-              >
-                {/* Time */}
-                <div className="md:col-span-2 flex items-center justify-between md:block">
-                  <span className="font-mono text-xs font-semibold text-slate-700">
-                    {act.timestamp}
-                  </span>
-                  <span className="md:hidden">
-                    {getStatusBadge(act.status)}
-                  </span>
-                </div>
-
-                {/* Sender */}
-                <div className="md:col-span-4 flex items-center gap-2.5">
-                  <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0">
-                    {act.senderName.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-xs text-slate-900">
-                      {act.senderName}
-                    </div>
-                    <div className="text-[11px] font-mono text-slate-600">
-                      {act.senderPhone}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Media Type & Command */}
-                <div className="md:col-span-2 flex items-center gap-1.5 my-1 md:my-0">
-                  {getMediaBadge(act.mediaType)}
-                  {act.commandUsed && (
-                    <span className="font-mono text-[10px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">
-                      {act.commandUsed}
-                    </span>
-                  )}
-                </div>
-
-                {/* Status (Desktop) */}
-                <div className="hidden md:block md:col-span-2">
-                  {getStatusBadge(act.status)}
-                </div>
-
-                {/* Telemetry / Notes */}
-                <div className="md:col-span-2 flex flex-col md:items-end text-[11px] text-slate-500">
-                  {act.status === 'Processed' && (
-                    <>
-                      <span className="font-mono text-slate-700 font-medium">
-                        {act.processingTimeMs}ms · {act.sizeKb}kb WebP
+            <div className="divide-y" style={{ borderColor: 'var(--border-hairline)' }}>
+              {filteredActivities.map((act, idx) => {
+                const isEven = idx % 2 === 0;
+                return (
+                  <div
+                    key={act.id}
+                    className="p-4 md:px-5 md:py-3.5 grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-0 items-start md:items-center transition-colors"
+                    style={{
+                      background: isEven ? 'rgba(255,255,255,0.012)' : 'transparent',
+                      borderBottom: '1px solid var(--border-hairline)',
+                    }}
+                  >
+                    {/* Time */}
+                    <div className="md:col-span-2 flex items-center justify-between md:block">
+                      <span className="font-mono text-xs font-semibold tabular-nums" style={{ color: 'var(--ink-secondary)' }}>
+                        {act.timestamp}
                       </span>
-                      <span className="text-[10px] text-emerald-600">
-                        Converted to sticker
+                      <span className="md:hidden">
+                        {getStatusBadge(act.status)}
                       </span>
-                    </>
-                  )}
-                  {act.status === 'Unauthorized' && (
-                    <span className="text-[11px] text-amber-600 font-medium">
-                      {act.failureReason || 'Not in Whitelist'}
-                    </span>
-                  )}
-                  {act.status === 'Failed' && (
-                    <span className="text-[11px] text-rose-600 font-medium">
-                      {act.failureReason || 'Decoding error'}
-                    </span>
-                  )}
-                  {act.status === 'Queued' && (
-                    <span className="text-[11px] text-slate-500">
-                      Awaiting Sharp pipeline
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+                    </div>
+
+                    {/* Sender */}
+                    <div className="md:col-span-4 flex items-center gap-2.5">
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0"
+                        style={{
+                          background: 'rgba(255,255,255,0.06)',
+                          border: '1px solid var(--border-hairline)',
+                          color: 'var(--ink-secondary)',
+                        }}
+                      >
+                        {act.senderName.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-semibold text-xs truncate" style={{ color: 'var(--ink-primary)' }}>
+                          {act.senderName}
+                        </div>
+                        <div className="text-[11px] font-mono truncate" style={{ color: 'var(--ink-muted)' }}>
+                          {act.senderPhone}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Media Type & Command */}
+                    <div className="md:col-span-2 flex items-center gap-1.5 my-1 md:my-0">
+                      {getMediaBadge(act.mediaType)}
+                      {act.commandUsed && (
+                        <span
+                          className="font-mono text-[10px] px-1.5 py-0.5 rounded"
+                          style={{
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid var(--border-hairline)',
+                            color: 'var(--ink-secondary)',
+                          }}
+                        >
+                          {act.commandUsed}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Status (Desktop) */}
+                    <div className="hidden md:block md:col-span-2">
+                      {getStatusBadge(act.status)}
+                    </div>
+
+                    {/* Telemetry / Notes */}
+                    <div className="md:col-span-2 flex flex-col md:items-end text-[11px]" style={{ color: 'var(--ink-muted)' }}>
+                      {act.status === 'Processed' && (
+                        <>
+                          <span className="font-mono font-medium tabular-nums" style={{ color: 'var(--accent-cyan)' }}>
+                            {act.processingTimeMs}ms · {act.sizeKb}kb
+                          </span>
+                          <span className="text-[10px]" style={{ color: 'var(--accent-emerald)' }}>
+                            Sticker WebP 512px
+                          </span>
+                        </>
+                      )}
+                      {act.status === 'Unauthorized' && (
+                        <span className="text-[11px] font-medium" style={{ color: 'var(--accent-gold)' }}>
+                          {act.failureReason || 'Fora da Whitelist'}
+                        </span>
+                      )}
+                      {act.status === 'Failed' && (
+                        <span className="text-[11px] font-medium" style={{ color: 'var(--accent-rose)' }}>
+                          {act.failureReason || 'Erro de decodificação'}
+                        </span>
+                      )}
+                      {act.status === 'Queued' && (
+                        <span className="text-[11px]" style={{ color: 'var(--ink-disabled)' }}>
+                          Aguardando pipeline
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

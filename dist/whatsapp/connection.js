@@ -1,4 +1,4 @@
-import makeWASocket, { DisconnectReason, Browsers, proto, } from '@whiskeysockets/baileys';
+import makeWASocket, { DisconnectReason, Browsers, } from '@whiskeysockets/baileys';
 import qrcode from 'qrcode-terminal';
 import { initAuth, clearAuth } from './auth.js';
 import { messageRouter } from './message-router.js';
@@ -66,16 +66,7 @@ export class WhatsAppConnection {
             markOnlineOnConnect: false,
             generateHighQualityLinkPreview: false,
             syncFullHistory: false, // Não processa mensagens antigas do histórico
-            shouldSyncHistoryMessage: (msg) => {
-                // Ignora sincronização de histórico de mensagens passadas (Full e Recent),
-                // eliminando o timer de espera de 20s-30s na inicialização do Baileys
-                const syncType = msg.syncType;
-                if (syncType === proto.HistorySync.HistorySyncType.RECENT ||
-                    syncType === proto.HistorySync.HistorySyncType.FULL) {
-                    return false;
-                }
-                return true;
-            },
+            shouldSyncHistoryMessage: () => false, // Desativa completamente a sincronização de histórico, eliminando espera e buffer timeout
             shouldIgnoreJid: (jid) => {
                 if (!jid)
                     return false;
